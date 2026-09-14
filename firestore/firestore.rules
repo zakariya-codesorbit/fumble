@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isValidConnectionPayload(peerId) {
+      return request.resource.data.peerUid == peerId
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.keys().hasAll([
+          'peerUid', 'name', 'email', 'fumbledAt'
+        ]);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Own private profile. Cross-user discovery uses flumbleCodes.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll([
+          'name', 'email', 'flumbleCode', 'createdAt', 'lastActiveAt'
+        ])
+        && request.resource.data.email is string
+        && request.resource.data.name is string
+        && request.resource.data.flumbleCode is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 80;
+
+      allow update: if isOwner(userId)
+        && request.resource.data.email == resource.data.email;
+
+      allow delete: if isOwner(userId);
+
+      match /connections/{peerId} {
+        allow read: if isOwner(userId);
+
+        // Owner adds peer card to their own list.
+        allow create, update: if isOwner(userId)
+          && isValidConnectionPayload(peerId);
+
+        // Peer writes their own card into the owner's list.
+        allow create, update: if isSignedIn()
+          && request.auth.uid == peerId
+          && isValidConnectionPayload(peerId);
+
+        allow delete: if isOwner(userId) || request.auth.uid == peerId;
+      }
+    }
+
+    // Public FLUMBLE identity cards used for QR resolve.
+    // Authenticated users can read cards; only the card owner can write.
+    match /flumbleCodes/{code} {
+      allow read: if isSignedIn();
+
+      allow create, update: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.keys().hasAll([
+          'uid', 'name', 'email', 'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && resource.data.uid == request.auth.uid;
+    }
+  }
+}
