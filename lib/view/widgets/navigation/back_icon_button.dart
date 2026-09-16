@@ -4,6 +4,8 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 
+import '../extention/int_extension.dart';
+
 class BackIconButton extends StatelessWidget {
   const BackIconButton({
     super.key,
@@ -18,13 +20,20 @@ class BackIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        icon ?? AppIcons.back,
-        size: 18,
-        color: color ?? AppColors.white,
+    return InkWell(
+      onTap: onTap ?? pop,
+      child: SizedBox(
+        height: 30.h,
+        width: 30.w,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Icon(
+            icon ?? AppIcons.back,
+            size: 20,
+            color: color ?? AppColors.white,
+          ),
+        ),
       ),
-      onPressed: onTap ?? pop,
     );
   }
 }

@@ -1,5 +1,7 @@
 export '../notifiers/auth_notifier/auth_notifier.dart'
     show authNotifierProvider, AuthNotifier, AuthUiState;
+export '../notifiers/onboarding_notifier/onboarding_notifier.dart'
+    show onboardingNotifierProvider, OnboardingNotifier, OnboardingState;
 export '../notifiers/fumble_notifier/fumble_notifier.dart'
     show fumbleNotifierProvider, FumbleNotifier, FumbleState;
 export '../notifiers/legal_webview_notifier/legal_webview_notifier.dart'

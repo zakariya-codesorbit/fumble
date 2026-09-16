@@ -4,6 +4,7 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
+import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
 
 class TopView extends StatelessWidget {
@@ -34,9 +35,9 @@ class TopView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showBack)
-          BackIconButton(onTap: onBack)
+          BackIconButton(onTap: onBack).paddingOnly(bottom: 25.h)
         else
-          topSpacing.height,
+          topSpacing.height, 
         title.toText(
           fontSize: 28,
           fontWeight: AppStyle.w700,

@@ -4,6 +4,9 @@ import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/screens/auth_screen/forgot_password_screen.dart';
 import 'package:fumble/view/screens/auth_screen/login_screen.dart';
 import 'package:fumble/view/screens/auth_screen/signup_screen.dart';
+import 'package:fumble/view/screens/onboarding_screen/phone_number_screen.dart';
+import 'package:fumble/view/screens/onboarding_screen/profile_data_screen.dart';
+import 'package:fumble/view/screens/onboarding_screen/upload_photo_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connections_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/flumble_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/fumble_preview_screen.dart';
@@ -22,6 +25,9 @@ abstract final class AppRoutes {
   static const String login = '/login';
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
+  static const String onboardingPhoto = '/onboarding-photo';
+  static const String onboardingPhone = '/onboarding-phone';
+  static const String onboardingData = '/onboarding-data';
   static const String main = '/main';
   static const String flumble = '/flumble';
   static const String myFlumble = '/my-flumble';
@@ -41,6 +47,9 @@ abstract final class AppRoutes {
         login: (_) => const LoginScreen(),
         signup: (_) => const SignupScreen(),
         forgotPassword: (_) => const ForgotPasswordScreen(),
+        onboardingPhoto: (_) => const UploadPhotoScreen(),
+        onboardingPhone: (_) => const PhoneNumberScreen(),
+        onboardingData: (_) => const ProfileDataScreen(),
         main: (_) => const MainScreen(),
         flumble: (_) => const FlumbleScreen(),
         myFlumble: (_) => const MyFlumbleScreen(),

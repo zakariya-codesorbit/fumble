@@ -69,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onPressed: () => push(AppRoutes.forgotPassword),
                     ),
                   ),
-                  12.height,
+                  15.height,
                   PrimaryButton(
                     buttonName: AppConstant.loginCta,
                     onPressed: () => auth.login(

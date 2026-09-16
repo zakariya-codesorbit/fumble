@@ -172,6 +172,47 @@ class BaseEmailField extends StatelessWidget {
   }
 }
 
+class BasePhoneField extends StatelessWidget {
+  const BasePhoneField({
+    super.key,
+    required this.controller,
+    this.textInputAction = TextInputAction.next,
+    this.onSubmitted,
+    this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final TextInputAction textInputAction;
+  final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String>? onChanged;
+
+  static bool isValid(String? value) {
+    if (value == null || value.trim().isEmpty) return false;
+    return value.replaceAll(RegExp(r'\D'), '').length >= 7;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomTextField(
+      controller: controller,
+      label: AppConstant.phoneLabel,
+      hintText: AppConstant.phoneHint,
+      keyboardType: TextInputType.phone,
+      textInputAction: textInputAction,
+      autofillHints: const [AutofillHints.telephoneNumber],
+      onSubmitted: onSubmitted,
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isBlank) {
+          return AppConstant.phoneRequired;
+        }
+        if (!isValid(value)) return AppConstant.phoneInvalid;
+        return null;
+      },
+    );
+  }
+}
+
 class BasePasswordField extends StatelessWidget {
   const BasePasswordField({
     super.key,

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 
+import '../extention/int_extension.dart';
+
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({
     super.key,
@@ -74,18 +76,22 @@ class ProfileAvatar extends StatelessWidget {
         alignment: Alignment.bottomRight,
         children: [
           avatar,
-          Container(
-            width: size * 0.28,
-            height: size * 0.28,
-            decoration: BoxDecoration(
-              color: AppColors.gold,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.background, width: 2),
-            ),
-            child: Icon(
-              Icons.photo_library_outlined,
-              size: size * 0.14,
-              color: AppColors.background,
+          Positioned(
+            right: 8.w,
+            bottom: 2.h,
+            child: Container(
+              width: size * 0.28,
+              height: size * 0.28,
+              decoration: BoxDecoration(
+                color: AppColors.gold,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.background, width: 2),
+              ),
+              child: Icon(
+                Icons.camera_alt,
+                size: size * 0.14,
+                color: AppColors.background,
+              ),
             ),
           ),
         ],

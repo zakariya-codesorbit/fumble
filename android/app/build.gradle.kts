@@ -1,6 +1,3 @@
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -32,36 +29,10 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        create("release") {
-            val keystorePropertiesFile = rootProject.file("key.properties")
-            if (keystorePropertiesFile.exists()) {
-                val keystoreProperties = Properties()
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-
-                val storeFileProperty = keystoreProperties["storeFile"] as String?
-                if (storeFileProperty != null && file(storeFileProperty).exists()) {
-                    keyAlias = keystoreProperties["keyAlias"] as String
-                    keyPassword = keystoreProperties["keyPassword"] as String
-                    storeFile = file(storeFileProperty)
-                    storePassword = keystoreProperties["storePassword"] as String
-                }
-            }
-        }
-    }
-
     buildTypes {
         release {
-            val releaseSigningConfig = signingConfigs.findByName("release")
-            check(
-                releaseSigningConfig != null &&
-                    releaseSigningConfig.storeFile != null &&
-                    releaseSigningConfig.storeFile!!.exists(),
-            ) {
-                "Release keystore is missing. Configure android/key.properties and keystore file before building release."
-            }
-            signingConfig = releaseSigningConfig
-
+            // Debug signing for local builds. Add a release keystore later.
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

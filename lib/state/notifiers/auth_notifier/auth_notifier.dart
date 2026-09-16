@@ -9,6 +9,7 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/services/auth/auth_service.dart';
 import 'package:fumble/services/notifications/notification_service.dart';
 import 'package:fumble/state/notifiers/main_notifier/bottom_navigation_notifier.dart';
+import 'package:fumble/state/notifiers/onboarding_notifier/onboarding_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
@@ -40,7 +41,8 @@ class AuthNotifier extends Notifier<AuthUiState> {
     return _run(
       formKey: formKey,
       action: () => _auth.login(email: email, password: password),
-      onSuccess: () => pushAndClearAll(AppRoutes.main),
+      onSuccess: () =>
+          ref.read(onboardingNotifierProvider.notifier).navigateAfterAuth(),
     );
   }
 
@@ -53,7 +55,8 @@ class AuthNotifier extends Notifier<AuthUiState> {
     return _run(
       formKey: formKey,
       action: () => _auth.signUp(name: name, email: email, password: password),
-      onSuccess: () => pushAndClearAll(AppRoutes.main),
+      onSuccess: () =>
+          ref.read(onboardingNotifierProvider.notifier).navigateAfterAuth(),
     );
   }
 
@@ -88,6 +91,7 @@ class AuthNotifier extends Notifier<AuthUiState> {
         } catch (_) {/* ignore */}
       }
       ref.read(bottomNavProvider.notifier).reset();
+      ref.read(onboardingNotifierProvider.notifier).reset();
       hideLoadingDialog();
       pushAndClearAll(AppRoutes.login);
     } finally {
@@ -100,6 +104,7 @@ class AuthNotifier extends Notifier<AuthUiState> {
       action: () async {
         await _auth.deleteAccount(password: password);
         ref.read(bottomNavProvider.notifier).reset();
+        ref.read(onboardingNotifierProvider.notifier).reset();
       },
       onSuccess: () => pushAndClearAll(AppRoutes.login),
     );
@@ -110,6 +115,7 @@ class AuthNotifier extends Notifier<AuthUiState> {
     final wasLoggedIn = previous?.valueOrNull != null;
     if (wasLoggedIn && next.hasValue && next.valueOrNull == null) {
       ref.read(bottomNavProvider.notifier).reset();
+      ref.read(onboardingNotifierProvider.notifier).reset();
       pushAndClearAll(AppRoutes.login);
     }
   }

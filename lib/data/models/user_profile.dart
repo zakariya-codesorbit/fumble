@@ -34,6 +34,23 @@ class UserProfile {
     return parts.isEmpty ? name : parts.first;
   }
 
+  bool get hasPhoto => _filled(photoUrl);
+
+  bool get hasPhone => _filled(phone);
+
+  bool get hasBio => _filled(bio);
+
+  bool get hasAboutMe => _filled(aboutMe);
+
+  bool get hasLocation => _filled(location);
+
+  bool get hasProfileDetails => hasBio && hasAboutMe && hasLocation;
+
+  bool get isOnboardingComplete => hasPhoto && hasPhone && hasProfileDetails;
+
+  static bool _filled(String? value) =>
+      value != null && value.trim().isNotEmpty;
+
   factory UserProfile.fromMap(String uid, Map<String, dynamic> data) {
     return UserProfile(
       uid: uid,

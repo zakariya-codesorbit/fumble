@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
+import 'package:fumble/core/navigation/onboarding_gate.dart';
 import 'package:fumble/core/config/app_config.dart';
+import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/services/fumble/flumble_qr.dart';
 
 void main() {
@@ -13,7 +15,9 @@ void main() {
     expect(AppRoutes.routes.containsKey(AppRoutes.qrScanner), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.fumblePreview), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.settings), isTrue);
-    expect(AppRoutes.routes.containsKey('/onboardingScreen'), isFalse);
+    expect(AppRoutes.routes.containsKey(AppRoutes.onboardingPhoto), isTrue);
+    expect(AppRoutes.routes.containsKey(AppRoutes.onboardingPhone), isTrue);
+    expect(AppRoutes.routes.containsKey(AppRoutes.onboardingData), isTrue);
   });
 
   test('Exactly three bottom tabs', () {
@@ -33,4 +37,68 @@ void main() {
     expect(FlumbleQr.parse('not-a-code'), isNull);
     expect(FlumbleQr.build('abc123def456'), 'flumble:ABC123DEF456');
   });
+
+  test('OnboardingGate skips filled steps and opens the first empty one', () {
+    expect(OnboardingGate.routeFor(null), AppRoutes.onboardingPhoto);
+    expect(OnboardingGate.routeFor(_profile()), AppRoutes.onboardingPhoto);
+
+    expect(
+      OnboardingGate.routeFor(_profile(photoUrl: 'base64')),
+      AppRoutes.onboardingPhone,
+    );
+    expect(
+      OnboardingGate.routeFor(_profile(photoUrl: 'base64', phone: '5551234567')),
+      AppRoutes.onboardingData,
+    );
+    expect(
+      OnboardingGate.routeFor(
+        _profile(
+          photoUrl: 'base64',
+          phone: '5551234567',
+          bio: 'Director',
+          aboutMe: 'I make films',
+          location: 'Los Angeles',
+        ),
+      ),
+      AppRoutes.main,
+    );
+
+    expect(
+      OnboardingGate.routeFor(
+        _profile(phone: '5551234567', bio: 'Director'),
+      ),
+      AppRoutes.onboardingPhoto,
+    );
+    expect(
+      OnboardingGate.routeFor(
+        _profile(
+          photoUrl: 'base64',
+          bio: 'Director',
+          aboutMe: 'I make films',
+          location: 'Los Angeles',
+        ),
+      ),
+      AppRoutes.onboardingPhone,
+    );
+  });
+}
+
+UserProfile _profile({
+  String? photoUrl,
+  String? phone,
+  String? bio,
+  String? aboutMe,
+  String? location,
+}) {
+  return UserProfile(
+    uid: 'u1',
+    name: 'Ada',
+    email: 'ada@example.com',
+    flumbleCode: 'ABC123DEF456',
+    photoUrl: photoUrl,
+    phone: phone,
+    bio: bio,
+    aboutMe: aboutMe,
+    location: location,
+  );
 }

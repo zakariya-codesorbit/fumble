@@ -127,6 +127,28 @@ abstract final class AppConstant {
   static const String passwordRequired = 'Please enter your password';
   static const String passwordTooShort =
       'Password must be at least 6 characters';
+  static const String phoneRequired = 'Please enter your phone number';
+  static const String phoneInvalid = 'Enter a valid phone number';
+  static const String bioRequired = 'Please enter your bio';
+  static const String aboutMeRequired = 'Please tell people about yourself';
+  static const String locationRequired = 'Please enter your location';
+  static const String photoRequired = 'Please add a photo to continue';
+
+  static const String onboardingPhotoTitle = 'Add a photo';
+  static const String onboardingPhotoSubtitle =
+      'Your photo appears on your Flumble card when someone fumbles with you.';
+  static const String onboardingPhotoHint = 'Tap to choose from your library';
+  static const String onboardingPhoneTitle = 'Add your phone number';
+  static const String onboardingPhoneSubtitle =
+      'This number is shared when you exchange contact cards.';
+  static const String onboardingDataTitle = 'About you';
+  static const String onboardingDataSubtitle =
+      'These details show on your Flumble profile.';
+  static const String onboardingContinue = 'Continue';
+  static const String onboardingFinish = 'Finish';
+
+  static String onboardingStepLabel(int current, int total) =>
+      '$current of $total';
 
   static const String profileUpdated = 'Profile updated';
   static const String cannotFumbleSelf = 'You can\'t fumble yourself';

@@ -81,7 +81,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       password: _password.text,
                     ),
                   ),
-                  28.height,
+                  30.height,
                   PrimaryButton(
                     buttonName: AppConstant.signupCta,
                     onPressed: () => auth.signUp(

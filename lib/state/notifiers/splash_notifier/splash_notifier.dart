@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fumble/core/config/app_config.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
+import 'package:fumble/state/notifiers/onboarding_notifier/onboarding_notifier.dart';
 
 class SplashState {
   const SplashState({this.navigated = false});
@@ -40,9 +41,11 @@ class SplashNotifier extends Notifier<SplashState> {
     if (state.navigated) return;
     state = const SplashState(navigated: true);
     await Future<void>.delayed(AppConfig.splashMinDuration);
-    pushAndClearAll(
-      authenticated ? AppRoutes.main : AppRoutes.login,
-    );
+    if (!authenticated) {
+      pushAndClearAll(AppRoutes.login);
+      return;
+    }
+    await ref.read(onboardingNotifierProvider.notifier).navigateAfterAuth();
   }
 }
 
