@@ -33,6 +33,7 @@ class AppIcons {
   static const IconData visibilityOn = Icons.visibility_outlined;
   static const IconData visibilityOff = Icons.visibility_off_outlined;
   static const IconData phone = Icons.phone_rounded;
+  static const IconData email = Icons.email_outlined;
   static const IconData chat = Icons.chat_bubble_outline_rounded;
   static const IconData location = Icons.location_on_outlined;
   static const IconData photoLibrary = Icons.photo_library_outlined;

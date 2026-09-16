@@ -101,11 +101,19 @@ abstract final class AppConstant {
 
   static const String previewTitle = 'Connect?';
   static const String previewSubtitle = 'Confirm to exchange contact cards.';
-  static const String confirmFumble = 'Confirm';
+  static const String confirmFumble = 'Connect';
   static const String successTitle = 'Connected';
   static const String successBody = 'You\'ve exchanged contact cards.';
+
+  static String successBodyFor(String name) =>
+      'You\'ve exchanged contact cards with $name.';
   static const String viewConnections = 'View connections';
   static const String done = 'Done';
+
+  static String connectWith(String name) => 'Connect with $name';
+
+  static String previewSubtitleFor(String name) =>
+      'You\'re about to exchange contact cards with $name. Confirm to save their details to your connections.';
 
   static const String loading = 'Loading…';
   static const String retry = 'Retry';

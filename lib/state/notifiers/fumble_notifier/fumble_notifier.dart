@@ -10,6 +10,7 @@ import 'package:fumble/services/notifications/notification_service.dart';
 import 'package:fumble/state/notifiers/main_notifier/bottom_navigation_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 class FumbleState {
@@ -81,13 +82,16 @@ class FumbleNotifier extends Notifier<FumbleState> {
     }
     if (state.confirming) return;
 
+    showLoadingDialog(message: AppConstant.loading);
     state = state.copyWith(confirming: true);
     try {
       await _fumble.completeFumble(preview);
       await _notifications.requestPermissionIfNeeded();
+      hideLoadingDialog();
       state = state.copyWith(confirming: false);
       replace(AppRoutes.fumbleSuccess);
     } catch (e) {
+      hideLoadingDialog();
       state = state.copyWith(confirming: false);
       showAppToast(e.toString(), isError: true);
     }

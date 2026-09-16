@@ -19,6 +19,10 @@ class FumbleSuccessScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fumble = ref.read(fumbleNotifierProvider.notifier);
+    final name = ref.watch(fumbleNotifierProvider).preview?.name.trim();
+    final message = (name != null && name.isNotEmpty)
+        ? AppConstant.successBodyFor(name)
+        : AppConstant.successBody;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -46,7 +50,7 @@ class FumbleSuccessScreen extends ConsumerWidget {
                 lineHeight: 1.15,
               ),
               8.height,
-              AppConstant.successBody.toText(
+              message.toText(
                 fontSize: 14,
                 color: AppColors.softGray,
                 textAlign: TextAlign.center,
