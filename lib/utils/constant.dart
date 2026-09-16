@@ -91,7 +91,7 @@ abstract final class AppConstant {
   static const String fumbledOn = 'Fumbled';
   static const String dataNotFound = 'No connections yet';
 
-  static const String scannerTitle = 'Scan FLUMBLE';
+  static const String scannerTitle = 'SCAN FLUMBLE';
   static const String scannerHint =
       'Point your camera at their FLUMBLE QR code.';
   static const String cameraPermissionDenied =

@@ -32,6 +32,9 @@ abstract final class AppStyle {
   static const double radiusPill = 28;
   static const double fumbleButtonSize = 260;
   static const double fumbleButtonStroke = 2;
+  static const double flumbleQrSize = 240;
+  static const double flumbleQrRadiusFactor = 0.18;
+  static const double flumbleScanCutout = 268;
   static const double connectionAvatar = 44;
   static const double bottomNavHeight = 64;
 

@@ -16,6 +16,7 @@ import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
+import 'package:fumble/view/widgets/qr/flumble_scan_overlay.dart';
 
 class QrScannerScreen extends ConsumerWidget {
   const QrScannerScreen({super.key});
@@ -48,31 +49,15 @@ class QrScannerScreen extends ConsumerWidget {
                         controller: scannerActions.controller,
                         onDetect: scannerActions.onDetect,
                       ),
+                      const IgnorePointer(child: FlumbleScanOverlay()),
                       Align(
                         alignment: Alignment.bottomCenter,
-                        child: Container(
-                          width: double.infinity,
+                        child: Padding(
                           padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-                          color: AppColors.background.withValues(alpha: 0.72),
                           child: AppConstant.scannerHint.toText(
                             textAlign: TextAlign.center,
                             fontSize: 14,
                             color: AppColors.softGray,
-                          ),
-                        ),
-                      ),
-                      IgnorePointer(
-                        child: Center(
-                          child: Container(
-                            width: 240,
-                            height: 240,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: AppColors.gold,
-                                width: 1.5,
-                              ),
-                            ),
                           ),
                         ),
                       ),

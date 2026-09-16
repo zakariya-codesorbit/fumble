@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
+import 'package:fumble/view/widgets/qr/flumble_qr_view.dart';
 
 class FlumbleQr extends StatelessWidget {
   const FlumbleQr({
@@ -21,6 +21,8 @@ class FlumbleQr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = AppStyle.flumbleQrSize * AppStyle.flumbleQrRadiusFactor;
+
     return Column(
       children: [
         AppConstant.scanToFumble.toText(
@@ -29,30 +31,33 @@ class FlumbleQr extends StatelessWidget {
           fontWeight: AppStyle.w600,
           letterSpacing: 1.2,
         ),
-        14.height,
+        18.height,
         Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(AppStyle.radiusMd),
-            border: Border.all(color: AppColors.gold, width: 0.5),
-          ),
-          child: QrImageView(
-            data: payload,
-            version: QrVersions.auto,
-            size: 120,
-            backgroundColor: AppColors.white,
-            eyeStyle: const QrEyeStyle(
-              eyeShape: QrEyeShape.square,
-              color: AppColors.background,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.gold, AppColors.goldDeep, AppColors.gold],
             ),
-            dataModuleStyle: const QrDataModuleStyle(
-              dataModuleShape: QrDataModuleShape.square,
-              color: AppColors.background,
+            borderRadius: BorderRadius.circular(radius + 3),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.gold.withValues(alpha: 0.18),
+                blurRadius: 18,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: FlumbleQrView(
+              data: payload,
+              size: AppStyle.flumbleQrSize,
             ),
           ),
         ),
-        12.height,
+        16.height,
         GestureDetector(
           onLongPress: onCopy,
           child: code.toText(
