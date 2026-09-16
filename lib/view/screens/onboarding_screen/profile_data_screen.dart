@@ -34,7 +34,6 @@ class _ProfileDataScreenState extends ConsumerState<ProfileDataScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
-    final onboarding = ref.watch(onboardingNotifierProvider);
     final actions = ref.read(onboardingNotifierProvider.notifier);
 
     if (profile != null && !_initialized) {
@@ -44,9 +43,6 @@ class _ProfileDataScreenState extends ConsumerState<ProfileDataScreen> {
       _initialized = true;
     }
 
-    final canContinue = _bio.text.isNotBlank &&
-        _aboutMe.text.isNotBlank &&
-        _location.text.isNotBlank;
     void submit() => actions.saveDetailsAndContinue(
           formKey: _formKey,
           bio: _bio.text,
@@ -60,8 +56,7 @@ class _ProfileDataScreenState extends ConsumerState<ProfileDataScreen> {
       currentStep: OnboardingGate.dataStep,
       cta: AppConstant.onboardingFinish,
       formKey: _formKey,
-      isLoading: onboarding.saving,
-      onContinue: canContinue ? submit : null,
+      onContinue: submit,
       child: Column(
         children: [
           CustomTextField(
@@ -71,7 +66,6 @@ class _ProfileDataScreenState extends ConsumerState<ProfileDataScreen> {
             keyboardType: TextInputType.multiline,
             textInputAction: TextInputAction.next,
             maxLine: 2,
-            onChanged: (_) => setState(() {}),
             validator: (value) {
               if (value == null || value.isBlank) {
                 return AppConstant.bioRequired;
@@ -87,7 +81,6 @@ class _ProfileDataScreenState extends ConsumerState<ProfileDataScreen> {
             keyboardType: TextInputType.multiline,
             textInputAction: TextInputAction.next,
             maxLine: 4,
-            onChanged: (_) => setState(() {}),
             validator: (value) {
               if (value == null || value.isBlank) {
                 return AppConstant.aboutMeRequired;
@@ -102,8 +95,7 @@ class _ProfileDataScreenState extends ConsumerState<ProfileDataScreen> {
             hintText: AppConstant.locationHint,
             textInputAction: TextInputAction.done,
             autofillHints: const [AutofillHints.addressCity],
-            onChanged: (_) => setState(() {}),
-            onSubmitted: canContinue ? (_) => submit() : null,
+            onSubmitted: (_) => submit(),
             validator: (value) {
               if (value == null || value.isBlank) {
                 return AppConstant.locationRequired;

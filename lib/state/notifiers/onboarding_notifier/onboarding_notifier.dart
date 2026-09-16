@@ -12,6 +12,7 @@ import 'package:fumble/services/auth/auth_service.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 class OnboardingState {
@@ -149,6 +150,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     final uid = _auth.currentUser?.uid;
     if (uid == null || state.saving) return;
 
+    showLoadingDialog(message: AppConstant.loading);
     state = state.copyWith(saving: true);
     try {
       await persist(uid);
@@ -157,9 +159,11 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
         phoneFilled: phoneFilled,
         detailsFilled: detailsFilled,
       );
+      hideLoadingDialog();
       state = state.copyWith(saving: false);
       pushAndClearAll(next);
     } catch (e) {
+      hideLoadingDialog();
       state = state.copyWith(saving: false);
       showAppToast(e.toString(), isError: true);
     }

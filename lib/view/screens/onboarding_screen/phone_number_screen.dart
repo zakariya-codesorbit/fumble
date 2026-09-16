@@ -28,7 +28,6 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
-    final onboarding = ref.watch(onboardingNotifierProvider);
     final actions = ref.read(onboardingNotifierProvider.notifier);
 
     if (profile != null && !_initialized) {
@@ -36,7 +35,6 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
       _initialized = true;
     }
 
-    final canContinue = BasePhoneField.isValid(_phone.text);
     void submit() => actions.savePhoneAndContinue(
           formKey: _formKey,
           phone: _phone.text,
@@ -47,13 +45,11 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
       subtitle: AppConstant.onboardingPhoneSubtitle,
       currentStep: OnboardingGate.phoneStep,
       formKey: _formKey,
-      isLoading: onboarding.saving,
-      onContinue: canContinue ? submit : null,
+      onContinue: submit,
       child: BasePhoneField(
         controller: _phone,
         textInputAction: TextInputAction.done,
-        onChanged: (_) => setState(() {}),
-        onSubmitted: canContinue ? (_) => submit() : null,
+        onSubmitted: (_) => submit(),
       ),
     );
   }

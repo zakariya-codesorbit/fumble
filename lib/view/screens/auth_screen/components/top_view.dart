@@ -37,7 +37,7 @@ class TopView extends StatelessWidget {
         if (showBack)
           BackIconButton(onTap: onBack).paddingOnly(bottom: 25.h)
         else
-          topSpacing.height, 
+          topSpacing.height,
         title.toText(
           fontSize: 28,
           fontWeight: AppStyle.w700,

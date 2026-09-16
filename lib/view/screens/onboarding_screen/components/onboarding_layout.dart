@@ -17,7 +17,6 @@ class OnboardingLayout extends StatelessWidget {
     required this.child,
     required this.onContinue,
     this.cta = AppConstant.onboardingContinue,
-    this.isLoading = false,
     this.formKey,
   });
 
@@ -27,7 +26,6 @@ class OnboardingLayout extends StatelessWidget {
   final Widget child;
   final VoidCallback? onContinue;
   final String cta;
-  final bool isLoading;
   final GlobalKey<FormState>? formKey;
 
   @override
@@ -48,7 +46,6 @@ class OnboardingLayout extends StatelessWidget {
         30.height,
         PrimaryButton(
           buttonName: cta,
-          isLoading: isLoading,
           onPressed: onContinue,
         ),
         24.height,

@@ -17,9 +17,6 @@ abstract final class AppColors {
   static const Color surfaceElevated = Color(0xFF141414);
   static const Color gold = Color(0xFFD4AF37);
   static const Color goldMuted = Color(0xFFB8962E);
-  static const Color buttonDisabled = Color(0xFF1C1C1C);
-  static const Color buttonDisabledForeground = Color(0xFF6E6E6E);
-  static const Color buttonDisabledBorder = Color(0x33D4AF37);
   static const Color softGray = Color(0xFF8A8A8A);
   static const Color softGrayDim = Color(0xFF5C5C5C);
   static const Color border = Color(0x1AFFFFFF);

@@ -20,15 +20,12 @@ class UploadPhotoScreen extends ConsumerWidget {
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
     final onboarding = ref.watch(onboardingNotifierProvider);
     final actions = ref.read(onboardingNotifierProvider.notifier);
-    final hasPhoto =
-        onboarding.localPhoto != null || (profile?.hasPhoto ?? false);
 
     return OnboardingLayout(
       title: AppConstant.onboardingPhotoTitle,
       subtitle: AppConstant.onboardingPhotoSubtitle,
       currentStep: OnboardingGate.photoStep,
-      isLoading: onboarding.saving,
-      onContinue: hasPhoto ? actions.savePhotoAndContinue : null,
+      onContinue: actions.savePhotoAndContinue,
       child: Column(
         children: [
           30.height,

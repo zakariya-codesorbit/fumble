@@ -39,25 +39,17 @@ class PrimaryButton extends StatelessWidget {
 
   bool get _enabled => onPressed != null && !isLoading;
 
-  bool get _visuallyDisabled => onPressed == null && !isLoading;
-
   double get _effectiveWidth => width ?? double.infinity;
 
   double get _effectiveHeight => height ?? 52.h;
 
   @override
   Widget build(BuildContext context) {
-    final bg = _visuallyDisabled
-        ? (filled ? AppColors.buttonDisabled : AppColors.clear)
-        : buttonColor ?? (filled ? AppColors.gold : AppColors.clear);
-    final border = _visuallyDisabled
-        ? AppColors.buttonDisabledBorder
-        : borderColor ??
-            (filled ? (buttonColor ?? AppColors.gold) : AppColors.border);
-    final fg = _visuallyDisabled
-        ? AppColors.buttonDisabledForeground
-        : buttonTextColor ??
-            (filled ? AppColors.background : AppColors.white);
+    final bg = buttonColor ?? (filled ? AppColors.gold : AppColors.clear);
+    final border = borderColor ??
+        (filled ? (buttonColor ?? AppColors.gold) : AppColors.border);
+    final fg = buttonTextColor ??
+        (filled ? AppColors.background : AppColors.white);
     final br = borderRadiusCircular(radius);
 
     return SizedBox(
@@ -70,12 +62,8 @@ class PrimaryButton extends StatelessWidget {
               ? bg
               : AppColors.white.withValues(alpha: 0.06),
           foregroundColor: fg,
-          disabledBackgroundColor: filled
-              ? AppColors.buttonDisabled
-              : AppColors.white.withValues(alpha: 0.04),
-          disabledForegroundColor: AppColors.buttonDisabledForeground,
+          disabledBackgroundColor: AppColors.goldMuted,
           elevation: 0,
-          shadowColor: AppColors.clear,
           side: BorderSide(color: border),
           shape: RoundedRectangleBorder(borderRadius: br),
         ),
