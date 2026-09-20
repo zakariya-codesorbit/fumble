@@ -12,6 +12,7 @@ import 'package:fumble/services/auth/auth_service.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
@@ -122,6 +123,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     bool photoFilled = false,
     bool phoneFilled = false,
   }) async {
+    unfocusKeyboard();
     if (formKey != null && !(formKey.currentState?.validate() ?? false)) {
       return;
     }

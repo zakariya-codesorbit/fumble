@@ -46,7 +46,12 @@ class OnboardingLayout extends StatelessWidget {
         30.height,
         PrimaryButton(
           buttonName: cta,
-          onPressed: onContinue,
+          onPressed: onContinue == null
+              ? null
+              : () {
+                  FocusScope.of(context).unfocus();
+                  onContinue?.call();
+                },
         ),
         24.height,
       ],

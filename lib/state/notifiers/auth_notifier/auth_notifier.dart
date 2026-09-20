@@ -12,6 +12,7 @@ import 'package:fumble/state/notifiers/main_notifier/bottom_navigation_notifier.
 import 'package:fumble/state/notifiers/onboarding_notifier/onboarding_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
@@ -125,6 +126,7 @@ class AuthNotifier extends Notifier<AuthUiState> {
     required Future<void> Function() action,
     FutureOr<void> Function()? onSuccess,
   }) async {
+    unfocusKeyboard();
     if (formKey != null && !(formKey.currentState?.validate() ?? false)) {
       return;
     }

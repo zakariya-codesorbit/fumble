@@ -14,6 +14,7 @@ import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/screens/my_flumble_screen/components/photo_action_tile.dart';
 import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -134,6 +135,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     }
     if (state.saving) return;
 
+    unfocusKeyboard();
     state = state.copyWith(saving: true);
     try {
       String? nextPhoto;
