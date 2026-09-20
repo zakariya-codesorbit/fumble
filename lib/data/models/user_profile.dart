@@ -46,7 +46,7 @@ class UserProfile {
 
   bool get hasProfileDetails => hasBio && hasAboutMe && hasLocation;
 
-  bool get isOnboardingComplete => hasPhoto && hasPhone && hasProfileDetails;
+  bool get isOnboardingComplete => hasPhoto && hasPhone;
 
   static bool _filled(String? value) =>
       value != null && value.trim().isNotEmpty;

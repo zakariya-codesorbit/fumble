@@ -137,10 +137,9 @@ abstract final class AppConstant {
       'Password must be at least 6 characters';
   static const String phoneRequired = 'Please enter your phone number';
   static const String phoneInvalid = 'Enter a valid phone number';
-  static const String bioRequired = 'Please enter your bio';
-  static const String aboutMeRequired = 'Please tell people about yourself';
-  static const String locationRequired = 'Please enter your location';
   static const String photoRequired = 'Please add a photo to continue';
+  static const String selectCountry = 'Select country';
+  static const String searchCountry = 'Search country';
 
   static const String onboardingPhotoTitle = 'Add a photo';
   static const String onboardingPhotoSubtitle =
@@ -149,9 +148,6 @@ abstract final class AppConstant {
   static const String onboardingPhoneTitle = 'Add your phone number';
   static const String onboardingPhoneSubtitle =
       'This number is shared when you exchange contact cards.';
-  static const String onboardingDataTitle = 'About you';
-  static const String onboardingDataSubtitle =
-      'These details show on your Flumble profile.';
   static const String onboardingContinue = 'Continue';
   static const String onboardingFinish = 'Finish';
 

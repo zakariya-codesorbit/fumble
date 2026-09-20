@@ -53,7 +53,6 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
   Future<String> resolveRoute({
     bool photoFilled = false,
     bool phoneFilled = false,
-    bool detailsFilled = false,
   }) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return AppRoutes.login;
@@ -67,7 +66,6 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
       profile,
       photoFilled: photoFilled,
       phoneFilled: phoneFilled,
-      detailsFilled: detailsFilled,
     );
   }
 
@@ -117,31 +115,12 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     );
   }
 
-  Future<void> saveDetailsAndContinue({
-    required GlobalKey<FormState> formKey,
-    required String bio,
-    required String aboutMe,
-    required String location,
-  }) {
-    return _saveAndContinue(
-      formKey: formKey,
-      persist: (uid) => _users.updateProfile(
-        uid: uid,
-        bio: bio,
-        aboutMe: aboutMe,
-        location: location,
-      ),
-      detailsFilled: true,
-    );
-  }
-
   Future<void> _saveAndContinue({
     GlobalKey<FormState>? formKey,
     bool Function()? validate,
     required Future<void> Function(String uid) persist,
     bool photoFilled = false,
     bool phoneFilled = false,
-    bool detailsFilled = false,
   }) async {
     if (formKey != null && !(formKey.currentState?.validate() ?? false)) {
       return;
@@ -157,7 +136,6 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
       final next = await resolveRoute(
         photoFilled: photoFilled,
         phoneFilled: phoneFilled,
-        detailsFilled: detailsFilled,
       );
       hideLoadingDialog();
       state = state.copyWith(saving: false);

@@ -17,7 +17,7 @@ void main() {
     expect(AppRoutes.routes.containsKey(AppRoutes.settings), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.onboardingPhoto), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.onboardingPhone), isTrue);
-    expect(AppRoutes.routes.containsKey(AppRoutes.onboardingData), isTrue);
+    expect(AppRoutes.routes.containsKey('/onboarding-data'), isFalse);
   });
 
   test('Exactly three bottom tabs', () {
@@ -38,47 +38,21 @@ void main() {
     expect(FlumbleQr.build('abc123def456'), 'flumble:ABC123DEF456');
   });
 
-  test('OnboardingGate skips filled steps and opens the first empty one', () {
+  test('OnboardingGate uses photo then phone only', () {
+    expect(OnboardingGate.totalSteps, 2);
     expect(OnboardingGate.routeFor(null), AppRoutes.onboardingPhoto);
     expect(OnboardingGate.routeFor(_profile()), AppRoutes.onboardingPhoto);
-
     expect(
       OnboardingGate.routeFor(_profile(photoUrl: 'base64')),
       AppRoutes.onboardingPhone,
     );
     expect(
-      OnboardingGate.routeFor(_profile(photoUrl: 'base64', phone: '5551234567')),
-      AppRoutes.onboardingData,
-    );
-    expect(
-      OnboardingGate.routeFor(
-        _profile(
-          photoUrl: 'base64',
-          phone: '5551234567',
-          bio: 'Director',
-          aboutMe: 'I make films',
-          location: 'Los Angeles',
-        ),
-      ),
+      OnboardingGate.routeFor(_profile(photoUrl: 'base64', phone: '+15551234567')),
       AppRoutes.main,
     );
-
     expect(
-      OnboardingGate.routeFor(
-        _profile(phone: '5551234567', bio: 'Director'),
-      ),
+      OnboardingGate.routeFor(_profile(phone: '+15551234567')),
       AppRoutes.onboardingPhoto,
-    );
-    expect(
-      OnboardingGate.routeFor(
-        _profile(
-          photoUrl: 'base64',
-          bio: 'Director',
-          aboutMe: 'I make films',
-          location: 'Los Angeles',
-        ),
-      ),
-      AppRoutes.onboardingPhone,
     );
   });
 }
@@ -86,9 +60,6 @@ void main() {
 UserProfile _profile({
   String? photoUrl,
   String? phone,
-  String? bio,
-  String? aboutMe,
-  String? location,
 }) {
   return UserProfile(
     uid: 'u1',
@@ -97,8 +68,5 @@ UserProfile _profile({
     flumbleCode: 'ABC123DEF456',
     photoUrl: photoUrl,
     phone: phone,
-    bio: bio,
-    aboutMe: aboutMe,
-    location: location,
   );
 }
