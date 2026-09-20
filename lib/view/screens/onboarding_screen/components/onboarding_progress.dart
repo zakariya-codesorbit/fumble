@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:fumble/core/navigation/onboarding_gate.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
@@ -10,7 +11,7 @@ class OnboardingProgress extends StatelessWidget {
   const OnboardingProgress({
     super.key,
     required this.currentStep,
-    this.totalSteps = 3,
+    this.totalSteps = OnboardingGate.totalSteps,
   });
 
   final int currentStep;
