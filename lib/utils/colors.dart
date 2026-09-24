@@ -1,9 +1,6 @@
 import 'package:flutter/services.dart';
 
 /// FLUMBLE design tokens — dark theme only.
-///
-/// Semantic aliases follow the Medico AppColors naming so both apps
-/// share the same developer vocabulary.
 abstract final class AppColors {
   AppColors._();
 

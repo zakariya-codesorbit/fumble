@@ -20,11 +20,6 @@ class LocalDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, AppConfig.databaseFileName);
 
-    // Drop legacy product DBs.
-    for (final legacy in const ['medico.db', 'clip_max.db', 'starter_app.db']) {
-      await deleteDatabase(join(dbPath, legacy));
-    }
-
     return openDatabase(
       path,
       version: 1,

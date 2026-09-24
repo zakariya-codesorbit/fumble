@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'colors.dart';
 
-/// Font / weight helpers (Medico-compatible API).
+/// Font / weight helpers for FLUMBLE.
 abstract final class AppStyle {
   AppStyle._();
 
