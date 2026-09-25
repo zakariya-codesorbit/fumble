@@ -22,12 +22,12 @@ import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 class ProfileEditState {
   const ProfileEditState({
-    this.saving = false,
+    this.isSaving = false,
     this.localPhoto,
     this.removePhoto = false,
   });
 
-  final bool saving;
+  final bool isSaving;
   final File? localPhoto;
   final bool removePhoto;
 
@@ -41,13 +41,13 @@ class ProfileEditState {
       removePhoto ? null : profile?.photoUrl;
 
   ProfileEditState copyWith({
-    bool? saving,
+    bool? isSaving,
     File? localPhoto,
     bool clearLocalPhoto = false,
     bool? removePhoto,
   }) {
     return ProfileEditState(
-      saving: saving ?? this.saving,
+      isSaving: isSaving ?? this.isSaving,
       localPhoto: clearLocalPhoto ? null : (localPhoto ?? this.localPhoto),
       removePhoto: removePhoto ?? this.removePhoto,
     );
@@ -133,10 +133,10 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       showAppToast(AppConstant.nameRequired, isError: true);
       return;
     }
-    if (state.saving) return;
+    if (state.isSaving) return;
 
     unfocusKeyboard();
-    state = state.copyWith(saving: true);
+    state = state.copyWith(isSaving: true);
     try {
       String? nextPhoto;
       if (state.removePhoto) {
@@ -163,7 +163,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       );
       pop();
     } catch (e) {
-      state = state.copyWith(saving: false);
+      state = state.copyWith(isSaving: false);
       showAppToast(e.toString(), isError: true);
     }
   }

@@ -16,24 +16,24 @@ import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 class FumbleState {
   const FumbleState({
     this.preview,
-    this.confirming = false,
-    this.handlingScan = false,
+    this.isConfirming = false,
+    this.isHandlingScan = false,
   });
 
   final FumblePreview? preview;
-  final bool confirming;
-  final bool handlingScan;
+  final bool isConfirming;
+  final bool isHandlingScan;
 
   FumbleState copyWith({
     FumblePreview? preview,
     bool clearPreview = false,
-    bool? confirming,
-    bool? handlingScan,
+    bool? isConfirming,
+    bool? isHandlingScan,
   }) {
     return FumbleState(
       preview: clearPreview ? null : (preview ?? this.preview),
-      confirming: confirming ?? this.confirming,
-      handlingScan: handlingScan ?? this.handlingScan,
+      isConfirming: isConfirming ?? this.isConfirming,
+      isHandlingScan: isHandlingScan ?? this.isHandlingScan,
     );
   }
 }
@@ -54,7 +54,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
   }
 
   Future<bool> resolveScan(String raw) async {
-    if (state.handlingScan) return false;
+    if (state.isHandlingScan) return false;
 
     final code = _fumble.parseQrPayload(raw);
     if (code == null) {
@@ -62,13 +62,13 @@ class FumbleNotifier extends Notifier<FumbleState> {
       return false;
     }
 
-    state = state.copyWith(handlingScan: true);
+    state = state.copyWith(isHandlingScan: true);
     try {
       final preview = await _fumble.resolveFumble(code);
-      state = state.copyWith(preview: preview, handlingScan: false);
+      state = state.copyWith(preview: preview, isHandlingScan: false);
       return true;
     } catch (e) {
-      state = state.copyWith(handlingScan: false);
+      state = state.copyWith(isHandlingScan: false);
       showAppToast(e.toString(), isError: true);
       return false;
     }
@@ -80,19 +80,19 @@ class FumbleNotifier extends Notifier<FumbleState> {
       pop();
       return;
     }
-    if (state.confirming) return;
+    if (state.isConfirming) return;
 
     showLoadingDialog(message: AppConstant.loading);
-    state = state.copyWith(confirming: true);
+    state = state.copyWith(isConfirming: true);
     try {
       await _fumble.completeFumble(preview);
       await _notifications.requestPermissionIfNeeded();
       hideLoadingDialog();
-      state = state.copyWith(confirming: false);
+      state = state.copyWith(isConfirming: false);
       replace(AppRoutes.fumbleSuccess);
     } catch (e) {
       hideLoadingDialog();
-      state = state.copyWith(confirming: false);
+      state = state.copyWith(isConfirming: false);
       showAppToast(e.toString(), isError: true);
     }
   }

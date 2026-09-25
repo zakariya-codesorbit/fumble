@@ -18,19 +18,19 @@ import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 class OnboardingState {
   const OnboardingState({
-    this.saving = false,
+    this.isSaving = false,
     this.localPhoto,
   });
 
-  final bool saving;
+  final bool isSaving;
   final File? localPhoto;
 
   OnboardingState copyWith({
-    bool? saving,
+    bool? isSaving,
     File? localPhoto,
   }) {
     return OnboardingState(
-      saving: saving ?? this.saving,
+      isSaving: isSaving ?? this.isSaving,
       localPhoto: localPhoto ?? this.localPhoto,
     );
   }
@@ -129,10 +129,10 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     }
     if (validate != null && !validate()) return;
     final uid = _auth.currentUser?.uid;
-    if (uid == null || state.saving) return;
+    if (uid == null || state.isSaving) return;
 
     showLoadingDialog(message: AppConstant.loading);
-    state = state.copyWith(saving: true);
+    state = state.copyWith(isSaving: true);
     try {
       await persist(uid);
       final next = await resolveRoute(
@@ -140,11 +140,11 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
         phoneFilled: phoneFilled,
       );
       hideLoadingDialog();
-      state = state.copyWith(saving: false);
+      state = state.copyWith(isSaving: false);
       pushAndClearAll(next);
     } catch (e) {
       hideLoadingDialog();
-      state = state.copyWith(saving: false);
+      state = state.copyWith(isSaving: false);
       showAppToast(e.toString(), isError: true);
     }
   }

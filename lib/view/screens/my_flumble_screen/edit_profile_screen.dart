@@ -126,7 +126,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               32.height,
               PrimaryButton(
                 buttonName: AppConstant.save,
-                isLoading: edit.saving,
+                isLoading: edit.isSaving,
                 onPressed: () => profileActions.save(
                   name: _name.text,
                   bio: _bio.text,
