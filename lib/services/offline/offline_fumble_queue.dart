@@ -14,9 +14,9 @@ import '../network/connection_manager.dart';
 /// Retries queued completeFumble operations with exponential backoff.
 class OfflineFumbleQueue {
   OfflineFumbleQueue({
-    PendingFumbleRepository? repository,
+    required PendingFumbleRepository repository,
     FumbleService? fumbleService,
-  })  : _repo = repository ?? PendingFumbleRepository(),
+  })  : _repo = repository,
         _fumbleService = fumbleService;
 
   final PendingFumbleRepository _repo;

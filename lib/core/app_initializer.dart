@@ -9,16 +9,12 @@ import '../firebase_options.dart';
 import '../services/analytics/analytics_service.dart';
 import '../services/crashlytics/crashlytics_service.dart';
 import '../services/network/connection_manager.dart';
-import '../services/notifications/notification_service.dart';
-import '../services/offline/offline_fumble_queue.dart';
 
 /// Post-launch Firebase and platform warm-up.
 abstract final class AppInitializer {
   AppInitializer._();
 
   static bool _firebaseReady = false;
-  static final OfflineFumbleQueue offlineQueue = OfflineFumbleQueue();
-  static final NotificationService notifications = NotificationService();
 
   static bool get isFirebaseReady => _firebaseReady;
 
@@ -43,9 +39,6 @@ abstract final class AppInitializer {
           // in Firebase Console. Skipping avoids noisy 403s on Spark projects.
           // AppCheckService.instance.initialize(),
         ]);
-
-        await notifications.initialize();
-        offlineQueue.start();
       }
     } catch (e, st) {
       debugPrint('[AppInitializer] initialize failed: $e\n$st');

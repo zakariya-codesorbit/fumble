@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
-import 'package:fumble/state/notifiers/fumble_notifier/fumble_notifier.dart';
+import 'package:fumble/state/notifiers/fumble_notifier.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 
 class ScannerState {

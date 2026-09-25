@@ -6,6 +6,7 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
@@ -35,10 +36,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  void _submit() {
+    unfocusKeyboard();
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    ref.read(authNotifierProvider.notifier).login(
+          email: _email.text,
+          password: _password.text,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final auth = ref.read(authNotifierProvider.notifier);
-
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
         body: SafeArea(
@@ -56,11 +64,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   20.height,
                   BasePasswordField(
                     controller: _password,
-                    onSubmitted: (_) => auth.login(
-                      formKey: _formKey,
-                      email: _email.text,
-                      password: _password.text,
-                    ),
+                    onSubmitted: (_) => _submit(),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
@@ -72,11 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   15.height,
                   PrimaryButton(
                     buttonName: AppConstant.loginCta,
-                    onPressed: () => auth.login(
-                      formKey: _formKey,
-                      email: _email.text,
-                      password: _password.text,
-                    ),
+                    onPressed: _submit,
                   ),
                   24.height,
                   Row(

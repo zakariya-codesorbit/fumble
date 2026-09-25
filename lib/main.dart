@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/app_initializer.dart';
 import 'app.dart';
@@ -14,5 +15,5 @@ Future<void> main() async {
   // Firebase must be ready before auth redirects; await briefly.
   await AppInitializer.initialize();
 
-  runApp(const FlumbleApp());
+  runApp(const ProviderScope(child: FumbleApp()));
 }

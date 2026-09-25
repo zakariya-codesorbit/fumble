@@ -9,11 +9,11 @@ import '../crashlytics/crashlytics_service.dart';
 class AuthService {
   AuthService({
     FirebaseAuth? auth,
-    UserRepository? userRepository,
+    required UserRepository userRepository,
     AnalyticsService? analytics,
     CrashlyticsService? crashlytics,
   })  : _auth = auth ?? FirebaseAuth.instance,
-        _users = userRepository ?? UserRepository(),
+        _users = userRepository,
         _analytics = analytics ?? AnalyticsService.instance,
         _crashlytics = crashlytics ?? CrashlyticsService.instance;
 

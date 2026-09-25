@@ -6,6 +6,7 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
@@ -37,10 +38,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
+  void _submit() {
+    unfocusKeyboard();
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    ref.read(authNotifierProvider.notifier).signUp(
+          name: _name.text,
+          email: _email.text,
+          password: _password.text,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final auth = ref.read(authNotifierProvider.notifier);
-
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
         body: SafeArea(
@@ -74,22 +83,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     controller: _password,
                     hintText: AppConstant.passwordCreateHint,
                     autofillHints: const [AutofillHints.newPassword],
-                    onSubmitted: (_) => auth.signUp(
-                      formKey: _formKey,
-                      name: _name.text,
-                      email: _email.text,
-                      password: _password.text,
-                    ),
+                    onSubmitted: (_) => _submit(),
                   ),
                   30.height,
                   PrimaryButton(
                     buttonName: AppConstant.signupCta,
-                    onPressed: () => auth.signUp(
-                      formKey: _formKey,
-                      name: _name.text,
-                      email: _email.text,
-                      password: _password.text,
-                    ),
+                    onPressed: _submit,
                   ),
                   24.height,
                   Row(

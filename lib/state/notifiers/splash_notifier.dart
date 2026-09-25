@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fumble/core/config/app_config.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
-import 'package:fumble/state/notifiers/onboarding_notifier/onboarding_notifier.dart';
+import 'package:fumble/state/notifiers/onboarding_notifier.dart';
 
 class SplashState {
   const SplashState({this.navigated = false});

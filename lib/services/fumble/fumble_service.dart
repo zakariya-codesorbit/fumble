@@ -17,19 +17,19 @@ import 'flumble_qr.dart';
 /// Firestore-only fumble exchange (no Cloud Functions / Blaze plan required).
 class FumbleService {
   FumbleService({
-    UserRepository? userRepository,
-    ConnectionRepository? connectionRepository,
+    required UserRepository userRepository,
+    required ConnectionRepository connectionRepository,
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
-    PendingFumbleRepository? pendingRepo,
+    required PendingFumbleRepository pendingRepo,
     OfflineFumbleQueue? queue,
     AnalyticsService? analytics,
     CrashlyticsService? crashlytics,
-  })  : _users = userRepository ?? UserRepository(),
-        _connections = connectionRepository ?? ConnectionRepository(),
+  })  : _users = userRepository,
+        _connections = connectionRepository,
         _auth = auth ?? FirebaseAuth.instance,
         _db = firestore ?? FirebaseFirestore.instance,
-        _pendingRepo = pendingRepo ?? PendingFumbleRepository(),
+        _pendingRepo = pendingRepo,
         _queue = queue,
         _analytics = analytics ?? AnalyticsService.instance,
         _crashlytics = crashlytics ?? CrashlyticsService.instance;

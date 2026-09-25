@@ -1,28 +1,54 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/core/navigation/app_routes.dart';
-import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/services/auth/auth_service.dart';
 import 'package:fumble/services/notifications/notification_service.dart';
-import 'package:fumble/state/notifiers/main_notifier/bottom_navigation_notifier.dart';
-import 'package:fumble/state/notifiers/onboarding_notifier/onboarding_notifier.dart';
+import 'package:fumble/state/notifiers/bottom_navigation_notifier.dart';
+import 'package:fumble/state/notifiers/onboarding_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
-import 'package:fumble/utils/focus_utils.dart';
-import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
-import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
+
+class AuthToast {
+  const AuthToast(this.id, this.message, {this.isError = false});
+
+  final int id;
+  final String message;
+  final bool isError;
+}
+
+class AuthNavigation {
+  const AuthNavigation(this.id, {this.route, this.pop = false});
+
+  final int id;
+  final String? route;
+  final bool pop;
+}
 
 class AuthUiState {
-  const AuthUiState({this.isBusy = false});
+  const AuthUiState({
+    this.isBusy = false,
+    this.toast,
+    this.navigation,
+  });
 
   final bool isBusy;
+  final AuthToast? toast;
+  final AuthNavigation? navigation;
 
-  AuthUiState copyWith({bool? isBusy}) =>
-      AuthUiState(isBusy: isBusy ?? this.isBusy);
+  AuthUiState copyWith({
+    bool? isBusy,
+    AuthToast? toast,
+    AuthNavigation? navigation,
+  }) {
+    return AuthUiState(
+      isBusy: isBusy ?? this.isBusy,
+      toast: toast ?? this.toast,
+      navigation: navigation ?? this.navigation,
+    );
+  }
 }
 
 class AuthNotifier extends Notifier<AuthUiState> {
@@ -31,52 +57,46 @@ class AuthNotifier extends Notifier<AuthUiState> {
   NotificationService get _notifications =>
       ref.read(notificationServiceProvider);
 
+  int _eventId = 0;
+
   @override
   AuthUiState build() => const AuthUiState();
 
   Future<void> login({
-    required GlobalKey<FormState> formKey,
     required String email,
     required String password,
   }) {
     return _run(
-      formKey: formKey,
       action: () => _auth.login(email: email, password: password),
-      onSuccess: () =>
-          ref.read(onboardingNotifierProvider.notifier).navigateAfterAuth(),
+      onSuccess: _goToNextRoute,
     );
   }
 
   Future<void> signUp({
-    required GlobalKey<FormState> formKey,
     required String name,
     required String email,
     required String password,
   }) {
     return _run(
-      formKey: formKey,
       action: () => _auth.signUp(name: name, email: email, password: password),
-      onSuccess: () =>
-          ref.read(onboardingNotifierProvider.notifier).navigateAfterAuth(),
+      onSuccess: _goToNextRoute,
     );
   }
 
-  Future<void> sendPasswordReset({
-    required GlobalKey<FormState> formKey,
-    required String email,
-  }) {
+  Future<void> sendPasswordReset({required String email}) {
     return _run(
-      formKey: formKey,
       action: () => _auth.sendPasswordReset(email),
       onSuccess: () {
-        showAppToast(AppConstant.resetEmailSent);
-        pop();
+        state = state.copyWith(
+          toast: _toastMessage(AppConstant.resetEmailSent),
+          navigation: _popNavigation(),
+        );
       },
     );
   }
 
   Future<void> logout() async {
-    showLoadingDialog(message: AppConstant.loading);
+    if (state.isBusy) return;
     state = state.copyWith(isBusy: true);
     try {
       try {
@@ -91,12 +111,15 @@ class AuthNotifier extends Notifier<AuthUiState> {
           await _auth.logout();
         } catch (_) {/* ignore */}
       }
-      ref.read(bottomNavProvider.notifier).reset();
-      ref.read(onboardingNotifierProvider.notifier).reset();
-      hideLoadingDialog();
-      pushAndClearAll(AppRoutes.login);
+      _resetSessionState();
+      state = state.copyWith(
+        isBusy: false,
+        navigation: _clearTo(AppRoutes.login),
+      );
     } finally {
-      state = state.copyWith(isBusy: false);
+      if (state.isBusy) {
+        state = state.copyWith(isBusy: false);
+      }
     }
   }
 
@@ -104,10 +127,11 @@ class AuthNotifier extends Notifier<AuthUiState> {
     return _run(
       action: () async {
         await _auth.deleteAccount(password: password);
-        ref.read(bottomNavProvider.notifier).reset();
-        ref.read(onboardingNotifierProvider.notifier).reset();
+        _resetSessionState();
       },
-      onSuccess: () => pushAndClearAll(AppRoutes.login),
+      onSuccess: () {
+        state = state.copyWith(navigation: _clearTo(AppRoutes.login));
+      },
     );
   }
 
@@ -115,33 +139,44 @@ class AuthNotifier extends Notifier<AuthUiState> {
     if (state.isBusy) return;
     final wasLoggedIn = previous?.valueOrNull != null;
     if (wasLoggedIn && next.hasValue && next.valueOrNull == null) {
-      ref.read(bottomNavProvider.notifier).reset();
-      ref.read(onboardingNotifierProvider.notifier).reset();
-      pushAndClearAll(AppRoutes.login);
+      _resetSessionState();
+      state = state.copyWith(navigation: _clearTo(AppRoutes.login));
     }
   }
 
+  void _goToNextRoute() {
+    ref.read(onboardingNotifierProvider.notifier).navigateAfterAuth();
+  }
+
+  void _resetSessionState() {
+    ref.read(bottomNavProvider.notifier).reset();
+    ref.read(onboardingNotifierProvider.notifier).reset();
+  }
+
+  AuthToast _toastMessage(String message, {bool isError = false}) {
+    return AuthToast(++_eventId, message, isError: isError);
+  }
+
+  AuthNavigation _clearTo(String route) =>
+      AuthNavigation(++_eventId, route: route);
+
+  AuthNavigation _popNavigation() => AuthNavigation(++_eventId, pop: true);
+
   Future<void> _run({
-    GlobalKey<FormState>? formKey,
     required Future<void> Function() action,
-    FutureOr<void> Function()? onSuccess,
+    void Function()? onSuccess,
   }) async {
-    unfocusKeyboard();
-    if (formKey != null && !(formKey.currentState?.validate() ?? false)) {
-      return;
-    }
     if (state.isBusy) return;
-    showLoadingDialog(message: AppConstant.loading);
     state = state.copyWith(isBusy: true);
     try {
       await action();
-      hideLoadingDialog();
       state = state.copyWith(isBusy: false);
       onSuccess?.call();
     } catch (e) {
-      hideLoadingDialog();
-      state = state.copyWith(isBusy: false);
-      showAppToast(_auth.messageForAuthError(e), isError: true);
+      state = state.copyWith(
+        isBusy: false,
+        toast: _toastMessage(_auth.messageForAuthError(e), isError: true),
+      );
     }
   }
 }

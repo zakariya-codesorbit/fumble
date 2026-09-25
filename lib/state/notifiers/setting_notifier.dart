@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/state/notifiers/auth_notifier/auth_notifier.dart';
+import 'package:fumble/state/notifiers/auth_notifier.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/screens/setting_screen/components/setting_actions.dart';
 import 'package:fumble/view/widgets/inputs/custom_text_field.dart';

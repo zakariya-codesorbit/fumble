@@ -18,11 +18,11 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class NotificationService {
   NotificationService({
     FirebaseMessaging? messaging,
-    UserRepository? users,
-    AuthService? auth,
+    required UserRepository users,
+    required AuthService auth,
   })  : _messaging = messaging ?? FirebaseMessaging.instance,
-        _users = users ?? UserRepository(),
-        _auth = auth ?? AuthService();
+        _users = users,
+        _auth = auth;
 
   final FirebaseMessaging _messaging;
   final UserRepository _users;

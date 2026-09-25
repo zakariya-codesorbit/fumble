@@ -7,7 +7,7 @@ import 'package:fumble/data/models/fumble_preview.dart';
 import 'package:fumble/services/analytics/analytics_service.dart';
 import 'package:fumble/services/fumble/fumble_service.dart';
 import 'package:fumble/services/notifications/notification_service.dart';
-import 'package:fumble/state/notifiers/main_notifier/bottom_navigation_notifier.dart';
+import 'package:fumble/state/notifiers/bottom_navigation_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
@@ -111,5 +111,6 @@ class FumbleNotifier extends Notifier<FumbleState> {
   }
 }
 
-final fumbleNotifierProvider =
-    NotifierProvider<FumbleNotifier, FumbleState>(FumbleNotifier.new);
+final fumbleNotifierProvider = NotifierProvider<FumbleNotifier, FumbleState>(
+  FumbleNotifier.new,
+);
