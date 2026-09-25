@@ -12,7 +12,6 @@ import 'package:fumble/view/screens/flumble_screen/fumble_preview_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/fumble_success_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/qr_scanner_screen.dart';
 import 'package:fumble/view/screens/main_screen/main_screen.dart';
-import 'package:fumble/view/screens/my_flumble_screen/edit_profile_screen.dart';
 import 'package:fumble/view/screens/my_flumble_screen/my_flumble_screen.dart';
 import 'package:fumble/view/screens/setting_screen/legal_webview_screen.dart';
 import 'package:fumble/view/screens/setting_screen/setting_screen.dart';
@@ -33,7 +32,6 @@ abstract final class AppRoutes {
   static const String qrScanner = '/qr-scanner';
   static const String fumblePreview = '/fumble-preview';
   static const String fumbleSuccess = '/fumble-success';
-  static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
   static const String privacyPolicy = '/privacy-policy';
   static const String terms = '/terms';
@@ -54,7 +52,6 @@ abstract final class AppRoutes {
         qrScanner: (_) => const QrScannerScreen(),
         fumblePreview: (_) => const FumblePreviewScreen(),
         fumbleSuccess: (_) => const FumbleSuccessScreen(),
-        editProfile: (_) => const EditProfileScreen(),
         settings: (_) => const SettingScreen(),
         privacyPolicy: (_) => const LegalWebViewScreen(
               title: AppConstant.privacyPolicy,

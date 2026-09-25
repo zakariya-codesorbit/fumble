@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/data/repositories/user_repository.dart';
 import 'package:fumble/services/fumble/fumble_service.dart';
@@ -181,7 +180,6 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
             ? AppConstant.photoUpdated
             : AppConstant.profileUpdated,
       );
-      pop();
     } catch (e) {
       state = state.copyWith(isSaving: false);
       showAppToast(e.toString(), isError: true);

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/core/navigation/app_routes.dart';
-import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
@@ -28,12 +26,6 @@ class SettingScreen extends ConsumerWidget {
         body: ListView(
           padding: EdgeInsets.all(28.w),
           children: [
-            SettingRowTile(
-              label: AppConstant.editProfile,
-              icon: AppIcons.personOutline,
-              onTap: () => push(AppRoutes.editProfile),
-            ),
-            12.height,
             SettingRowTile(
               label: AppConstant.logout,
               icon: AppIcons.logout,

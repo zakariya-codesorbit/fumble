@@ -1,11 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
-import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/widgets/inputs/custom_text_field.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -14,66 +15,58 @@ class ProfileHeader extends StatelessWidget {
     required this.name,
     required this.photoUrl,
     required this.heading,
-    required this.bio,
-    required this.hasBio,
-    required this.phone,
-    required this.hasPhone,
-    required this.onEdit,
+    this.localFile,
+    this.svg,
+    this.editingName = false,
+    this.nameController,
+    this.onNameTap,
+    this.onNameChanged,
+    this.onNameTapOutside,
+    this.onPhotoTap,
   });
 
   final String name;
   final String? photoUrl;
   final String heading;
-  final String bio;
-  final bool hasBio;
-  final String phone;
-  final bool hasPhone;
-  final VoidCallback onEdit;
+  final File? localFile;
+  final String? svg;
+  final bool editingName;
+  final TextEditingController? nameController;
+  final VoidCallback? onNameTap;
+  final ValueChanged<String>? onNameChanged;
+  final VoidCallback? onNameTapOutside;
+  final VoidCallback? onPhotoTap;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        heading.toText(
-          color: AppColors.gold,
-          fontSize: 12,
-          fontWeight: AppStyle.w600,
-          letterSpacing: 1.4,
+        20.height,
+        ProfileAvatar(
+          photoUrl: photoUrl,
+          localFile: localFile,
+          svg: svg,
+          name: name,
+          size: 128,
+          onTap: onPhotoTap,
         ),
         18.height,
-        ProfileAvatar(photoUrl: photoUrl, name: name, size: 128),
-        18.height,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: name.toText(
+        if (editingName && nameController != null)
+          CustomTextField(
+            controller: nameController!,
+            hintText: name,
+            onChanged: onNameChanged,
+            onTapOutside: onNameTapOutside,
+            autofocus: true,
+          )
+        else
+          name
+              .toText(
                 fontSize: 28,
                 fontWeight: AppStyle.w700,
                 textAlign: TextAlign.center,
-              ),
-            ),
-            6.width,
-            const Icon(
-              AppIcons.edit,
-              size: 18,
-              color: AppColors.white,
-            ).onPress(onEdit),
-          ],
-        ),
-        8.height,
-        bio.toText(
-          color: hasBio ? AppColors.softGray : AppColors.softGrayDim,
-          fontSize: 15,
-          textAlign: TextAlign.center,
-        ),
-        10.height,
-        (hasPhone ? phone : AppConstant.addPhone).toText(
-          color: hasPhone ? AppColors.white : AppColors.softGrayDim,
-          fontSize: 16,
-          fontWeight: AppStyle.w500,
-        ),
+              )
+              .onPress(onNameTap ?? () {}),
       ],
     );
   }

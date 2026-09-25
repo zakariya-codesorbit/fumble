@@ -28,6 +28,8 @@ class CustomTextField extends StatefulWidget {
     this.inputFormatter = 200,
     this.focusNode,
     this.onTap,
+    this.onTapOutside,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -47,6 +49,8 @@ class CustomTextField extends StatefulWidget {
   final int inputFormatter;
   final FocusNode? focusNode;
   final VoidCallback? onTap;
+  final VoidCallback? onTapOutside;
+  final bool autofocus;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -96,6 +100,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,
           onTap: widget.onTap,
+          autofocus: widget.autofocus,
           cursorColor: AppColors.gold,
           style: TextStyle(
             fontSize: 16,
@@ -106,7 +111,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           inputFormatters: [
             LengthLimitingTextInputFormatter(widget.inputFormatter),
           ],
-          onTapOutside: (_) => FocusScope.of(context).unfocus(),
+          onTapOutside: (_) {
+            FocusScope.of(context).unfocus();
+            widget.onTapOutside?.call();
+          },
           decoration: InputDecoration(
             hintText: widget.hintText,
             hintStyle: TextStyle(

@@ -48,7 +48,7 @@ abstract final class AppConstant {
   static const String scanToFumble = 'SCAN TO FUMBLE';
   static const String memberSince = 'Member since';
   static const String editProfile = 'Edit profile';
-  static const String aboutMe = 'ABOUT ME';
+  static const String aboutMe = 'About me';
   static const String bioLabel = 'Bio';
   static const String phoneLabel = 'Phone';
   static const String aboutMeLabel = 'About me';
@@ -94,7 +94,8 @@ abstract final class AppConstant {
   static const String dataNotFound = 'No connections yet';
 
   static const String scannerTitle = 'FLUMBLE';
-  static const String scannerHint ='Point your camera at their FLUMBLE QR code.';
+  static const String scannerHint =
+      'Point your camera at their FLUMBLE QR code.';
   static const String cameraPermissionDenied =
       'Camera access is required to Flumble a code. Please allow camera access to continue.';
   static const String openSettings = 'Open Settings';
@@ -104,7 +105,7 @@ abstract final class AppConstant {
       'Photo access is disabled. Please open Settings and allow Flumble to access your photos.';
   static const String photoPermissionTitle = 'Permission needed';
   static const String invalidQr = 'This isn\'t a valid FLUMBLE code.';
- 
+
   static const String previewTitle = 'Connect?';
   static const String previewSubtitle = 'Confirm to exchange contact cards.';
   static const String confirmFumble = 'Connect';
@@ -171,9 +172,12 @@ abstract final class AppConstant {
   static const String authWeakPassword =
       'Password must be at least 6 characters.';
   static const String authWrongCredentials = 'Incorrect email or password.';
-  static const String authTooManyRequests = 'Too many attempts. Try again later.';
-  static const String authNetworkError = 'Network error. Check your connection.';
-  static const String authRequiresRecentLogin = 'Please log in again to continue.';
+  static const String authTooManyRequests =
+      'Too many attempts. Try again later.';
+  static const String authNetworkError =
+      'Network error. Check your connection.';
+  static const String authRequiresRecentLogin =
+      'Please log in again to continue.';
   static const String authFailed = 'Authentication failed.';
   static const String authAccountCreationFailed = 'Account creation failed.';
   static const String authLoginFailed = 'Login failed.';
@@ -185,7 +189,8 @@ abstract final class AppConstant {
       'Firestore is not enabled in Firebase Console yet.';
 
   static const String flumbleCodeNotFound = 'FLUMBLE code not found.';
-  static const String unableToResolveCode = 'Unable to resolve this FLUMBLE code.';
+  static const String unableToResolveCode =
+      'Unable to resolve this FLUMBLE code.';
   static const String profileMissing = 'Your profile is missing.';
   static const String defaultUserName = 'Flumble user';
 

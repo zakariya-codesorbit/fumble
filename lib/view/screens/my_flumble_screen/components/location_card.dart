@@ -9,47 +9,49 @@ class LocationCard extends StatelessWidget {
   const LocationCard({
     super.key,
     required this.location,
-    required this.onEdit,
+    this.onTap,
     this.placeholder = false,
+    this.editor,
   });
 
   final String location;
-  final VoidCallback onEdit;
+  final VoidCallback? onTap;
   final bool placeholder;
+  final Widget? editor;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.navBar,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.goldMuted.withAlpha(30)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            AppIcons.location,
-            size: 20,
-            color: placeholder
-                ? AppColors.softGrayDim
-                : AppColors.secondaryText,
-          ),
-          10.width,
-          Expanded(
-            child: location.toText(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.navBar,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.goldMuted.withAlpha(30)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              AppIcons.location,
+              size: 20,
               color: placeholder
                   ? AppColors.softGrayDim
                   : AppColors.secondaryText,
-              fontSize: 16,
             ),
-          ),
-          GestureDetector(
-            onTap: onEdit,
-            child: const Icon(AppIcons.edit, size: 18, color: AppColors.white),
-          ),
-        ],
+            10.width,
+            Expanded(
+              child: editor ??
+                  location.toText(
+                    color: placeholder
+                        ? AppColors.softGrayDim
+                        : AppColors.secondaryText,
+                    fontSize: 16,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
