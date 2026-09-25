@@ -49,6 +49,17 @@ class ScannerNotifier extends AutoDisposeNotifier<ScannerState> {
   Future<void> requestCameraPermission() async {
     state = state.copyWith(checkingPermission: true);
     final status = await Permission.camera.request();
+    _applyStatus(status);
+  }
+
+  /// Recheck after the user returns from Settings. Does not show the system prompt again.
+  Future<void> refreshCameraPermission() async {
+    if (!state.permissionDenied && !state.checkingPermission) return;
+    final status = await Permission.camera.status;
+    _applyStatus(status);
+  }
+
+  void _applyStatus(PermissionStatus status) {
     state = ScannerState(
       checkingPermission: false,
       permissionDenied: !status.isGranted,

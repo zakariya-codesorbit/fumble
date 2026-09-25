@@ -17,11 +17,36 @@ import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
 import 'package:fumble/view/widgets/qr/flumble_scan_overlay.dart';
 
-class QrScannerScreen extends ConsumerWidget {
+class QrScannerScreen extends ConsumerStatefulWidget {
   const QrScannerScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QrScannerScreen> createState() => _QrScannerScreenState();
+}
+
+class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.read(scannerNotifierProvider.notifier).refreshCameraPermission();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final scanner = ref.watch(scannerNotifierProvider);
     final scannerActions = ref.read(scannerNotifierProvider.notifier);
 
