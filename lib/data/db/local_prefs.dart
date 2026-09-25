@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract final class LocalPrefs {
   static const _notificationPromptedKey = 'notification_prompted';
   static const _lastFcmTokenKey = 'last_fcm_token';
+  static const _onboardingCompletedKey = 'onboarding_completed';
 
   static Future<bool> get notificationPrompted async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,6 +28,16 @@ abstract final class LocalPrefs {
     } else {
       await prefs.setString(_lastFcmTokenKey, token);
     }
+  }
+
+  static Future<bool> get onboardingCompleted async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_onboardingCompletedKey) ?? false;
+  }
+
+  static Future<void> setOnboardingCompleted(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingCompletedKey, value);
   }
 
   static Future<void> clear() async {

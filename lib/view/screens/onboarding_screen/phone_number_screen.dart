@@ -42,11 +42,14 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
     }
 
     void submit() {
-      final full = _phoneFieldKey.currentState?.fullNumber ??
-          PhoneCountryField.formatFull(
-            dialCode: _initialDialCode,
-            national: _phone.text,
-          );
+      final national = _phone.text.trim();
+      final full = national.isEmpty
+          ? ''
+          : (_phoneFieldKey.currentState?.fullNumber ??
+              PhoneCountryField.formatFull(
+                dialCode: _initialDialCode,
+                national: national,
+              ));
       actions.savePhoneAndContinue(
         formKey: _formKey,
         phone: full,

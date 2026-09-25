@@ -233,9 +233,7 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                 ],
                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
                 validator: (value) {
-                  if (value == null || value.isBlank) {
-                    return AppConstant.phoneRequired;
-                  }
+                  if (value == null || value.isBlank) return null;
                   if (!PhoneCountryField.isValidNational(value)) {
                     return AppConstant.phoneInvalid;
                   }

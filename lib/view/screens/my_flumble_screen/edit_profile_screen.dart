@@ -65,10 +65,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
-        appBar: const AppAppBar(
-          title: AppConstant.editProfile,
-          showBack: true,
-        ),
+        appBar: const AppAppBar(title: AppConstant.editProfile, showBack: true),
         body: SafeArea(
           child: ListView(
             padding: EdgeInsets.symmetric(horizontal: 28.w),

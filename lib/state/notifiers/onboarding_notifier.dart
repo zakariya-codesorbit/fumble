@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/onboarding_gate.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
+import 'package:fumble/data/db/local_prefs.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/data/repositories/user_repository.dart';
 import 'package:fumble/services/auth/auth_service.dart';
@@ -43,13 +44,13 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
 
   ProfilePhotoService get _photos => ref.read(profilePhotoServiceProvider);
 
-  UserProfile? get _currentProfile =>
-      ref.read(currentUserProfileProvider).valueOrNull;
-
   @override
   OnboardingState build() => const OnboardingState();
 
-  void reset() => state = const OnboardingState();
+  void reset() {
+    state = const OnboardingState();
+    LocalPrefs.setOnboardingCompleted(false);
+  }
 
   Future<String> resolveRoute({
     bool photoFilled = false,
@@ -57,6 +58,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
   }) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return AppRoutes.login;
+    if (await LocalPrefs.onboardingCompleted) return AppRoutes.main;
     UserProfile? profile = ref.read(currentUserProfileProvider).valueOrNull;
     try {
       profile = await _users.getUser(uid) ?? profile;
@@ -87,15 +89,6 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
 
   Future<void> savePhotoAndContinue() {
     return _saveAndContinue(
-      validate: () {
-        final hasPhoto =
-            state.localPhoto != null || (_currentProfile?.hasPhoto ?? false);
-        if (!hasPhoto) {
-          showAppToast(AppConstant.photoRequired, isError: true);
-          return false;
-        }
-        return true;
-      },
       persist: (uid) async {
         if (state.localPhoto == null) return;
         final encoded = await _photos.toBase64(state.localPhoto!);
@@ -111,7 +104,10 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
   }) {
     return _saveAndContinue(
       formKey: formKey,
-      persist: (uid) => _users.updateProfile(uid: uid, phone: phone),
+      persist: (uid) async {
+        if (phone.trim().isEmpty) return;
+        await _users.updateProfile(uid: uid, phone: phone);
+      },
       phoneFilled: true,
     );
   }
@@ -135,6 +131,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     state = state.copyWith(isSaving: true);
     try {
       await persist(uid);
+      if (phoneFilled) await LocalPrefs.setOnboardingCompleted(true);
       final next = await resolveRoute(
         photoFilled: photoFilled,
         phoneFilled: phoneFilled,

@@ -49,5 +49,6 @@ class SplashNotifier extends Notifier<SplashState> {
   }
 }
 
-final splashNotifierProvider =
-    NotifierProvider<SplashNotifier, SplashState>(SplashNotifier.new);
+final splashNotifierProvider = NotifierProvider<SplashNotifier, SplashState>(
+  SplashNotifier.new,
+);
