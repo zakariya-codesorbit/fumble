@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Flumble</string>
+	<string>Fumble</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Flumble</string>
+	<string>Fumble</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -25,13 +25,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Flumble needs camera access to scan FLUMBLE QR codes and take profile photos.</string>
+	<string>Fumble needs camera access to scan Fumble QR codes and take profile photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Flumble needs photo library access to update your profile photo.</string>
+	<string>Fumble needs photo library access to update your profile photo.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Flumble may save photos you capture for your profile.</string>
+	<string>Fumble may save photos you capture for your profile.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Flumble may use the microphone when recording video from the camera.</string>
+	<string>Fumble may use the microphone when recording video from the camera.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -54,7 +54,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>Flumble can notify you when someone fumbles you.</string>
+	<string>Fumble can notify you when someone fumbles you.</string>
 	<key>UISupportsDocumentBrowser</key>
 	<false/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>

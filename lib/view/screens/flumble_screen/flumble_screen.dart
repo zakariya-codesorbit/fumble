@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fumble/services/fumble/flumble_qr.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
@@ -25,6 +26,11 @@ class FlumbleScreen extends ConsumerWidget {
                   .clamp(176.0, AppStyle.fumbleButtonSize)
                   .toDouble();
               final topGap = constraints.maxHeight < 640 ? 24.0 : 48.0;
+              final code =
+                  ref.watch(currentUserProfileProvider).asData?.value?.flumbleCode;
+              final qrData = (code == null || code.isEmpty)
+                  ? null
+                  : FlumbleQr.build(code);
 
               return SingleChildScrollView(
                 child: ConstrainedBox(
@@ -59,6 +65,7 @@ class FlumbleScreen extends ConsumerWidget {
                         Center(
                           child: FumbleButton(
                             size: buttonSize,
+                            qrData: qrData,
                             onPressed: () => ref
                                 .read(fumbleNotifierProvider.notifier)
                                 .startFumble(),

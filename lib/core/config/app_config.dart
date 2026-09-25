@@ -1,9 +1,9 @@
 import 'app_urls.dart';
 
-/// Branding and app-wide configuration for FLUMBLE.
+/// Branding and app-wide configuration for Fumble.
 abstract final class AppConfig {
-  static const String displayName = 'Flumble';
-  static const String brandUpper = 'FLUMBLE';
+  static const String displayName = 'Fumble';
+  static const String brandUpper = 'FUMBLE';
 
   static const String androidApplicationId = 'com.fumble.app';
   static const String iosBundleId = 'com.fumble.app';

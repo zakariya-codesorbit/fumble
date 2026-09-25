@@ -28,7 +28,7 @@ void main() {
   });
 
   test('App branding', () {
-    expect(AppConfig.displayName, 'Flumble');
+    expect(AppConfig.displayName, 'Fumble');
     expect(AppConfig.androidApplicationId, 'com.fumble.app');
   });
 

@@ -5,7 +5,7 @@ import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
-import 'package:fumble/view/widgets/qr/flumble_qr_view.dart';
+import 'package:fumble/view/widgets/qr/flumble_qr_code.dart';
 
 class FlumbleQr extends StatelessWidget {
   const FlumbleQr({
@@ -35,23 +35,12 @@ class FlumbleQr extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.gold, AppColors.goldDeep, AppColors.gold],
-            ),
+            color: AppColors.gold,
             borderRadius: BorderRadius.circular(radius + 3),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.gold.withValues(alpha: 0.18),
-                blurRadius: 18,
-                spreadRadius: 1,
-              ),
-            ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(radius),
-            child: FlumbleQrView(
+            child: FlumbleQrCode(
               data: payload,
               size: AppStyle.flumbleQrSize,
             ),
