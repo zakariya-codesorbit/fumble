@@ -57,10 +57,10 @@ class FumbleApp extends ConsumerWidget {
 }
 
 void _onAuthUi(AuthUiState? previous, AuthUiState next) {
-  if (next.isBusy && previous?.isBusy != true) {
+  if (next.isLoading && previous?.isLoading != true) {
     showLoadingDialog(message: AppConstant.loading);
   }
-  if (!next.isBusy && previous?.isBusy == true) {
+  if (!next.isLoading && previous?.isLoading == true) {
     hideLoadingDialog();
   }
 

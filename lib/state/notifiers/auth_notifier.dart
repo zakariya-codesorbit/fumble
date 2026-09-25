@@ -29,22 +29,22 @@ class AuthNavigation {
 
 class AuthUiState {
   const AuthUiState({
-    this.isBusy = false,
+    this.isLoading = false,
     this.toast,
     this.navigation,
   });
 
-  final bool isBusy;
+  final bool isLoading;
   final AuthToast? toast;
   final AuthNavigation? navigation;
 
   AuthUiState copyWith({
-    bool? isBusy,
+    bool? isLoading,
     AuthToast? toast,
     AuthNavigation? navigation,
   }) {
     return AuthUiState(
-      isBusy: isBusy ?? this.isBusy,
+      isLoading: isLoading ?? this.isLoading,
       toast: toast ?? this.toast,
       navigation: navigation ?? this.navigation,
     );
@@ -96,8 +96,8 @@ class AuthNotifier extends Notifier<AuthUiState> {
   }
 
   Future<void> logout() async {
-    if (state.isBusy) return;
-    state = state.copyWith(isBusy: true);
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true);
     try {
       try {
         await _notifications
@@ -113,12 +113,12 @@ class AuthNotifier extends Notifier<AuthUiState> {
       }
       _resetSessionState();
       state = state.copyWith(
-        isBusy: false,
+        isLoading: false,
         navigation: _clearTo(AppRoutes.login),
       );
     } finally {
-      if (state.isBusy) {
-        state = state.copyWith(isBusy: false);
+      if (state.isLoading) {
+        state = state.copyWith(isLoading: false);
       }
     }
   }
@@ -136,7 +136,7 @@ class AuthNotifier extends Notifier<AuthUiState> {
   }
 
   void onAuthState(AsyncValue<User?>? previous, AsyncValue<User?> next) {
-    if (state.isBusy) return;
+    if (state.isLoading) return;
     final wasLoggedIn = previous?.valueOrNull != null;
     if (wasLoggedIn && next.hasValue && next.valueOrNull == null) {
       _resetSessionState();
@@ -166,15 +166,15 @@ class AuthNotifier extends Notifier<AuthUiState> {
     required Future<void> Function() action,
     void Function()? onSuccess,
   }) async {
-    if (state.isBusy) return;
-    state = state.copyWith(isBusy: true);
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true);
     try {
       await action();
-      state = state.copyWith(isBusy: false);
+      state = state.copyWith(isLoading: false);
       onSuccess?.call();
     } catch (e) {
       state = state.copyWith(
-        isBusy: false,
+        isLoading: false,
         toast: _toastMessage(_auth.messageForAuthError(e), isError: true),
       );
     }
