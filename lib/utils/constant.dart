@@ -93,14 +93,18 @@ abstract final class AppConstant {
   static const String fumbledOn = 'Fumbled';
   static const String dataNotFound = 'No connections yet';
 
-  static const String scannerTitle = 'SCAN FLUMBLE';
-  static const String scannerHint =
-      'Point your camera at their FLUMBLE QR code.';
+  static const String scannerTitle = 'FLUMBLE';
+  static const String scannerHint ='Point your camera at their FLUMBLE QR code.';
   static const String cameraPermissionDenied =
-      'Camera access is required to scan FLUMBLE codes.';
+      'Camera access is required to Flumble a code. Please allow camera access to continue.';
   static const String openSettings = 'Open Settings';
+  static const String cameraPermissionSettings =
+      'Camera access is disabled. Please open Settings and allow Flumble to use your camera.';
+  static const String galleryPermissionSettings =
+      'Photo access is disabled. Please open Settings and allow Flumble to access your photos.';
+  static const String photoPermissionTitle = 'Permission needed';
   static const String invalidQr = 'This isn\'t a valid FLUMBLE code.';
-
+ 
   static const String previewTitle = 'Connect?';
   static const String previewSubtitle = 'Confirm to exchange contact cards.';
   static const String confirmFumble = 'Connect';

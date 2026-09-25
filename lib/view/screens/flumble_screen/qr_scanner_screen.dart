@@ -9,7 +9,6 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
-import 'package:fumble/view/widgets/buttons/secondary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
@@ -37,10 +36,7 @@ class QrScannerScreen extends ConsumerWidget {
             ? const AppLoader()
             : scanner.permissionDenied
                 ? _PermissionDenied(
-                    onRetry: scannerActions.requestCameraPermission,
-                    onOpenSettings: () {
-                      scannerActions.openSettings();
-                    },
+                    onOpenSettings: scannerActions.openSettings,
                   )
                 : Stack(
                     fit: StackFit.expand,
@@ -69,11 +65,8 @@ class QrScannerScreen extends ConsumerWidget {
 }
 
 class _PermissionDenied extends StatelessWidget {
-  const _PermissionDenied({
-    required this.onRetry,
-    required this.onOpenSettings,
-  });
-  final VoidCallback onRetry;
+  const _PermissionDenied({required this.onOpenSettings});
+
   final VoidCallback onOpenSettings;
 
   @override
@@ -92,9 +85,7 @@ class _PermissionDenied extends StatelessWidget {
           fontSize: 16,
         ),
         24.height,
-        PrimaryButton(buttonName: AppConstant.retry, onPressed: onRetry),
-        12.height,
-        SecondaryButton(
+        PrimaryButton(
           buttonName: AppConstant.openSettings,
           onPressed: onOpenSettings,
         ),

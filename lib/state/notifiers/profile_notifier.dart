@@ -15,6 +15,7 @@ import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/widgets/avatar/dicebear_avatar_screen.dart';
+import 'package:fumble/view/widgets/dialogs/photo_permission_popup.dart';
 import 'package:fumble/view/widgets/dialogs/photo_source_sheet.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
@@ -89,9 +90,13 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     if (choice == null || !context.mounted) return;
     switch (choice) {
       case PhotoSourceChoice.camera:
-        await _setPickedFile(_photos.pickFromCamera());
+        if (!await ensurePhotoSourcePermission(context, camera: true)) break;
+        if (!context.mounted) break;
+        await _setPickedFile(context, _photos.pickFromCamera(), camera: true);
       case PhotoSourceChoice.gallery:
-        await _setPickedFile(_photos.pickFromGallery());
+        if (!await ensurePhotoSourcePermission(context, camera: false)) break;
+        if (!context.mounted) break;
+        await _setPickedFile(context, _photos.pickFromGallery(), camera: false);
       case PhotoSourceChoice.dicebear:
         {
           final svg = await Navigator.of(context).push<String>(
@@ -109,7 +114,11 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     }
   }
 
-  Future<void> _setPickedFile(Future<File?> pick) async {
+  Future<void> _setPickedFile(
+    BuildContext context,
+    Future<File?> pick, {
+    required bool camera,
+  }) async {
     try {
       final file = await pick;
       if (file == null) return;
@@ -119,6 +128,11 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         removePhoto: false,
       );
     } catch (e) {
+      if (!context.mounted) return;
+      if (isPhotoPermissionError(e)) {
+        await showPhotoPermissionPopup(context, camera: camera);
+        return;
+      }
       showAppToast(e.toString(), isError: true);
     }
   }
