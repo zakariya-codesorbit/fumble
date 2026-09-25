@@ -32,9 +32,10 @@ class UploadPhotoScreen extends ConsumerWidget {
           ProfileAvatar(
             photoUrl: profile?.photoUrl,
             localFile: onboarding.localPhoto,
+            svg: onboarding.avatarSvg,
             name: profile?.name,
             size: 140,
-            onTap: actions.pickPhoto,
+            onTap: () => actions.showPhotoSheet(context),
           ).center,
           25.height,
           AppConstant.onboardingPhotoHint
@@ -44,7 +45,7 @@ class UploadPhotoScreen extends ConsumerWidget {
                 fontWeight: AppStyle.w500,
                 textAlign: TextAlign.center,
               )
-              .onPress(actions.pickPhoto)
+              .onPress(() => actions.showPhotoSheet(context))
               .center,
         ],
       ),

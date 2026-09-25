@@ -61,7 +61,9 @@ abstract final class AppConstant {
   static const String addPhone = 'Add phone number';
   static const String shareFlumble = 'Share Flumble';
   static const String changePhoto = 'Change photo';
+  static const String takePhoto = 'Take photo';
   static const String chooseFromLibrary = 'Choose from library';
+  static const String dicebearAvatar = 'Avatars';
   static const String removePhoto = 'Remove photo';
   static const String photoUpdated = 'Photo updated';
   static const String photoUploadFailed =

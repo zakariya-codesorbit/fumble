@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
@@ -14,14 +15,16 @@ class ProfileAvatar extends StatelessWidget {
     super.key,
     this.photoUrl,
     this.localFile,
+    this.svg,
     this.name,
     this.size = 64,
     this.onTap,
   });
 
-  /// Network URL or base64 JPEG string (Firestore-backed, no Storage).
+  /// Network URL, base64 JPEG, or an SVG string.
   final String? photoUrl;
   final File? localFile;
+  final String? svg;
   final String? name;
   final double size;
   final VoidCallback? onTap;
@@ -35,6 +38,10 @@ class ProfileAvatar extends StatelessWidget {
     Widget child;
     if (localFile != null) {
       child = Image.file(localFile!, fit: BoxFit.cover);
+    } else if (svg != null && svg!.trim().isNotEmpty) {
+      child = SvgPicture.string(svg!, fit: BoxFit.cover);
+    } else if (ProfilePhotoService.isSvg(photoUrl)) {
+      child = SvgPicture.string(photoUrl!, fit: BoxFit.cover);
     } else if (ProfilePhotoService.isNetworkUrl(photoUrl)) {
       child = CachedNetworkImage(
         imageUrl: photoUrl!,

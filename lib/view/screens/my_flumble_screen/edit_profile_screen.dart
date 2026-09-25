@@ -75,6 +75,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 child: ProfileAvatar(
                   photoUrl: edit.displayPhotoUrl(profile),
                   localFile: edit.localPhoto,
+                  svg: edit.avatarSvg,
                   name: profile?.name ?? _name.text,
                   size: 110,
                   onTap: () => profileActions.showPhotoSheet(context),

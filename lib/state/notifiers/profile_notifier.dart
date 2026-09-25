@@ -12,28 +12,29 @@ import 'package:fumble/data/repositories/user_repository.dart';
 import 'package:fumble/services/fumble/fumble_service.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
-import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/focus_utils.dart';
-import 'package:fumble/view/screens/my_flumble_screen/components/photo_action_tile.dart';
-import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
-import 'package:fumble/view/widgets/extention/int_extension.dart';
+import 'package:fumble/view/widgets/avatar/dicebear_avatar_screen.dart';
+import 'package:fumble/view/widgets/dialogs/photo_source_sheet.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 class ProfileEditState {
   const ProfileEditState({
     this.isSaving = false,
     this.localPhoto,
+    this.avatarSvg,
     this.removePhoto = false,
   });
 
   final bool isSaving;
   final File? localPhoto;
+  final String? avatarSvg;
   final bool removePhoto;
 
   bool hasExistingPhoto(UserProfile? profile) {
     return !removePhoto &&
         (localPhoto != null ||
+            avatarSvg != null ||
             (profile?.photoUrl != null && profile!.photoUrl!.isNotEmpty));
   }
 
@@ -44,11 +45,14 @@ class ProfileEditState {
     bool? isSaving,
     File? localPhoto,
     bool clearLocalPhoto = false,
+    String? avatarSvg,
+    bool clearAvatar = false,
     bool? removePhoto,
   }) {
     return ProfileEditState(
       isSaving: isSaving ?? this.isSaving,
       localPhoto: clearLocalPhoto ? null : (localPhoto ?? this.localPhoto),
+      avatarSvg: clearAvatar ? null : (avatarSvg ?? this.avatarSvg),
       removePhoto: removePhoto ?? this.removePhoto,
     );
   }
@@ -70,50 +74,50 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
   void resetEdit() => state = const ProfileEditState();
 
   void markPhotoRemoved() {
-    state = state.copyWith(clearLocalPhoto: true, removePhoto: true);
-  }
-
-  Future<void> showPhotoSheet(BuildContext context) async {
-    final profile = _currentProfile;
-    final hasExisting = state.hasExistingPhoto(profile);
-
-    await showAppBottomSheet<void>(
-      context: context,
-      title: AppConstant.changePhoto,
-      builder: (sheetContext) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PhotoActionTile(
-              icon: AppIcons.photoLibrary,
-              label: AppConstant.chooseFromLibrary,
-              onTap: () {
-                Navigator.pop(sheetContext);
-                pickFromGallery();
-              },
-            ),
-            if (hasExisting)
-              PhotoActionTile(
-                icon: AppIcons.deleteOutline,
-                label: AppConstant.removePhoto,
-                destructive: true,
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  markPhotoRemoved();
-                },
-              ),
-            8.height,
-          ],
-        );
-      },
+    state = state.copyWith(
+      clearLocalPhoto: true,
+      clearAvatar: true,
+      removePhoto: true,
     );
   }
 
-  Future<void> pickFromGallery() async {
+  Future<void> showPhotoSheet(BuildContext context) async {
+    final choice = await showPhotoSourceSheet(
+      context,
+      showRemove: state.hasExistingPhoto(_currentProfile),
+    );
+    if (choice == null || !context.mounted) return;
+    switch (choice) {
+      case PhotoSourceChoice.camera:
+        await _setPickedFile(_photos.pickFromCamera());
+      case PhotoSourceChoice.gallery:
+        await _setPickedFile(_photos.pickFromGallery());
+      case PhotoSourceChoice.dicebear:
+        {
+          final svg = await Navigator.of(context).push<String>(
+            MaterialPageRoute(builder: (_) => const DicebearAvatarScreen()),
+          );
+          if (svg == null || svg.isEmpty) return;
+          state = state.copyWith(
+            avatarSvg: svg,
+            clearLocalPhoto: true,
+            removePhoto: false,
+          );
+        }
+      case PhotoSourceChoice.remove:
+        markPhotoRemoved();
+    }
+  }
+
+  Future<void> _setPickedFile(Future<File?> pick) async {
     try {
-      final file = await _photos.pickFromGallery();
+      final file = await pick;
       if (file == null) return;
-      state = state.copyWith(localPhoto: file, removePhoto: false);
+      state = state.copyWith(
+        localPhoto: file,
+        clearAvatar: true,
+        removePhoto: false,
+      );
     } catch (e) {
       showAppToast(e.toString(), isError: true);
     }
@@ -141,6 +145,8 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       String? nextPhoto;
       if (state.removePhoto) {
         nextPhoto = '';
+      } else if (state.avatarSvg != null) {
+        nextPhoto = state.avatarSvg;
       } else if (state.localPhoto != null) {
         nextPhoto = await _photos.toBase64(state.localPhoto!);
       }

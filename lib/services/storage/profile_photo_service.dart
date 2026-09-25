@@ -18,9 +18,13 @@ class ProfilePhotoService {
   static const int _maxDimension = 512;
   static const int _quality = 70;
 
-  Future<File?> pickFromGallery() async {
+  Future<File?> pickFromGallery() => _pick(ImageSource.gallery);
+
+  Future<File?> pickFromCamera() => _pick(ImageSource.camera);
+
+  Future<File?> _pick(ImageSource source) async {
     final picked = await _picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       maxWidth: _maxDimension.toDouble(),
       maxHeight: _maxDimension.toDouble(),
       imageQuality: 85,
@@ -53,6 +57,12 @@ class ProfilePhotoService {
   Future<String> toBase64(File file) async {
     final bytes = await file.readAsBytes();
     return base64Encode(bytes);
+  }
+
+  static bool isSvg(String? value) {
+    if (value == null || value.isEmpty) return false;
+    return value.trimLeft().startsWith('<svg') ||
+        value.trimLeft().startsWith('<?xml');
   }
 
   static Uint8List? decodeBase64(String? value) {
