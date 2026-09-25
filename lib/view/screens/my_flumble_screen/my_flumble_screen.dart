@@ -9,7 +9,6 @@ import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/screens/my_flumble_screen/components/flumble_qr.dart';
 import 'package:fumble/view/screens/my_flumble_screen/components/profile_header.dart';
 import 'package:fumble/view/screens/my_flumble_screen/components/profile_info_cards.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
@@ -27,7 +26,6 @@ class MyFlumbleScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(currentUserProfileProvider);
-    final profileActions = ref.read(profileNotifierProvider.notifier);
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -38,12 +36,6 @@ class MyFlumbleScreen extends ConsumerWidget {
             icon: const Icon(AppIcons.settings, color: AppColors.white),
             onPressed: () => push(AppRoutes.settings),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(AppIcons.share, color: AppColors.white),
-              onPressed: profileActions.shareCurrent,
-            ),
-          ],
         ),
         body: profileAsync.when(
           loading: () => const AppLoader(),
@@ -60,7 +52,6 @@ class MyFlumbleScreen extends ConsumerWidget {
               );
             }
 
-            final payload = profileActions.qrPayload(profile.flumbleCode);
             final memberSince = profile.createdAt != null
                 ? DateFormat('MMMM yyyy').format(profile.createdAt!)
                 : null;
@@ -83,17 +74,6 @@ class MyFlumbleScreen extends ConsumerWidget {
                     phone: phone ?? '',
                     hasPhone: hasPhone,
                     onEdit: () => push(AppRoutes.editProfile),
-                    onCall: hasPhone ? () => profileActions.call(phone) : null,
-                    onText: hasPhone ? () => profileActions.text(phone) : null,
-                  ),
-                  20.height,
-                  Divider(color: AppColors.goldMuted.withAlpha(40), height: 1),
-                  20.height,
-                  FlumbleQr(
-                    payload: payload,
-                    code: profile.flumbleCode,
-                    onCopy: () =>
-                        profileActions.copyFlumbleCode(profile.flumbleCode),
                   ),
                   20.height,
                   ProfileInfoCard(
