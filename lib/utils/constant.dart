@@ -97,16 +97,10 @@ abstract final class AppConstant {
       'Point your camera at their Fumble code.';
   static const String shareMyFumble = 'Share My Fumble';
   static const String connectFumble = 'Find a Fumble';
-  static const String readyToFumble = 'Ready to Fumble';
-  static const String holdYourFumble =
-      'Hold still so they can scan your Fumble.';
-  static const String nowShareable = "You're now shareable!";
-  static const String sharingStatus = 'Sharing…';
   static const String tapToCancel = 'Tap to cancel';
   static const String lookingForFumble = 'Looking for a Fumble…';
   static const String scanningMarker = 'Scanning…';
   static const String authenticating = 'Authenticating…';
-  static const String fumbleExpired = 'This Fumble expired. Show it again.';
   static const String exchangeTitle = 'Fumble';
   static const String openSettings = 'Open Settings';
   static const String cameraPermissionSettings =

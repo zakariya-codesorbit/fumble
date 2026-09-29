@@ -66,8 +66,7 @@ class FlumbleScreen extends ConsumerWidget {
                         Center(
                           child: FumbleButton(
                             size: buttonSize,
-                            onPressed: () =>
-                                _openExchange(context, ref, code),
+                            onPressed: () => _openExchange(context, ref, code),
                           ),
                         ),
                         const Spacer(flex: 2),

@@ -6,7 +6,7 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 
-enum FlumbleAuraPhase { idle, sharing, expired }
+enum FlumbleAuraPhase { idle, sharing }
 
 /// Soft galaxy Aura — orbital glow + sparse star points around a center mark.
 class FlumbleAura extends StatefulWidget {
@@ -76,8 +76,6 @@ class _FlumbleAuraState extends State<FlumbleAura>
 
   @override
   Widget build(BuildContext context) {
-    final dimmed = widget.phase == FlumbleAuraPhase.expired;
-
     return GestureDetector(
       onTap: widget.onTap,
       child: SizedBox.square(
@@ -86,25 +84,22 @@ class _FlumbleAuraState extends State<FlumbleAura>
           animation: Listenable.merge([_orbit, _pulse]),
           builder: (context, _) {
             final breath = 1.0 + _pulse.value * 0.018;
-            return Opacity(
-              opacity: dimmed ? 0.35 : 1,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CustomPaint(
-                    size: Size.square(widget.size),
-                    painter: _GalaxyPainter(
-                      orbit: _orbit.value,
-                      pulse: _pulse.value,
-                      active: widget.phase == FlumbleAuraPhase.sharing,
-                    ),
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                CustomPaint(
+                  size: Size.square(widget.size),
+                  painter: _GalaxyPainter(
+                    orbit: _orbit.value,
+                    pulse: _pulse.value,
+                    active: widget.phase == FlumbleAuraPhase.sharing,
                   ),
-                  Transform.scale(
-                    scale: breath,
-                    child: widget.child ?? _Core(size: widget.size * 0.34),
-                  ),
-                ],
-              ),
+                ),
+                Transform.scale(
+                  scale: breath,
+                  child: widget.child ?? _Core(size: widget.size * 0.34),
+                ),
+              ],
             );
           },
         ),
@@ -112,7 +107,6 @@ class _FlumbleAuraState extends State<FlumbleAura>
     );
   }
 }
-
 class _Core extends StatelessWidget {
   const _Core({required this.size});
 
