@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/state/providers/app_providers.dart';
+import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
@@ -92,8 +93,9 @@ void _openExchange(BuildContext context, WidgetRef ref, String? code) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            title: AppConstant.shareMyFumble.toText(fontSize: 16),
+          _ExchangeOption(
+            icon: AppIcons.shareFumble,
+            label: AppConstant.shareMyFumble,
             onTap: () {
               Navigator.pop(sheetContext);
               if (code == null || code.isEmpty) {
@@ -103,8 +105,10 @@ void _openExchange(BuildContext context, WidgetRef ref, String? code) {
               actions.openShare();
             },
           ),
-          ListTile(
-            title: AppConstant.connectFumble.toText(fontSize: 16),
+          Divider(height: 1, thickness: 1, color: AppColors.border),
+          _ExchangeOption(
+            icon: AppIcons.scan,
+            label: AppConstant.connectFumble,
             onTap: () {
               Navigator.pop(sheetContext);
               actions.startFumble();
@@ -114,4 +118,44 @@ void _openExchange(BuildContext context, WidgetRef ref, String? code) {
       );
     },
   );
+}
+
+class _ExchangeOption extends StatelessWidget {
+  const _ExchangeOption({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.gold, size: 22),
+            14.width,
+            Expanded(
+              child: label.toText(
+                fontSize: 16,
+                fontWeight: AppStyle.w600,
+                color: AppColors.white,
+              ),
+            ),
+            const Icon(
+              AppIcons.chevronRight,
+              color: AppColors.softGray,
+              size: 22,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

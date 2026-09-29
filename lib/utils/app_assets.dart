@@ -27,6 +27,7 @@ class AppIcons {
   static const IconData tabConnectionsOutlined = Icons.people_alt_outlined;
   static const IconData settings = Icons.settings_outlined;
   static const IconData share = Icons.ios_share_rounded;
+  static const IconData shareFumble = Icons.blur_circular;
   static const IconData edit = Icons.edit_outlined;
   static const IconData close = Icons.close_rounded;
   static const IconData back = Icons.arrow_back_ios_new_rounded;
@@ -42,6 +43,7 @@ class AppIcons {
   static const IconData personOutline = Icons.person_outline_rounded;
   static const IconData chevronRight = Icons.chevron_right_rounded;
   static const IconData camera = Icons.camera_alt_outlined;
+  static const IconData scan = Icons.qr_code_scanner;
   static const IconData check = Icons.check_rounded;
   static const IconData peopleOutline = Icons.people_outline_rounded;
   static const IconData refresh = Icons.refresh_rounded;
