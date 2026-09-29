@@ -18,9 +18,17 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneFieldKey = GlobalKey<PhoneCountryFieldState>();
   final _phone = TextEditingController();
-  String _initialDialCode = '+1';
-  String _initialCountryCode = 'US';
-  bool _initialized = false;
+  late String _initialDialCode;
+  late String _initialCountryCode;
+  var _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final device = PhoneCountryField.fromDeviceLocale();
+    _initialDialCode = device.dialCode;
+    _initialCountryCode = device.countryCode;
+  }
 
   @override
   void dispose() {
