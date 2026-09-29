@@ -4,7 +4,6 @@ abstract final class AnalyticsEvents {
   static const String authSignup = 'auth_signup';
   static const String authLogin = 'auth_login';
   static const String fumbleStarted = 'fumble_started';
-  static const String qrScannerOpened = 'qr_scanner_opened';
   static const String qrScanned = 'qr_scanned';
   static const String fumblePreviewViewed = 'fumble_preview_viewed';
   static const String fumbleConfirmed = 'fumble_confirmed';

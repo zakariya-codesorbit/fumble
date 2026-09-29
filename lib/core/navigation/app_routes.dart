@@ -8,9 +8,10 @@ import 'package:fumble/view/screens/onboarding_screen/phone_number_screen.dart';
 import 'package:fumble/view/screens/onboarding_screen/upload_photo_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connections_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/flumble_screen.dart';
+import 'package:fumble/view/screens/flumble_screen/flumble_scanner_screen.dart';
+import 'package:fumble/view/screens/flumble_screen/flumble_share_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/fumble_preview_screen.dart';
 import 'package:fumble/view/screens/flumble_screen/fumble_success_screen.dart';
-import 'package:fumble/view/screens/flumble_screen/qr_scanner_screen.dart';
 import 'package:fumble/view/screens/main_screen/main_screen.dart';
 import 'package:fumble/view/screens/my_flumble_screen/my_flumble_screen.dart';
 import 'package:fumble/view/screens/setting_screen/legal_webview_screen.dart';
@@ -29,7 +30,8 @@ abstract final class AppRoutes {
   static const String flumble = '/flumble';
   static const String myFlumble = '/my-flumble';
   static const String connections = '/connections';
-  static const String qrScanner = '/qr-scanner';
+  static const String fumbleShare = '/fumble-share';
+  static const String fumbleScanner = '/fumble-scanner';
   static const String fumblePreview = '/fumble-preview';
   static const String fumbleSuccess = '/fumble-success';
   static const String settings = '/settings';
@@ -49,7 +51,8 @@ abstract final class AppRoutes {
         flumble: (_) => const FlumbleScreen(),
         myFlumble: (_) => const MyFlumbleScreen(),
         connections: (_) => const ConnectionsScreen(),
-        qrScanner: (_) => const QrScannerScreen(),
+        fumbleShare: (_) => const FlumbleShareScreen(),
+        fumbleScanner: (_) => const FlumbleScannerScreen(),
         fumblePreview: (_) => const FumblePreviewScreen(),
         fumbleSuccess: (_) => const FumbleSuccessScreen(),
         settings: (_) => const SettingScreen(),

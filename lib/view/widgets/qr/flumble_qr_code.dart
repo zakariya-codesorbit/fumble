@@ -50,7 +50,7 @@ class _FlumbleQrCodeState extends State<FlumbleQrCode> {
       center,
       radius,
       Paint()
-        ..color = AppColors.qrModule
+        ..color = AppColors.background
         ..style = PaintingStyle.stroke
         ..strokeWidth = 8,
     );
@@ -59,7 +59,7 @@ class _FlumbleQrCodeState extends State<FlumbleQrCode> {
       text: TextSpan(
         text: AppConstant.fumbleCta.split('').join(' '),
         style: const TextStyle(
-          color: AppColors.qrModule,
+          color: AppColors.background,
           fontSize: 28,
           fontWeight: AppStyle.w600,
           letterSpacing: 2,
@@ -87,7 +87,7 @@ class _FlumbleQrCodeState extends State<FlumbleQrCode> {
         errorCorrectLevel: QrErrorCorrectLevel.H,
         decoration: PrettyQrDecoration(
           background: AppColors.gold,
-          shape: const PrettyQrDotsSymbol(color: AppColors.qrModule),
+          shape: const PrettyQrDotsSymbol(color: AppColors.background),
           quietZone: const PrettyQrQuietZone.modules(4),
           image: _mark == null
               ? null

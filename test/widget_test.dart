@@ -12,7 +12,8 @@ void main() {
     expect(AppRoutes.routes.containsKey(AppRoutes.login), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.signup), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.main), isTrue);
-    expect(AppRoutes.routes.containsKey(AppRoutes.qrScanner), isTrue);
+    expect(AppRoutes.routes.containsKey(AppRoutes.fumbleScanner), isTrue);
+    expect(AppRoutes.routes.containsKey(AppRoutes.fumbleShare), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.fumblePreview), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.settings), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.onboardingPhoto), isTrue);

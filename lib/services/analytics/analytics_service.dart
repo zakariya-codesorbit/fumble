@@ -33,7 +33,6 @@ class AnalyticsService {
   Future<void> logSignup() => log(AnalyticsEvents.authSignup);
   Future<void> logLogin() => log(AnalyticsEvents.authLogin);
   Future<void> logFumbleStarted() => log(AnalyticsEvents.fumbleStarted);
-  Future<void> logQrScannerOpened() => log(AnalyticsEvents.qrScannerOpened);
   Future<void> logQrScanned() => log(AnalyticsEvents.qrScanned);
   Future<void> logFumblePreviewViewed() =>
       log(AnalyticsEvents.fumblePreviewViewed);

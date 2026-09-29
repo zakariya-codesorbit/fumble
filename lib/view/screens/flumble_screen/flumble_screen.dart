@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/services/fumble/flumble_qr.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/flumble_screen/components/fumble_button.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
+import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 class FlumbleScreen extends ConsumerWidget {
   const FlumbleScreen({super.key});
@@ -26,11 +27,11 @@ class FlumbleScreen extends ConsumerWidget {
                   .clamp(176.0, AppStyle.fumbleButtonSize)
                   .toDouble();
               final topGap = constraints.maxHeight < 640 ? 24.0 : 48.0;
-              final code =
-                  ref.watch(currentUserProfileProvider).asData?.value?.flumbleCode;
-              final qrData = (code == null || code.isEmpty)
-                  ? null
-                  : FlumbleQr.build(code);
+              final code = ref
+                  .watch(currentUserProfileProvider)
+                  .asData
+                  ?.value
+                  ?.flumbleCode;
 
               return SingleChildScrollView(
                 child: ConstrainedBox(
@@ -65,10 +66,8 @@ class FlumbleScreen extends ConsumerWidget {
                         Center(
                           child: FumbleButton(
                             size: buttonSize,
-                            qrData: qrData,
-                            onPressed: () => ref
-                                .read(fumbleNotifierProvider.notifier)
-                                .startFumble(),
+                            onPressed: () =>
+                                _openExchange(context, ref, code),
                           ),
                         ),
                         const Spacer(flex: 2),
@@ -83,4 +82,37 @@ class FlumbleScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+void _openExchange(BuildContext context, WidgetRef ref, String? code) {
+  final actions = ref.read(fumbleNotifierProvider.notifier);
+  showAppBottomSheet<void>(
+    context: context,
+    title: AppConstant.exchangeTitle,
+    builder: (sheetContext) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: AppConstant.shareMyFumble.toText(fontSize: 16),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              if (code == null || code.isEmpty) {
+                showAppToast(AppConstant.completeProfile, isError: true);
+                return;
+              }
+              actions.openShare();
+            },
+          ),
+          ListTile(
+            title: AppConstant.connectFumble.toText(fontSize: 16),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              actions.startFumble();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

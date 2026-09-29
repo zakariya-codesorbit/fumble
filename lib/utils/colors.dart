@@ -16,8 +16,8 @@ abstract final class AppColors {
   static const Color goldMuted = Color(0xFFB8962E);
   static const Color goldDeep = Color(0xFFB8860B);
   static const Color qrBackground = Color(0xFF080808);
-  static const Color qrGround = Color(0xFFFFF6E4);
-  static const Color qrModule = Color(0xFF4A3C0A);
+  static const Color qrGround = gold;
+  static const Color qrModule = background;
   static const Color softGray = Color(0xFF8A8A8A);
   static const Color softGrayDim = Color(0xFF5C5C5C);
   static const Color border = Color(0x1AFFFFFF);

@@ -49,9 +49,10 @@ class FumbleNotifier extends Notifier<FumbleState> {
 
   Future<void> startFumble() async {
     await AnalyticsService.instance.logFumbleStarted();
-    await AnalyticsService.instance.logQrScannerOpened();
-    push(AppRoutes.qrScanner);
+    push(AppRoutes.fumbleScanner);
   }
+
+  void openShare() => push(AppRoutes.fumbleShare);
 
   Future<bool> resolveScan(String raw) async {
     if (state.isHandlingScan) return false;
