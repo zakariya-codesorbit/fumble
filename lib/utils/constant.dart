@@ -93,13 +93,11 @@ abstract final class AppConstant {
   static const String fumbledOn = 'Fumbled';
   static const String dataNotFound = 'No connections yet';
 
-  static const String scannerHint =
-      'Point your camera at their Fumble code.';
   static const String shareMyFumble = 'Share My Fumble';
   static const String connectFumble = 'Find a Fumble';
+  static const String scannerHint =
+      'Point your camera at their Fumble code.';
   static const String tapToCancel = 'Tap to cancel';
-  static const String lookingForFumble = 'Looking for a Fumble…';
-  static const String scanningMarker = 'Scanning…';
   static const String authenticating = 'Authenticating…';
   static const String exchangeTitle = 'Fumble';
   static const String openSettings = 'Open Settings';

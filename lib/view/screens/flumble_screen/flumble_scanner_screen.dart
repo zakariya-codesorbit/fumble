@@ -7,7 +7,6 @@ import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
-import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -16,7 +15,7 @@ import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
 
-/// Find a Fumble — camera scanner with branded frame overlay.
+/// Find a Fumble — circular scanner matching the share QR shape.
 class FlumbleScannerScreen extends ConsumerStatefulWidget {
   const FlumbleScannerScreen({super.key});
 
@@ -52,13 +51,11 @@ class _FlumbleScannerScreenState extends ConsumerState<FlumbleScannerScreen>
   Widget build(BuildContext context) {
     final scanner = ref.watch(scannerNotifierProvider);
     final actions = ref.read(scannerNotifierProvider.notifier);
-    final frameSize = MediaQuery.sizeOf(context).width * 0.78;
+    final cutout = MediaQuery.sizeOf(context).width * 0.72;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
         appBar: AppAppBar(
-          title: AppConstant.connectFumble,
-          brandTitle: true,
           leading: BackIconButton(icon: AppIcons.close, onTap: pop),
         ),
         body: scanner.checkingPermission
@@ -80,67 +77,26 @@ class _FlumbleScannerScreenState extends ConsumerState<FlumbleScannerScreen>
                           if (mounted) setState(() => _detecting = false);
                         },
                       ),
-                      Container(
-                        color: AppColors.background.withValues(alpha: 0.28),
-                      ),
-                      Center(
-                        child: SizedBox(
-                          width: frameSize,
-                          height: frameSize,
-                          child: CustomPaint(
-                            painter: _ScanFramePainter(
-                              color: AppColors.gold,
-                              pulse: _detecting,
-                            ),
-                          ),
+                      CustomPaint(
+                        painter: _CircularScanOverlayPainter(
+                          cutoutSize: cutout,
+                          pulse: _detecting,
                         ),
+                        child: const SizedBox.expand(),
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
-                        child: _StatusSheet(detecting: _detecting),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
+                          child: AppConstant.scannerHint.toText(
+                            color: AppColors.softGray,
+                            fontSize: 15,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-      ),
-    );
-  }
-}
-
-class _StatusSheet extends StatelessWidget {
-  const _StatusSheet({required this.detecting});
-
-  final bool detecting;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevated.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.45)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          (detecting
-                  ? AppConstant.scanningMarker
-                  : AppConstant.lookingForFumble)
-              .toText(
-            color: AppColors.gold,
-            fontSize: 16,
-            fontWeight: AppStyle.w600,
-            textAlign: TextAlign.center,
-          ),
-          6.height,
-          AppConstant.scannerHint.toText(
-            color: AppColors.softGray,
-            fontSize: 13,
-            textAlign: TextAlign.center,
-          ),
-        ],
       ),
     );
   }
@@ -180,51 +136,63 @@ class _Denied extends StatelessWidget {
   }
 }
 
-class _ScanFramePainter extends CustomPainter {
-  _ScanFramePainter({required this.color, required this.pulse});
+/// Dimmed mask with a circular gold cutout matching the share QR.
+class _CircularScanOverlayPainter extends CustomPainter {
+  _CircularScanOverlayPainter({
+    required this.cutoutSize,
+    required this.pulse,
+  });
 
-  final Color color;
+  final double cutoutSize;
   final bool pulse;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      const Radius.circular(28),
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = cutoutSize / 2;
+
+    final hole = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Offset.zero & size)
+      ..addOval(Rect.fromCircle(center: center, radius: radius));
+    canvas.drawPath(
+      hole,
+      Paint()..color = AppColors.background.withValues(alpha: 0.72),
     );
-    canvas.drawRRect(
-      rect,
+
+    // Soft outer glow ring.
+    canvas.drawCircle(
+      center,
+      radius + 10,
       Paint()
-        ..color = color.withValues(alpha: pulse ? 0.55 : 0.35)
+        ..color = AppColors.gold.withValues(alpha: pulse ? 0.18 : 0.10)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = pulse ? 3.5 : 2.5,
+        ..strokeWidth = 10,
     );
 
-    const arm = 28.0;
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5
-      ..strokeCap = StrokeCap.round;
-    final r = Offset.zero & size;
+    // Main circular frame (matches QR plate).
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = AppColors.gold.withValues(alpha: pulse ? 0.95 : 0.8)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = pulse ? 3.5 : 2.8,
+    );
 
-    void corner(Offset a, Offset b, Offset c) {
-      canvas.drawLine(a, b, paint);
-      canvas.drawLine(b, c, paint);
-    }
-
-    corner(r.topLeft + const Offset(0, arm), r.topLeft,
-        r.topLeft + const Offset(arm, 0));
-    corner(r.topRight + const Offset(-arm, 0), r.topRight,
-        r.topRight + const Offset(0, arm));
-    corner(r.bottomLeft + const Offset(0, -arm), r.bottomLeft,
-        r.bottomLeft + const Offset(arm, 0));
-    corner(r.bottomRight + const Offset(-arm, 0), r.bottomRight,
-        r.bottomRight + const Offset(0, -arm));
+    // Inner guide ring.
+    canvas.drawCircle(
+      center,
+      radius - 10,
+      Paint()
+        ..color = AppColors.gold.withValues(alpha: 0.28)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _ScanFramePainter oldDelegate) {
-    return oldDelegate.color != color || oldDelegate.pulse != pulse;
+  bool shouldRepaint(covariant _CircularScanOverlayPainter oldDelegate) {
+    return oldDelegate.cutoutSize != cutoutSize || oldDelegate.pulse != pulse;
   }
 }
