@@ -8,6 +8,17 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 
+/// Dots require a radius of at least 1 logical pixel. [PrettyQrDotsSymbol]
+/// asserts during paint when the code is smaller than that.
+bool fumbleQrDotsFit(String data, double size) {
+  if (size <= 0) return false;
+  final modules = QrCode.fromData(
+    data: data,
+    errorCorrectLevel: QrErrorCorrectLevel.H,
+  ).moduleCount;
+  return size / modules / 2 >= 1;
+}
+
 /// Branded Fumble QR. [data] is the existing payload, unchanged.
 class FumbleQrCode extends StatefulWidget {
   const FumbleQrCode({
@@ -87,7 +98,12 @@ class _fumbleQrCodeState extends State<FumbleQrCode> {
         errorCorrectLevel: QrErrorCorrectLevel.H,
         decoration: PrettyQrDecoration(
           background: AppColors.gold,
-          shape: const PrettyQrDotsSymbol(color: AppColors.background),
+          shape: fumbleQrDotsFit(widget.data, widget.size)
+              ? const PrettyQrDotsSymbol(color: AppColors.background)
+              : const PrettyQrSmoothSymbol(
+                  color: AppColors.background,
+                  roundFactor: 1,
+                ),
           quietZone: const PrettyQrQuietZone.modules(4),
           image: _mark == null
               ? null
