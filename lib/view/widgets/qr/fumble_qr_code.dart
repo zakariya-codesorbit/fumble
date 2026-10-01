@@ -164,8 +164,8 @@ class _FilledPlatePainter extends CustomPainter {
         final rect = Rect.fromLTWH(
           origin.dx + col * module,
           origin.dy + row * module,
-          module + 0.2,
-          module + 0.2,
+          module + 0.01,
+          module + 0.01,
         );
         final point = rect.center;
         if ((point - center).distance > limit) continue;
