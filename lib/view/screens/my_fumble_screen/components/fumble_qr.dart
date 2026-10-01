@@ -21,8 +21,6 @@ class FumbleQr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = AppStyle.fumbleQrSize * AppStyle.fumbleQrRadiusFactor;
-
     return Column(
       children: [
         AppConstant.scanToFumble.toText(
@@ -34,14 +32,11 @@ class FumbleQr extends StatelessWidget {
         18.height,
         Container(
           padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.gold,
-            borderRadius: BorderRadius.circular(radius + 3),
+            shape: BoxShape.circle,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(radius),
-            child: FumbleQrCode(data: payload, size: AppStyle.fumbleQrSize),
-          ),
+          child: FumbleQrCode(data: payload, size: AppStyle.fumbleQrSize),
         ),
         16.height,
         GestureDetector(

@@ -9,7 +9,6 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
-import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
@@ -80,14 +79,9 @@ class _FumbleShareScreenState extends ConsumerState<FumbleShareScreen> {
                           child: FumbleAura(
                             size: size,
                             phase: FumbleAuraPhase.sharing,
-                            child: ClipOval(
-                              child: ColoredBox(
-                                color: AppColors.gold,
-                                child: FumbleQrCode(
-                                  data: payload,
-                                  size: size * 0.32,
-                                ).paddingAll(15),
-                              ),
+                            child: FumbleQrCode(
+                              data: payload,
+                              size: size * 0.32 + 30,
                             ),
                           ),
                         );

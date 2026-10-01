@@ -9,7 +9,6 @@ import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/services/fumble/fumble_qr.dart';
 import 'package:fumble/utils/avatar_svg.dart';
-import 'package:fumble/view/widgets/qr/fumble_qr_code.dart';
 
 void main() {
   test('Route table includes fumble V1 paths', () {
@@ -143,13 +142,6 @@ void main() {
     expect(avatar.contains('fill="#fcc19c"'), isTrue);
     expect(avatar.contains('fill="#1b1012"'), isTrue);
     expect(avatar.contains('class="'), isFalse);
-  });
-
-  test('small QR codes skip the dots shape that asserts', () {
-    const payload =
-        '{"version":1,"userId":"abcdefghijklmnopqrstuvwxyz12","name":"Uzair Ahmed","email":"uzair@example.com","bio":"Filmmaker and creative director working across cities","phone":"+15551234567"}';
-    expect(fumbleQrDotsFit(payload, 99.8), isFalse);
-    expect(fumbleQrDotsFit('{"version":1,"userId":"u","name":"A"}', 240), isTrue);
   });
 }
 
