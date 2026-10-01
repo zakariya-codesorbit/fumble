@@ -14,7 +14,7 @@ import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/focus_utils.dart';
-import 'package:fumble/view/widgets/avatar/dicebear_avatar_screen.dart';
+import 'package:fumble/view/widgets/avatar/avatar_picker_sheet.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/dialogs/photo_permission_popup.dart';
 import 'package:fumble/view/widgets/dialogs/photo_source_sheet.dart';
@@ -98,14 +98,10 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
         if (!await ensurePhotoSourcePermission(context, camera: false)) break;
         if (!context.mounted) break;
         await _setPickedFile(context, _photos.pickFromGallery(), camera: false);
-      case PhotoSourceChoice.dicebear:
-        {
-          final svg = await Navigator.of(context).push<String>(
-            MaterialPageRoute(builder: (_) => const DicebearAvatarScreen()),
-          );
-          if (svg == null || svg.isEmpty) return;
-          state = state.copyWith(avatarSvg: svg, clearLocalPhoto: true);
-        }
+      case PhotoSourceChoice.avatar:
+        final path = await showAvatarPickerSheet(context);
+        if (path == null || path.isEmpty) return;
+        state = state.copyWith(avatarSvg: path, clearLocalPhoto: true);
       case PhotoSourceChoice.remove:
         break;
     }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fumble/utils/app_avatars.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/core/navigation/app_routes.dart';
@@ -20,6 +22,7 @@ import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
+import '../../../utils/avatar_svg.dart';
 import 'components/location_card.dart';
 
 class MyFumbleScreen extends ConsumerWidget {

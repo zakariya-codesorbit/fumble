@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:fumble/utils/app_avatars.dart';
+import 'package:fumble/utils/avatar_svg.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
@@ -40,9 +42,10 @@ class ProfileAvatar extends StatelessWidget {
     if (localFile != null) {
       child = Image.file(localFile!, fit: BoxFit.cover);
     } else if (svg != null && svg!.trim().isNotEmpty) {
-      child = SvgPicture.string(svg!, fit: BoxFit.cover);
-    } else if (ProfilePhotoService.isSvg(photoUrl)) {
-      child = SvgPicture.string(photoUrl!, fit: BoxFit.cover);
+      child = _svg(svg!);
+    } else if (AppAvatars.isAsset(photoUrl) ||
+        ProfilePhotoService.isSvg(photoUrl)) {
+      child = _svg(photoUrl!);
     } else if (ProfilePhotoService.isNetworkUrl(photoUrl)) {
       child = CachedNetworkImage(
         imageUrl: photoUrl!,
@@ -72,8 +75,15 @@ class ProfileAvatar extends StatelessWidget {
         color: AppColors.surfaceElevated,
         border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: child,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.surfaceElevated,
+          //border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: child,
+      ).paddingAll(1),
     );
 
     if (onTap == null) return avatar;
@@ -106,6 +116,13 @@ class ProfileAvatar extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _svg(String value) {
+  if (AppAvatars.isAsset(value)) {
+    return AvatarSvgPicture(asset: value);
+  }
+  return SvgPicture.string(value, fit: BoxFit.cover);
 }
 
 class _Initial extends StatelessWidget {

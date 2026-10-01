@@ -6,7 +6,7 @@ import 'package:fumble/view/screens/my_fumble_screen/components/photo_action_til
 import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 
-enum PhotoSourceChoice { camera, gallery, dicebear, remove }
+enum PhotoSourceChoice { camera, gallery, avatar, remove }
 
 Future<PhotoSourceChoice?> showPhotoSourceSheet(
   BuildContext context, {
@@ -31,9 +31,8 @@ Future<PhotoSourceChoice?> showPhotoSourceSheet(
           ),
           PhotoActionTile(
             icon: Icons.face_retouching_natural_outlined,
-            label: AppConstant.dicebearAvatar,
-            onTap: () =>
-                Navigator.pop(sheetContext, PhotoSourceChoice.dicebear),
+            label: AppConstant.avatars,
+            onTap: () => Navigator.pop(sheetContext, PhotoSourceChoice.avatar),
           ),
           if (showRemove)
             PhotoActionTile(
