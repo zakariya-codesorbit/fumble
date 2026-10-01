@@ -5,7 +5,7 @@ import 'package:fumble/services/analytics/analytics_events.dart';
 import 'package:fumble/services/analytics/analytics_service.dart';
 
 class BottomNavState {
-  const BottomNavState({this.index = AppNavIndex.flumble});
+  const BottomNavState({this.index = AppNavIndex.fumble});
   final int index;
 
   BottomNavState copyWith({int? index}) =>
@@ -22,8 +22,8 @@ class BottomNavNotifier extends Notifier<BottomNavState> {
     state = state.copyWith(index: index);
     final tab = AnalyticsParams.tabNameForIndex(index);
     AnalyticsService.instance.logTabSelected(tab);
-    if (index == AppNavIndex.myFlumble) {
-      AnalyticsService.instance.logMyFlumbleOpened();
+    if (index == AppNavIndex.myfumble) {
+      AnalyticsService.instance.logMyfumbleOpened();
     } else if (index == AppNavIndex.connections) {
       AnalyticsService.instance.logConnectionsOpened();
     }
@@ -32,5 +32,6 @@ class BottomNavNotifier extends Notifier<BottomNavState> {
   void reset() => state = const BottomNavState();
 }
 
-final bottomNavProvider =
-    NotifierProvider<BottomNavNotifier, BottomNavState>(BottomNavNotifier.new);
+final bottomNavProvider = NotifierProvider<BottomNavNotifier, BottomNavState>(
+  BottomNavNotifier.new,
+);

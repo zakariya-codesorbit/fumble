@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/widgets/qr/flumble_brand_mark.dart';
+import '../../../widgets/qr/fumble_brand_mark.dart';
 
 class FumbleButton extends StatelessWidget {
   const FumbleButton({
@@ -28,7 +28,7 @@ class FumbleButton extends StatelessWidget {
           onTap: onPressed,
           splashColor: AppColors.gold.withValues(alpha: 0.12),
           highlightColor: AppColors.gold.withValues(alpha: 0.06),
-          child: FlumbleBrandMark(size: size),
+          child: FumbleBrandMark(size: size),
         ),
       ),
     );

@@ -6,29 +6,28 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 
-enum FlumbleAuraPhase { idle, sharing }
+enum FumbleAuraPhase { idle, sharing }
 
 /// Soft galaxy Aura — orbital glow + sparse star points around a center mark.
-class FlumbleAura extends StatefulWidget {
-  const FlumbleAura({
+class FumbleAura extends StatefulWidget {
+  const FumbleAura({
     super.key,
     required this.size,
-    this.phase = FlumbleAuraPhase.idle,
+    this.phase = FumbleAuraPhase.idle,
     this.child,
     this.onTap,
   });
 
   final double size;
-  final FlumbleAuraPhase phase;
+  final FumbleAuraPhase phase;
   final Widget? child;
   final VoidCallback? onTap;
 
   @override
-  State<FlumbleAura> createState() => _FlumbleAuraState();
+  State<FumbleAura> createState() => _FumbleAuraState();
 }
 
-class _FlumbleAuraState extends State<FlumbleAura>
-    with TickerProviderStateMixin {
+class _FumbleAuraState extends State<FumbleAura> with TickerProviderStateMixin {
   late final AnimationController _orbit;
   late final AnimationController _pulse;
 
@@ -47,13 +46,13 @@ class _FlumbleAuraState extends State<FlumbleAura>
   }
 
   @override
-  void didUpdateWidget(FlumbleAura oldWidget) {
+  void didUpdateWidget(FumbleAura oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.phase != widget.phase) _sync();
   }
 
   void _sync() {
-    final live = widget.phase == FlumbleAuraPhase.sharing;
+    final live = widget.phase == FumbleAuraPhase.sharing;
     if (live) {
       _orbit.repeat();
       _pulse.repeat(reverse: true);
@@ -92,7 +91,7 @@ class _FlumbleAuraState extends State<FlumbleAura>
                   painter: _GalaxyPainter(
                     orbit: _orbit.value,
                     pulse: _pulse.value,
-                    active: widget.phase == FlumbleAuraPhase.sharing,
+                    active: widget.phase == FumbleAuraPhase.sharing,
                   ),
                 ),
                 Transform.scale(
@@ -107,6 +106,7 @@ class _FlumbleAuraState extends State<FlumbleAura>
     );
   }
 }
+
 class _Core extends StatelessWidget {
   const _Core({required this.size});
 
@@ -121,11 +121,7 @@ class _Core extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: const RadialGradient(
-          colors: [
-            AppColors.white,
-            AppColors.gold,
-            AppColors.goldDeep,
-          ],
+          colors: [AppColors.white, AppColors.gold, AppColors.goldDeep],
           stops: [0.0, 0.55, 1.0],
         ),
         boxShadow: [
@@ -228,8 +224,7 @@ class _GalaxyPainter extends CustomPainter {
         canvas.drawCircle(
           p,
           1.8 - i * 0.15,
-          Paint()
-            ..color = AppColors.gold.withValues(alpha: 0.22 - i * 0.022),
+          Paint()..color = AppColors.gold.withValues(alpha: 0.22 - i * 0.022),
         );
       }
     }
@@ -240,8 +235,12 @@ class _GalaxyPainter extends CustomPainter {
       final a = star.angle + drift;
       final r = radius * star.radius;
       final twinkle =
-          0.35 + 0.65 * (0.5 + 0.5 * math.sin((pulse + star.phase) * math.pi * 2));
-      final p = Offset(center.dx + r * math.cos(a), center.dy + r * math.sin(a));
+          0.35 +
+          0.65 * (0.5 + 0.5 * math.sin((pulse + star.phase) * math.pi * 2));
+      final p = Offset(
+        center.dx + r * math.cos(a),
+        center.dy + r * math.sin(a),
+      );
       final s = star.size * (0.85 + twinkle * 0.25);
 
       if (star.bright) {

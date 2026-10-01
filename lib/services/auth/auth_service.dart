@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../data/db/local_prefs.dart';
 import '../../data/models/user_profile.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../utils/constant.dart';
@@ -126,6 +127,11 @@ class AuthService {
     }
     await _auth.signOut();
     try {
+      await LocalPrefs.clearUserProfile();
+    } catch (_) {
+      /* ignore */
+    }
+    try {
       await _crashlytics.setUserId(null);
     } catch (_) {/* ignore */}
   }
@@ -152,6 +158,11 @@ class AuthService {
     await reauthenticate(password);
     await _users.deleteUserDoc(user.uid);
     await user.delete();
+    try {
+      await LocalPrefs.clearUserProfile();
+    } catch (_) {
+      /* ignore */
+    }
     await _crashlytics.setUserId(null);
   }
 

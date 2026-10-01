@@ -19,14 +19,14 @@ class BottomNavigation extends ConsumerWidget {
 
     final tabs = const [
       _NavTab(
-        label: AppConstant.tabFlumble,
-        filledIcon: AppIcons.tabFlumble,
-        outlinedIcon: AppIcons.tabFlumble,
+        label: AppConstant.tabfumble,
+        filledIcon: AppIcons.tabfumble,
+        outlinedIcon: AppIcons.tabfumble,
       ),
       _NavTab(
-        label: AppConstant.tabMyFlumble,
-        filledIcon: AppIcons.tabMyFlumble,
-        outlinedIcon: AppIcons.tabMyFlumbleOutlined,
+        label: AppConstant.tabMyfumble,
+        filledIcon: AppIcons.tabMyfumble,
+        outlinedIcon: AppIcons.tabMyfumbleOutlined,
       ),
       _NavTab(
         label: AppConstant.tabConnections,

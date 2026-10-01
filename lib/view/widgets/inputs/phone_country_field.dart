@@ -8,7 +8,7 @@ import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 
-/// Phone input with country dial-code picker (dark-theme Flumble styling).
+/// Phone input with country dial-code picker (dark-theme fumble styling).
 class PhoneCountryField extends StatefulWidget {
   const PhoneCountryField({
     super.key,
@@ -80,11 +80,7 @@ class PhoneCountryField extends StatefulWidget {
 
     final raw = stored?.trim() ?? '';
     if (raw.isEmpty) {
-      return (
-        dialCode: fbDial,
-        countryCode: fbCountry,
-        national: '',
-      );
+      return (dialCode: fbDial, countryCode: fbCountry, national: '');
     }
     if (!raw.startsWith('+')) {
       return (
@@ -109,11 +105,7 @@ class PhoneCountryField extends StatefulWidget {
         );
       }
     }
-    return (
-      dialCode: fbDial,
-      countryCode: fbCountry,
-      national: digits,
-    );
+    return (dialCode: fbDial, countryCode: fbCountry, national: digits);
   }
 
   @override
@@ -127,9 +119,9 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
   String get dialCode => _dialCode;
 
   String get fullNumber => PhoneCountryField.formatFull(
-        dialCode: _dialCode,
-        national: widget.controller.text,
-      );
+    dialCode: _dialCode,
+    national: widget.controller.text,
+  );
 
   @override
   void initState() {
@@ -261,8 +253,10 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                   color: AppColors.white,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
-                closeIcon:
-                    const Icon(Icons.close_rounded, color: AppColors.softGray),
+                closeIcon: const Icon(
+                  Icons.close_rounded,
+                  color: AppColors.softGray,
+                ),
                 pickerStyle: PickerStyle.bottomSheet,
               ),
             ),

@@ -7,8 +7,8 @@ abstract final class AppConstant {
   static const String appName = 'Fumble';
   static const String brand = 'FUMBLE';
 
-  static const String tabFlumble = 'FUMBLE';
-  static const String tabMyFlumble = 'MY FUMBLE';
+  static const String tabfumble = 'FUMBLE';
+  static const String tabMyfumble = 'MY FUMBLE';
   static const String tabConnections = 'CONNECTIONS';
 
   static const String readyTo = 'Ready to';
@@ -59,7 +59,7 @@ abstract final class AppConstant {
   static const String addAboutMe = 'Tell people about yourself';
   static const String addLocation = 'Add location';
   static const String addPhone = 'Add phone number';
-  static const String shareFlumble = 'Share Fumble';
+  static const String sharefumble = 'Share Fumble';
   static const String changePhoto = 'Change photo';
   static const String takePhoto = 'Take photo';
   static const String chooseFromLibrary = 'Choose from library';
@@ -78,12 +78,12 @@ abstract final class AppConstant {
   static const String completeProfile =
       'Complete your profile to get a Fumble code.';
 
-  static String shareFlumbleMessage(String code) =>
+  static String sharefumbleMessage(String code) =>
       'Fumble with me — code $code';
 
   static String memberSinceLabel(String date) => '$memberSince $date';
 
-  static String firstNameFlumble(String firstName) =>
+  static String firstNamefumble(String firstName) =>
       '${firstName.toUpperCase()} FUMBLE';
 
   static const String connectionsTitle = 'CONNECTIONS';
@@ -95,8 +95,7 @@ abstract final class AppConstant {
 
   static const String shareMyFumble = 'Share Fumble';
   static const String connectFumble = 'Find Fumble';
-  static const String scannerHint =
-      'Point your camera at their Fumble code.';
+  static const String scannerHint = 'Point your camera at their Fumble code.';
   static const String tapToCancel = 'Tap to cancel';
   static const String authenticating = 'Authenticating…';
   static const String exchangeTitle = 'Fumble';
@@ -107,6 +106,11 @@ abstract final class AppConstant {
       'Photo access is disabled. Please open Settings and allow Fumble to access your photos.';
   static const String photoPermissionTitle = 'Permission needed';
   static const String invalidQr = 'This isn\'t a valid Fumble code.';
+  static const String malformedQr = 'This Fumble code is malformed.';
+  static const String unsupportedQrVersion =
+      'This Fumble code isn\'t supported.';
+  static const String qrMissingUserId = 'This Fumble code is missing a user.';
+  static const String qrMissingName = 'This Fumble code is missing a name.';
 
   static const String previewTitle = 'Connect?';
   static const String previewSubtitle = 'Confirm to exchange contact cards.';
@@ -127,7 +131,9 @@ abstract final class AppConstant {
   static const String loading = 'Loading…';
   static const String retry = 'Retry';
   static const String offline = 'You\'re offline';
-  static const String pendingSync = 'Waiting to sync…';
+  static const String pendingSync = 'Pending sync';
+  static const String syncStatusSyncing = 'Syncing';
+  static const String syncStatusFailed = 'Sync failed';
   static const String somethingWrong = 'Something went wrong';
   static const String ok = 'OK';
   static const String delete = 'Delete';
@@ -190,7 +196,7 @@ abstract final class AppConstant {
   static const String firestoreUnavailableShort =
       'Firestore is not enabled in Firebase Console yet.';
 
-  static const String flumbleCodeNotFound = 'Fumble code not found.';
+  static const String fumbleCodeNotFound = 'Fumble code not found.';
   static const String unableToResolveCode =
       'Unable to resolve this Fumble code.';
   static const String profileMissing = 'Your profile is missing.';

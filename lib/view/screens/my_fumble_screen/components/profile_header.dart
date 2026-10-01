@@ -40,13 +40,13 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        20.height,
+        10.height,
         ProfileAvatar(
           photoUrl: photoUrl,
           localFile: localFile,
           svg: svg,
           name: name,
-          size: 128,
+          size: 120,
           onTap: onPhotoTap,
         ),
         18.height,

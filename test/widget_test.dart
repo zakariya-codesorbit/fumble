@@ -3,11 +3,12 @@ import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/onboarding_gate.dart';
 import 'package:fumble/core/config/app_config.dart';
+import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/user_profile.dart';
-import 'package:fumble/services/fumble/flumble_qr.dart';
+import 'package:fumble/services/fumble/fumble_qr.dart';
 
 void main() {
-  test('Route table includes FLUMBLE V1 paths', () {
+  test('Route table includes fumble V1 paths', () {
     expect(AppRoutes.routes.containsKey(AppRoutes.splash), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.login), isTrue);
     expect(AppRoutes.routes.containsKey(AppRoutes.signup), isTrue);
@@ -23,8 +24,8 @@ void main() {
 
   test('Exactly three bottom tabs', () {
     expect(AppNavIndex.tabCount, 3);
-    expect(AppNavIndex.flumble, 0);
-    expect(AppNavIndex.myFlumble, 1);
+    expect(AppNavIndex.fumble, 0);
+    expect(AppNavIndex.myfumble, 1);
     expect(AppNavIndex.connections, 2);
   });
 
@@ -33,10 +34,70 @@ void main() {
     expect(AppConfig.androidApplicationId, 'com.fumble.app');
   });
 
-  test('QR payload parsing', () {
-    expect(FlumbleQr.parse('flumble:ABC123DEF456'), 'ABC123DEF456');
-    expect(FlumbleQr.parse('not-a-code'), isNull);
-    expect(FlumbleQr.build('abc123def456'), 'flumble:ABC123DEF456');
+  test('QR payload is versioned contact data', () {
+    final raw = FumbleQr.build(
+      userId: 'abc123',
+      name: 'Muhammad Zakariya',
+      bio: 'Flutter Developer',
+      phone: '+923001234567',
+      email: 'ada@example.com',
+    );
+    final decoded = FumbleQr.decode(raw);
+
+    expect(decoded.error, isNull);
+    expect(decoded.payload?.version, 1);
+    expect(decoded.payload?.userId, 'abc123');
+    expect(decoded.payload?.name, 'Muhammad Zakariya');
+    expect(decoded.payload?.bio, 'Flutter Developer');
+    expect(decoded.payload?.phone, '+923001234567');
+    expect(decoded.payload?.email, 'ada@example.com');
+  });
+
+  test('QR payload omits empty optional fields', () {
+    final raw = FumbleQr.build(
+      userId: 'abc123',
+      name: 'Ada',
+      bio: '  ',
+      phone: '',
+    );
+    final decoded = FumbleQr.decode(raw);
+
+    expect(decoded.payload?.bio, isNull);
+    expect(decoded.payload?.phone, isNull);
+    expect(raw.contains('bio'), isFalse);
+    expect(raw.contains('phone'), isFalse);
+  });
+
+  test('QR validation reports payload errors', () {
+    expect(FumbleQr.decode('not-a-code').error, QrDecodeError.invalid);
+    expect(FumbleQr.decode('{').error, QrDecodeError.malformed);
+    expect(
+      FumbleQr.decode('{"version":2,"userId":"a","name":"Ada"}').error,
+      QrDecodeError.unsupportedVersion,
+    );
+    expect(
+      FumbleQr.decode('{"version":1,"name":"Ada"}').error,
+      QrDecodeError.missingUserId,
+    );
+    expect(
+      FumbleQr.decode('{"version":1,"userId":"abc"}').error,
+      QrDecodeError.missingName,
+    );
+  });
+
+  test('Existing remote connections default to synced', () {
+    final connection = Connection.fromMap('peer1', {
+      'peerUid': 'peer1',
+      'name': 'Ada',
+      'email': 'ada@example.com',
+      'fumbledAt': DateTime.utc(2024, 1, 1),
+    });
+
+    expect(connection.syncStatus, SyncStatus.synced);
+    expect(connection.name, 'Ada');
+    expect(connection.email, 'ada@example.com');
+    expect(connection.bio, isNull);
+    expect(connection.phone, isNull);
   });
 
   test('OnboardingGate uses photo then phone only', () {
@@ -48,7 +109,9 @@ void main() {
       AppRoutes.onboardingPhone,
     );
     expect(
-      OnboardingGate.routeFor(_profile(photoUrl: 'base64', phone: '+15551234567')),
+      OnboardingGate.routeFor(
+        _profile(photoUrl: 'base64', phone: '+15551234567'),
+      ),
       AppRoutes.main,
     );
     expect(
@@ -58,15 +121,12 @@ void main() {
   });
 }
 
-UserProfile _profile({
-  String? photoUrl,
-  String? phone,
-}) {
+UserProfile _profile({String? photoUrl, String? phone}) {
   return UserProfile(
     uid: 'u1',
     name: 'Ada',
     email: 'ada@example.com',
-    flumbleCode: 'ABC123DEF456',
+    fumbleCode: 'ABC123DEF456',
     photoUrl: photoUrl,
     phone: phone,
   );

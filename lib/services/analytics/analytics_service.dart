@@ -37,13 +37,9 @@ class AnalyticsService {
   Future<void> logFumblePreviewViewed() =>
       log(AnalyticsEvents.fumblePreviewViewed);
   Future<void> logFumbleConfirmed() => log(AnalyticsEvents.fumbleConfirmed);
-  Future<void> logConnectionCreated() =>
-      log(AnalyticsEvents.connectionCreated);
-  Future<void> logMyFlumbleOpened() => log(AnalyticsEvents.myFlumbleOpened);
-  Future<void> logConnectionsOpened() =>
-      log(AnalyticsEvents.connectionsOpened);
-  Future<void> logTabSelected(String tab) => log(
-        AnalyticsEvents.tabSelected,
-        {AnalyticsParams.tab: tab},
-      );
+  Future<void> logConnectionCreated() => log(AnalyticsEvents.connectionCreated);
+  Future<void> logMyfumbleOpened() => log(AnalyticsEvents.myfumbleOpened);
+  Future<void> logConnectionsOpened() => log(AnalyticsEvents.connectionsOpened);
+  Future<void> logTabSelected(String tab) =>
+      log(AnalyticsEvents.tabSelected, {AnalyticsParams.tab: tab});
 }

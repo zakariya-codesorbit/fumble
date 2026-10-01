@@ -10,8 +10,8 @@ import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/screens/my_flumble_screen/components/profile_header.dart';
-import 'package:fumble/view/screens/my_flumble_screen/components/profile_info_cards.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/profile_header.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/profile_info_cards.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -22,8 +22,8 @@ import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
 import 'components/location_card.dart';
 
-class MyFlumbleScreen extends ConsumerWidget {
-  const MyFlumbleScreen({super.key});
+class MyFumbleScreen extends ConsumerWidget {
+  const MyFumbleScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,13 +145,12 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          8.height,
           ProfileHeader(
             name: profile.name,
             photoUrl: edit.displayPhotoUrl(profile),
             localFile: edit.localPhoto,
             svg: edit.avatarSvg,
-            heading: AppConstant.firstNameFlumble(profile.firstName),
+            heading: AppConstant.firstNamefumble(profile.firstName),
             editingName: _active == 'name',
             nameController: _name,
             onNameTap: () => _openField('name'),
@@ -159,7 +158,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> {
             onNameTapOutside: () => _closeIfStill('name'),
             onPhotoTap: () => actions.showPhotoSheet(context),
           ),
-          20.height,
+          18.height,
           _field(
             keyName: 'bio',
             title: AppConstant.bioLabel,
@@ -174,6 +173,14 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> {
             controller: _phone,
             placeholder: AppConstant.addPhone,
             keyboardType: TextInputType.phone,
+          ),
+          12.height,
+          ProfileInfoCard(
+            title: AppConstant.emailLabel,
+            body: profile.email.trim().isNotEmpty
+                ? profile.email.trim()
+                : AppConstant.emailHint,
+            placeholder: profile.email.trim().isEmpty,
           ),
           12.height,
           _field(

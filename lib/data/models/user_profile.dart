@@ -6,7 +6,7 @@ class UserProfile {
     required this.name,
     required this.email,
     this.photoUrl,
-    required this.flumbleCode,
+    required this.fumbleCode,
     this.bio,
     this.phone,
     this.aboutMe,
@@ -20,7 +20,7 @@ class UserProfile {
   final String name;
   final String email;
   final String? photoUrl;
-  final String flumbleCode;
+  final String fumbleCode;
   final String? bio;
   final String? phone;
   final String? aboutMe;
@@ -57,7 +57,7 @@ class UserProfile {
       name: (data['name'] as String?)?.trim() ?? '',
       email: (data['email'] as String?)?.trim() ?? '',
       photoUrl: data['photoUrl'] as String?,
-      flumbleCode: (data['flumbleCode'] as String?) ?? '',
+      fumbleCode: (data['fumbleCode'] as String?) ?? '',
       bio: (data['bio'] as String?)?.trim(),
       phone: (data['phone'] as String?)?.trim(),
       aboutMe: (data['aboutMe'] as String?)?.trim(),
@@ -73,7 +73,7 @@ class UserProfile {
       'name': name,
       'email': email,
       'photoUrl': photoUrl,
-      'flumbleCode': flumbleCode,
+      'fumbleCode': fumbleCode,
       'bio': bio,
       'phone': phone,
       'aboutMe': aboutMe,
@@ -87,7 +87,7 @@ class UserProfile {
     String? name,
     String? email,
     String? photoUrl,
-    String? flumbleCode,
+    String? fumbleCode,
     String? bio,
     String? phone,
     String? aboutMe,
@@ -101,7 +101,7 @@ class UserProfile {
       name: name ?? this.name,
       email: email ?? this.email,
       photoUrl: photoUrl ?? this.photoUrl,
-      flumbleCode: flumbleCode ?? this.flumbleCode,
+      fumbleCode: fumbleCode ?? this.fumbleCode,
       bio: bio ?? this.bio,
       phone: phone ?? this.phone,
       aboutMe: aboutMe ?? this.aboutMe,
@@ -109,6 +109,39 @@ class UserProfile {
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
       fcmToken: fcmToken ?? this.fcmToken,
+    );
+  }
+
+  Map<String, dynamic> toCacheJson() {
+    return {
+      'uid': uid,
+      'name': name,
+      'email': email,
+      'photoUrl': photoUrl,
+      'fumbleCode': fumbleCode,
+      'bio': bio,
+      'phone': phone,
+      'aboutMe': aboutMe,
+      'location': location,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+    };
+  }
+
+  factory UserProfile.fromCacheJson(Map<String, dynamic> json) {
+    final createdAtMs = json['createdAt'];
+    return UserProfile(
+      uid: (json['uid'] as String?)?.trim() ?? '',
+      name: (json['name'] as String?)?.trim() ?? '',
+      email: (json['email'] as String?)?.trim() ?? '',
+      photoUrl: json['photoUrl'] as String?,
+      fumbleCode: (json['fumbleCode'] as String?) ?? '',
+      bio: (json['bio'] as String?)?.trim(),
+      phone: (json['phone'] as String?)?.trim(),
+      aboutMe: (json['aboutMe'] as String?)?.trim(),
+      location: (json['location'] as String?)?.trim(),
+      createdAt: createdAtMs is int
+          ? DateTime.fromMillisecondsSinceEpoch(createdAtMs)
+          : null,
     );
   }
 

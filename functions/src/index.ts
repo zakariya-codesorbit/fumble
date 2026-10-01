@@ -15,34 +15,34 @@ function requireAuth(request: { auth?: { uid: string } }): string {
   return request.auth.uid;
 }
 
-function newFlumbleCode(): string {
+function newfumbleCode(): string {
   return randomBytes(6).toString("hex").toUpperCase();
 }
 
 /**
- * Validate a FLUMBLE code and open a short-lived exchange session.
+ * Validate a fumble code and open a short-lived exchange session.
  * Returns only minimal preview fields.
  */
 export const resolveFumble = onCall(
   { enforceAppCheck: false },
   async (request) => {
     const scannerUid = requireAuth(request);
-    const flumbleCode = String(request.data?.flumbleCode ?? "")
+    const fumbleCode = String(request.data?.fumbleCode ?? "")
       .trim()
       .toUpperCase();
 
-    if (!/^[A-Z0-9]{8,32}$/.test(flumbleCode)) {
-      throw new HttpsError("invalid-argument", "Invalid FLUMBLE code.");
+    if (!/^[A-Z0-9]{8,32}$/.test(fumbleCode)) {
+      throw new HttpsError("invalid-argument", "Invalid fumble code.");
     }
 
     const usersSnap = await db
       .collection("users")
-      .where("flumbleCode", "==", flumbleCode)
+      .where("fumbleCode", "==", fumbleCode)
       .limit(1)
       .get();
 
     if (usersSnap.empty) {
-      throw new HttpsError("not-found", "FLUMBLE code not found.");
+      throw new HttpsError("not-found", "fumble code not found.");
     }
 
     const ownerDoc = usersSnap.docs[0];
@@ -189,7 +189,7 @@ export const completeFumble = onCall(
         await admin.messaging().send({
           token,
           notification: {
-            title: "New FLUMBLE",
+            title: "New fumble",
             body: `${scannerName} fumbled you.`,
           },
           data: {
@@ -207,17 +207,17 @@ export const completeFumble = onCall(
 );
 
 /**
- * Rotate the caller's FLUMBLE identity code.
+ * Rotate the caller's fumble identity code.
  */
 export const rotateFumbleCode = onCall(
   { enforceAppCheck: false },
   async (request) => {
     const uid = requireAuth(request);
-    const code = newFlumbleCode();
+    const code = newfumbleCode();
     await db.collection("users").doc(uid).update({
-      flumbleCode: code,
+      fumbleCode: code,
       lastActiveAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    return { flumbleCode: code };
+    return { fumbleCode: code };
   }
 );

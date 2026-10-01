@@ -12,10 +12,10 @@ abstract final class AppConfig {
   static const String privacyPolicyUrl = AppUrls.privacyPolicyUrl;
   static const String termsOfServiceUrl = AppUrls.termsOfServiceUrl;
 
-  static const String databaseFileName = 'flumble.db';
+  static const String databaseFileName = 'fumble.db';
 
-  /// QR payload prefix. Full payload: `flumble:{code}`
-  static const String qrPrefix = 'flumble:';
+  /// Legacy code-only prefix. Current QR payloads are versioned JSON.
+  static const String qrPrefix = 'fumble:';
 
   static const int maxProfilePhotoBytes = 5 * 1024 * 1024;
   static const int profilePhotoQuality = 80;

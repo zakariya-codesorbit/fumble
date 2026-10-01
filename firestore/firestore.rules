@@ -1,7 +1,7 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() {
+    function isSignedIn() { 
       return request.auth != null;
     }
 
@@ -22,17 +22,17 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Own private profile. Cross-user discovery uses flumbleCodes.
+    // Own private profile. Cross-user discovery uses fumbleCodes.
     match /users/{userId} {
       allow read: if isOwner(userId);
 
       allow create: if isOwner(userId)
         && request.resource.data.keys().hasAll([
-          'name', 'email', 'flumbleCode', 'createdAt', 'lastActiveAt'
+          'name', 'email', 'fumbleCode', 'createdAt', 'lastActiveAt'
         ])
         && request.resource.data.email is string
         && request.resource.data.name is string
-        && request.resource.data.flumbleCode is string
+        && request.resource.data.fumbleCode is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 80;
 
@@ -57,9 +57,9 @@ service cloud.firestore {
       }
     }
 
-    // Public FLUMBLE identity cards used for QR resolve.
+    // Public fumble identity cards used for QR resolve.
     // Authenticated users can read cards; only the card owner can write.
-    match /flumbleCodes/{code} {
+    match /fumbleCodes/{code} {
       allow read: if isSignedIn();
 
       allow create, update: if isSignedIn()

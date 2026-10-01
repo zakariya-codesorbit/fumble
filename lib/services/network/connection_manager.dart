@@ -15,6 +15,11 @@ class ConnectionManager {
   Stream<bool> get connectionStream => _connectionController.stream;
   bool get isConnected => _isConnected;
 
+  Future<void> _initialCheck = Future<void>.value();
+
+  /// Completes after the first connectivity check from [initialize].
+  Future<void> ready() => _initialCheck;
+
   void initialize() {
     void applyConnectivity(List<ConnectivityResult> results) {
       final hasNetwork = results.isNotEmpty &&
@@ -22,7 +27,7 @@ class ConnectionManager {
       _updateConnectionState(hasNetwork);
     }
 
-    _connectivity.checkConnectivity().then(applyConnectivity);
+    _initialCheck = _connectivity.checkConnectivity().then(applyConnectivity);
     _connectivity.onConnectivityChanged.listen(applyConnectivity);
   }
 

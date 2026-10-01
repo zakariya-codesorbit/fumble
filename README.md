@@ -1,6 +1,6 @@
-# Flumble
+# fumble
 
-Flumble is a premium, private way for two people to exchange contact cards in real life by scanning a QR code.
+fumble is a premium, private way for two people to exchange contact cards in real life by scanning a QR code.
 
 Package name: `fumble`. Android / iOS identifiers: `com.fumble.app`.
 
@@ -9,9 +9,9 @@ Firebase project: `fumble-d3387`.
 ## V1 features
 
 - Email + password authentication
-- Flumble home with circular FUMBLE CTA
+- fumble home with circular FUMBLE CTA
 - QR scanner → preview → confirm → connection
-- My Flumble profile + QR identity
+- My fumble profile + QR identity
 - Connections list
 - Firebase Auth, Firestore, Analytics, Crashlytics, FCM, App Check
 - Offline queue for pending fumble completions
@@ -51,5 +51,5 @@ UI (view/screens + view/widgets)
 
 Fumble exchange is Firestore-only:
 
-- `flumbleCodes/{code}` for QR resolve (authenticated read)
+- `fumbleCodes/{code}` for QR resolve (authenticated read)
 - Mutual writes to `users/{uid}/connections/{peerUid}`

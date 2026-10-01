@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
+import 'package:fumble/view/widgets/extention/widget_extension.dart';
 
 import '../extention/int_extension.dart';
 

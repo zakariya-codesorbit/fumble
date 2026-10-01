@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../core/config/app_config.dart';
 
-/// Local SQLite for offline fumble queue.
+/// Local SQLite for connections and the legacy offline fumble queue.
 class LocalDatabase {
   LocalDatabase._();
   static final LocalDatabase instance = LocalDatabase._();
@@ -24,18 +24,41 @@ class LocalDatabase {
       path,
       version: 1,
       onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE pending_fumbles (
-            id TEXT PRIMARY KEY,
-            session_id TEXT NOT NULL UNIQUE,
-            created_at INTEGER NOT NULL,
-            attempt_count INTEGER NOT NULL DEFAULT 0,
-            status TEXT NOT NULL,
-            last_error TEXT
-          )
-        ''');
+        await _createPendingFumbles(db);
+        await _createConnections(db);
       },
     );
+  }
+
+  static Future<void> _createPendingFumbles(Database db) {
+    return db.execute('''
+      CREATE TABLE IF NOT EXISTS pending_fumbles (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL UNIQUE,
+        created_at INTEGER NOT NULL,
+        attempt_count INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL,
+        last_error TEXT
+      )
+    ''');
+  }
+
+  static Future<void> _createConnections(Database db) {
+    return db.execute('''
+      CREATE TABLE IF NOT EXISTS connections (
+        owner_uid TEXT NOT NULL,
+        peer_uid TEXT NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL DEFAULT '',
+        photo_url TEXT,
+        bio TEXT,
+        phone TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        sync_status TEXT NOT NULL,
+        PRIMARY KEY (owner_uid, peer_uid)
+      )
+    ''');
   }
 
   Future<void> close() async {

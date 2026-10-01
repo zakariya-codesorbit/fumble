@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-/// FLUMBLE design tokens — dark theme only.
+/// fumble design tokens — dark theme only.
 abstract final class AppColors {
   AppColors._();
 

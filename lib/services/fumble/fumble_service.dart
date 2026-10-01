@@ -12,7 +12,6 @@ import '../analytics/analytics_service.dart';
 import '../crashlytics/crashlytics_service.dart';
 import '../network/connection_manager.dart';
 import '../offline/offline_fumble_queue.dart';
-import 'flumble_qr.dart';
 
 /// Firestore-only fumble exchange (no Cloud Functions / Blaze plan required).
 class FumbleService {
@@ -25,14 +24,14 @@ class FumbleService {
     OfflineFumbleQueue? queue,
     AnalyticsService? analytics,
     CrashlyticsService? crashlytics,
-  })  : _users = userRepository,
-        _connections = connectionRepository,
-        _auth = auth ?? FirebaseAuth.instance,
-        _db = firestore ?? FirebaseFirestore.instance,
-        _pendingRepo = pendingRepo,
-        _queue = queue,
-        _analytics = analytics ?? AnalyticsService.instance,
-        _crashlytics = crashlytics ?? CrashlyticsService.instance;
+  }) : _users = userRepository,
+       _connections = connectionRepository,
+       _auth = auth ?? FirebaseAuth.instance,
+       _db = firestore ?? FirebaseFirestore.instance,
+       _pendingRepo = pendingRepo,
+       _queue = queue,
+       _analytics = analytics ?? AnalyticsService.instance,
+       _crashlytics = crashlytics ?? CrashlyticsService.instance;
 
   final UserRepository _users;
   final ConnectionRepository _connections;
@@ -44,26 +43,31 @@ class FumbleService {
   final CrashlyticsService _crashlytics;
   static const _uuid = Uuid();
 
-  String? parseQrPayload(String raw) => FlumbleQr.parse(raw);
-
-  String buildQrPayload(String flumbleCode) => FlumbleQr.build(flumbleCode);
-
-  Future<FumblePreview> resolveFumble(String flumbleCode) async {
+  Future<FumblePreview> resolveFumble(String fumbleCode) async {
     try {
       await _analytics.logQrScanned();
       final scannerUid = _auth.currentUser?.uid;
       if (scannerUid == null) {
-        throw FumbleException(AppConstant.authPleaseLogIn, code: 'unauthenticated');
+        throw FumbleException(
+          AppConstant.authPleaseLogIn,
+          code: 'unauthenticated',
+        );
       }
 
-      final card = await _users.getFlumbleCodeCard(flumbleCode);
+      final card = await _users.getfumbleCodeCard(fumbleCode);
       if (card == null) {
-        throw FumbleException(AppConstant.flumbleCodeNotFound, code: 'not-found');
+        throw FumbleException(
+          AppConstant.fumbleCodeNotFound,
+          code: 'not-found',
+        );
       }
 
       final preview = FumblePreview.fromMap(card);
       if (preview.peerUid.isEmpty) {
-        throw FumbleException(AppConstant.flumbleCodeNotFound, code: 'not-found');
+        throw FumbleException(
+          AppConstant.fumbleCodeNotFound,
+          code: 'not-found',
+        );
       }
       if (preview.peerUid == scannerUid) {
         throw FumbleException(
@@ -118,7 +122,10 @@ class FumbleService {
   Future<void> _completeWithPeer(String peerUid) async {
     final scannerUid = _auth.currentUser?.uid;
     if (scannerUid == null) {
-      throw FumbleException(AppConstant.authPleaseLogIn, code: 'unauthenticated');
+      throw FumbleException(
+        AppConstant.authPleaseLogIn,
+        code: 'unauthenticated',
+      );
     }
     if (peerUid == scannerUid) {
       throw FumbleException(
@@ -134,7 +141,7 @@ class FumbleService {
 
     final peerCard = await _lookupPeerCard(peerUid);
     if (peerCard == null) {
-      throw FumbleException(AppConstant.flumbleCodeNotFound, code: 'not-found');
+      throw FumbleException(AppConstant.fumbleCodeNotFound, code: 'not-found');
     }
 
     final already = await _connections.hasConnection(
@@ -143,15 +150,12 @@ class FumbleService {
     );
     if (already) return;
 
-    await _connections.createMutualConnection(
-      scanner: scanner,
-      peer: peerCard,
-    );
+    await _connections.createMutualConnection(scanner: scanner, peer: peerCard);
   }
 
   Future<FumblePeerCard?> _lookupPeerCard(String peerUid) async {
     final query = await _db
-        .collection('flumbleCodes')
+        .collection('fumbleCodes')
         .where('uid', isEqualTo: peerUid)
         .limit(1)
         .get();
@@ -168,9 +172,12 @@ class FumbleService {
   Future<String> rotateFumbleCode() async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
-      throw FumbleException(AppConstant.authPleaseLogIn, code: 'unauthenticated');
+      throw FumbleException(
+        AppConstant.authPleaseLogIn,
+        code: 'unauthenticated',
+      );
     }
-    return _users.rotateFlumbleCode(uid);
+    return _users.rotatefumbleCode(uid);
   }
 
   Future<void> _enqueue(String peerUid) async {

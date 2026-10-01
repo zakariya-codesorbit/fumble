@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
-import 'package:fumble/view/screens/my_flumble_screen/components/photo_action_tile.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/photo_action_tile.dart';
 import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 
@@ -40,7 +40,8 @@ Future<PhotoSourceChoice?> showPhotoSourceSheet(
               icon: AppIcons.deleteOutline,
               label: AppConstant.removePhoto,
               destructive: true,
-              onTap: () => Navigator.pop(sheetContext, PhotoSourceChoice.remove),
+              onTap: () =>
+                  Navigator.pop(sheetContext, PhotoSourceChoice.remove),
             ),
           8.height,
         ],

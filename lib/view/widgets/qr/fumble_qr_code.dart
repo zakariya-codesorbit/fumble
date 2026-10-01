@@ -9,21 +9,21 @@ import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 
 /// Branded Fumble QR. [data] is the existing payload, unchanged.
-class FlumbleQrCode extends StatefulWidget {
-  const FlumbleQrCode({
+class FumbleQrCode extends StatefulWidget {
+  const FumbleQrCode({
     super.key,
     required this.data,
-    this.size = AppStyle.flumbleQrSize,
+    this.size = AppStyle.fumbleQrSize,
   });
 
   final String data;
   final double size;
 
   @override
-  State<FlumbleQrCode> createState() => _FlumbleQrCodeState();
+  State<FumbleQrCode> createState() => _fumbleQrCodeState();
 }
 
-class _FlumbleQrCodeState extends State<FlumbleQrCode> {
+class _fumbleQrCodeState extends State<FumbleQrCode> {
   MemoryImage? _mark;
 
   @override

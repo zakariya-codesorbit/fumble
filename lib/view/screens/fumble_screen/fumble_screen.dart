@@ -6,16 +6,15 @@ import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/screens/flumble_screen/components/fumble_button.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_button.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
-import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
-class FlumbleScreen extends ConsumerWidget {
-  const FlumbleScreen({super.key});
+class FumbleScreen extends ConsumerWidget {
+  const FumbleScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,12 +27,6 @@ class FlumbleScreen extends ConsumerWidget {
                   .clamp(176.0, AppStyle.fumbleButtonSize)
                   .toDouble();
               final topGap = constraints.maxHeight < 640 ? 24.0 : 48.0;
-              final code = ref
-                  .watch(currentUserProfileProvider)
-                  .asData
-                  ?.value
-                  ?.flumbleCode;
-
               return SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -67,7 +60,7 @@ class FlumbleScreen extends ConsumerWidget {
                         Center(
                           child: FumbleButton(
                             size: buttonSize,
-                            onPressed: () => _openExchange(context, ref, code),
+                            onPressed: () => _openExchange(context, ref),
                           ),
                         ),
                         const Spacer(flex: 2),
@@ -84,7 +77,7 @@ class FlumbleScreen extends ConsumerWidget {
   }
 }
 
-void _openExchange(BuildContext context, WidgetRef ref, String? code) {
+void _openExchange(BuildContext context, WidgetRef ref) {
   final actions = ref.read(fumbleNotifierProvider.notifier);
   showAppBottomSheet<void>(
     context: context,
@@ -98,10 +91,6 @@ void _openExchange(BuildContext context, WidgetRef ref, String? code) {
             label: AppConstant.shareMyFumble,
             onTap: () {
               Navigator.pop(sheetContext);
-              if (code == null || code.isEmpty) {
-                showAppToast(AppConstant.completeProfile, isError: true);
-                return;
-              }
               actions.openShare();
             },
           ),

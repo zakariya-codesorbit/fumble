@@ -7,7 +7,7 @@ import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
-import 'package:fumble/view/screens/flumble_screen/components/preview_detail_row.dart';
+import 'package:fumble/view/screens/fumble_screen/components/preview_detail_row.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/buttons/secondary_button.dart';
@@ -38,8 +38,9 @@ class FumblePreviewScreen extends ConsumerWidget {
       );
     }
 
-    final displayName =
-        preview.firstName.isNotEmpty ? preview.firstName : preview.name;
+    final displayName = preview.firstName.isNotEmpty
+        ? preview.firstName
+        : preview.name;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(

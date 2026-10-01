@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/db/local_prefs.dart';
 import '../../data/db/pending_fumble_repository.dart';
 import '../../data/models/connection.dart';
 import '../../data/models/user_profile.dart';
@@ -8,10 +11,13 @@ import '../../data/repositories/user_repository.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/fumble/fumble_service.dart';
 import '../../services/notifications/notification_service.dart';
+import '../../services/offline/connection_sync.dart';
 import '../../services/offline/offline_fumble_queue.dart';
 import '../../services/storage/profile_photo_service.dart';
 
-final pendingFumbleRepositoryProvider = Provider<PendingFumbleRepository>((ref) {
+final pendingFumbleRepositoryProvider = Provider<PendingFumbleRepository>((
+  ref,
+) {
   return PendingFumbleRepository();
 });
 
@@ -20,13 +26,11 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
 });
 
 final connectionRepositoryProvider = Provider<ConnectionRepository>((ref) {
-  return ConnectionRepository();
+  return ConnectionRepository(userRepository: ref.read(userRepositoryProvider));
 });
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(
-    userRepository: ref.read(userRepositoryProvider),
-  );
+  return AuthService(userRepository: ref.read(userRepositoryProvider));
 });
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
@@ -60,11 +64,32 @@ final fumbleServiceProvider = Provider<FumbleService>((ref) {
   return service;
 });
 
-/// Registers FCM and starts the offline queue once the provider graph exists.
+final connectionSyncProvider = Provider<ConnectionSync>((ref) {
+  final sync = ConnectionSync(
+    repository: ref.read(connectionRepositoryProvider),
+    currentUid: () => ref.read(authServiceProvider).currentUser?.uid,
+  );
+  ref.onDispose(sync.dispose);
+  return sync;
+});
+
+/// Registers FCM and starts offline sync once the provider graph exists.
 /// The queue object is stable, so this does not need to rebuild [FumbleService].
 final appStartupProvider = Provider<void>((ref) {
   ref.read(notificationServiceProvider).initialize();
   ref.read(offlineQueueProvider).start();
+  ref.read(connectionSyncProvider).start();
+  ref.listen(currentUserProfileProvider, (_, next) {
+    final profile = next.valueOrNull;
+    final uid = ref.read(authServiceProvider).currentUser?.uid;
+    if (profile == null || profile.uid != uid) return;
+    unawaited(LocalPrefs.saveUserProfile(profile));
+  });
+  ref.listen(authStateProvider, (_, next) {
+    if (next.valueOrNull != null) {
+      ref.read(connectionSyncProvider).kick();
+    }
+  });
 });
 
 final authStateProvider = StreamProvider<User?>((ref) {

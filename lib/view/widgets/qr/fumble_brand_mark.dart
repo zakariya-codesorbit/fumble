@@ -6,12 +6,8 @@ import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 
 /// Circular Fumble mark: gold ring and wordmark.
-class FlumbleBrandMark extends StatelessWidget {
-  const FlumbleBrandMark({
-    super.key,
-    required this.size,
-    this.filled = false,
-  });
+class FumbleBrandMark extends StatelessWidget {
+  const FumbleBrandMark({super.key, required this.size, this.filled = false});
 
   final double size;
 
@@ -32,7 +28,10 @@ class FlumbleBrandMark extends StatelessWidget {
           width: (size * 0.02).clamp(1.5, AppStyle.fumbleButtonStroke),
         ),
       ),
-      child: AppConstant.fumbleCta.split('').join(' ').toText(
+      child: AppConstant.fumbleCta
+          .split('')
+          .join(' ')
+          .toText(
             color: AppColors.gold,
             fontSize: size * 0.12,
             fontWeight: AppStyle.w600,

@@ -1,14 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/data/repositories/user_repository.dart';
-import 'package:fumble/services/fumble/fumble_service.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
@@ -17,6 +14,8 @@ import 'package:fumble/view/widgets/avatar/dicebear_avatar_screen.dart';
 import 'package:fumble/view/widgets/dialogs/photo_permission_popup.dart';
 import 'package:fumble/view/widgets/dialogs/photo_source_sheet.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
+
+import '../../services/fumble/fumble_qr.dart';
 
 class ProfileEditState {
   const ProfileEditState({
@@ -62,8 +61,6 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
   UserRepository get _users => ref.read(userRepositoryProvider);
 
   ProfilePhotoService get _photos => ref.read(profilePhotoServiceProvider);
-
-  FumbleService get _fumble => ref.read(fumbleServiceProvider);
 
   UserProfile? get _currentProfile =>
       ref.read(currentUserProfileProvider).valueOrNull;
@@ -191,17 +188,23 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     if (profile == null) return;
     await SharePlus.instance.share(
       ShareParams(
-        text: AppConstant.shareFlumbleMessage(profile.flumbleCode),
-        subject: AppConstant.shareFlumble,
+        text: AppConstant.sharefumbleMessage(profile.fumbleCode),
+        subject: AppConstant.sharefumble,
       ),
     );
   }
 
-  void copyFlumbleCode(String code) {
+  void copyfumbleCode(String code) {
     Clipboard.setData(ClipboardData(text: code));
   }
 
-  String qrPayload(String flumbleCode) => _fumble.buildQrPayload(flumbleCode);
+  String qrPayload(UserProfile profile) => FumbleQr.build(
+    userId: profile.uid,
+    name: profile.name,
+    bio: profile.bio,
+    phone: profile.phone,
+    email: profile.email,
+  );
 
   Future<void> call(String phone) async {
     final uri = Uri(scheme: 'tel', path: phone);

@@ -8,7 +8,7 @@ abstract final class AnalyticsEvents {
   static const String fumblePreviewViewed = 'fumble_preview_viewed';
   static const String fumbleConfirmed = 'fumble_confirmed';
   static const String connectionCreated = 'connection_created';
-  static const String myFlumbleOpened = 'my_flumble_opened';
+  static const String myfumbleOpened = 'my_fumble_opened';
   static const String connectionsOpened = 'connections_opened';
   static const String tabSelected = 'tab_selected';
 }
@@ -17,9 +17,9 @@ abstract final class AnalyticsParams {
   static const String tab = 'tab';
 
   static String tabNameForIndex(int index) => switch (index) {
-        AppNavIndex.flumble => 'flumble',
-        AppNavIndex.myFlumble => 'my_flumble',
-        AppNavIndex.connections => 'connections',
-        _ => 'unknown',
-      };
+    AppNavIndex.fumble => 'fumble',
+    AppNavIndex.myfumble => 'my_fumble',
+    AppNavIndex.connections => 'connections',
+    _ => 'unknown',
+  };
 }

@@ -1,6 +1,6 @@
 {
-  "name": "flumble-functions",
-  "description": "FLUMBLE Cloud Functions for secure fumble exchange",
+  "name": "fumble-functions",
+  "description": "fumble Cloud Functions for secure fumble exchange",
   "engines": {
     "node": "20"
   },

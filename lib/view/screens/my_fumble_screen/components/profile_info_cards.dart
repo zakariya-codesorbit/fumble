@@ -27,7 +27,7 @@ class ProfileInfoCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(18, 16, 14, 18),
+        padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
         decoration: BoxDecoration(
           color: AppColors.navBar,
           borderRadius: BorderRadius.circular(20),

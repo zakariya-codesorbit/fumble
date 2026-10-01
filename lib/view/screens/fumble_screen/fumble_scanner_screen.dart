@@ -16,15 +16,15 @@ import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
 
 /// Find a Fumble — circular scanner matching the share QR shape.
-class FlumbleScannerScreen extends ConsumerStatefulWidget {
-  const FlumbleScannerScreen({super.key});
+class FumbleScannerScreen extends ConsumerStatefulWidget {
+  const FumbleScannerScreen({super.key});
 
   @override
-  ConsumerState<FlumbleScannerScreen> createState() =>
-      _FlumbleScannerScreenState();
+  ConsumerState<FumbleScannerScreen> createState() =>
+      _FumbleScannerScreenState();
 }
 
-class _FlumbleScannerScreenState extends ConsumerState<FlumbleScannerScreen>
+class _FumbleScannerScreenState extends ConsumerState<FumbleScannerScreen>
     with WidgetsBindingObserver {
   var _detecting = false;
 
@@ -61,42 +61,42 @@ class _FlumbleScannerScreenState extends ConsumerState<FlumbleScannerScreen>
         body: scanner.checkingPermission
             ? const AppLoader()
             : scanner.permissionDenied
-                ? _Denied(
-                    onOpenSettings: actions.openSettings,
-                    onRetry: actions.requestCameraPermission,
-                  )
-                : Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      MobileScanner(
-                        controller: actions.controller,
-                        onDetect: (capture) async {
-                          if (_detecting || capture.barcodes.isEmpty) return;
-                          setState(() => _detecting = true);
-                          await actions.onDetect(capture);
-                          if (mounted) setState(() => _detecting = false);
-                        },
-                      ),
-                      CustomPaint(
-                        painter: _CircularScanOverlayPainter(
-                          cutoutSize: cutout,
-                          pulse: _detecting,
-                        ),
-                        child: const SizedBox.expand(),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
-                          child: AppConstant.scannerHint.toText(
-                            color: AppColors.softGray,
-                            fontSize: 15,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
+            ? _Denied(
+                onOpenSettings: actions.openSettings,
+                onRetry: actions.requestCameraPermission,
+              )
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  MobileScanner(
+                    controller: actions.controller,
+                    onDetect: (capture) async {
+                      if (_detecting || capture.barcodes.isEmpty) return;
+                      setState(() => _detecting = true);
+                      await actions.onDetect(capture);
+                      if (mounted) setState(() => _detecting = false);
+                    },
                   ),
+                  CustomPaint(
+                    painter: _CircularScanOverlayPainter(
+                      cutoutSize: cutout,
+                      pulse: _detecting,
+                    ),
+                    child: const SizedBox.expand(),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
+                      child: AppConstant.scannerHint.toText(
+                        color: AppColors.softGray,
+                        fontSize: 15,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -138,10 +138,7 @@ class _Denied extends StatelessWidget {
 
 /// Dimmed mask with a circular gold cutout matching the share QR.
 class _CircularScanOverlayPainter extends CustomPainter {
-  _CircularScanOverlayPainter({
-    required this.cutoutSize,
-    required this.pulse,
-  });
+  _CircularScanOverlayPainter({required this.cutoutSize, required this.pulse});
 
   final double cutoutSize;
   final bool pulse;

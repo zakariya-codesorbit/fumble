@@ -20,9 +20,9 @@ class AppIcons {
   static const String iconError = 'assets/icons/ic_error.svg';
   static const String iconSuccess = 'assets/icons/ic_success.svg';
 
-  static const IconData tabFlumble = Icons.circle_outlined;
-  static const IconData tabMyFlumble = Icons.person;
-  static const IconData tabMyFlumbleOutlined = Icons.person_outline_rounded;
+  static const IconData tabfumble = Icons.circle_outlined;
+  static const IconData tabMyfumble = Icons.person;
+  static const IconData tabMyfumbleOutlined = Icons.person_outline_rounded;
   static const IconData tabConnections = Icons.people_alt;
   static const IconData tabConnectionsOutlined = Icons.people_alt_outlined;
   static const IconData settings = Icons.settings_outlined;

@@ -1,4 +1,4 @@
-# Flumble — R8 / ProGuard keep rules for Flutter release builds.
+# fumble — R8 / ProGuard keep rules for Flutter release builds.
 
 -keep class io.flutter.app.** { *; }
 -keep class io.flutter.plugin.** { *; }

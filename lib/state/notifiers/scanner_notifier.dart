@@ -5,7 +5,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/state/notifiers/fumble_notifier.dart';
-import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 
 class ScannerState {
   const ScannerState({
@@ -75,10 +74,8 @@ class ScannerNotifier extends AutoDisposeNotifier<ScannerState> {
     if (raw == null) return;
 
     await controller.stop();
-    showLoadingDialog();
     final success =
         await ref.read(fumbleNotifierProvider.notifier).resolveScan(raw);
-    hideLoadingDialog();
     if (success) {
       replace(AppRoutes.fumblePreview);
       return;

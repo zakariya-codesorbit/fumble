@@ -5,10 +5,10 @@ import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
-import 'package:fumble/view/widgets/qr/flumble_qr_code.dart';
+import 'package:fumble/view/widgets/qr/fumble_qr_code.dart';
 
-class FlumbleQr extends StatelessWidget {
-  const FlumbleQr({
+class FumbleQr extends StatelessWidget {
+  const FumbleQr({
     super.key,
     required this.payload,
     required this.code,
@@ -21,7 +21,7 @@ class FlumbleQr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = AppStyle.flumbleQrSize * AppStyle.flumbleQrRadiusFactor;
+    final radius = AppStyle.fumbleQrSize * AppStyle.fumbleQrRadiusFactor;
 
     return Column(
       children: [
@@ -40,10 +40,7 @@ class FlumbleQr extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(radius),
-            child: FlumbleQrCode(
-              data: payload,
-              size: AppStyle.flumbleQrSize,
-            ),
+            child: FumbleQrCode(data: payload, size: AppStyle.fumbleQrSize),
           ),
         ),
         16.height,
