@@ -35,7 +35,7 @@ Future<String?> showAvatarPickerSheet(BuildContext context) {
               ),
               child: ClipOval(
                 child: AvatarSvgPicture(asset: path),
-              ).paddingAll(8),
+              ).paddingAll(4),
             ),
           );
         },
