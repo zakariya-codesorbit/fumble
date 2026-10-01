@@ -46,6 +46,25 @@ class UserRepository {
     return snap.data();
   }
 
+  /// Latest public card for [uid]. Signed-in users can read this collection.
+  Future<FumblePeerCard?> findPublicCard(String uid) async {
+    final query = await _db
+        .collection('fumbleCodes')
+        .where('uid', isEqualTo: uid)
+        .limit(1)
+        .get();
+    if (query.docs.isEmpty) return null;
+    final data = query.docs.first.data();
+    return FumblePeerCard(
+      uid: uid,
+      name: (data['name'] as String?)?.trim() ?? '',
+      email: (data['email'] as String?)?.trim() ?? '',
+      photoUrl: data['photoUrl'] as String?,
+      bio: ConnectionRepository._blankToNull(data['bio'] as String?),
+      phone: ConnectionRepository._blankToNull(data['phone'] as String?),
+    );
+  }
+
   Future<UserProfile> createUser({
     required String uid,
     required String name,
@@ -338,44 +357,111 @@ class ConnectionRepository {
   }
 
   Future<void> _pushUnsynced(String ownerUid) async {
-    final pending = await _unsynced(ownerUid);
-    if (pending.isEmpty) return;
+    final rows = await _localConnections(ownerUid);
+    if (rows.isEmpty) return;
 
     final scanner = await _scannerProfile(ownerUid);
     if (scanner == null) {
-      for (final row in pending) {
+      for (final row in rows) {
+        if (row.syncStatus == SyncStatus.synced) continue;
         await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.failed);
       }
       return;
     }
 
-    for (final row in pending) {
+    for (final row in rows) {
       if (!ConnectionManager().isConnected) return;
-      await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.syncing);
+      final peer = await _peerCard(row);
+      final next = _connectionFromCard(row, peer);
+      final changed = !_sameSharedFields(row, next);
+      final needsWrite = changed || row.syncStatus != SyncStatus.synced;
+      if (!needsWrite) continue;
+
+      if (changed) {
+        await _upsertLocal(
+          ownerUid,
+          next.copyWith(updatedAt: DateTime.now()),
+        );
+        _changes.add(ownerUid);
+      }
+
+      final wasSynced = row.syncStatus == SyncStatus.synced;
+      if (!wasSynced) {
+        await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.syncing);
+      }
       try {
         await createMutualConnection(
           scanner: scanner,
-          peer: FumblePeerCard(
-            uid: row.peerUid,
-            name: row.name,
-            email: row.email,
-            photoUrl: row.photoUrl,
-            bio: row.bio,
-            phone: row.phone,
-          ),
+          peer: peer,
           fumbledAt: row.fumbledAt,
         );
         await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.synced);
       } catch (e, st) {
         if (_isOfflineError(e)) {
-          await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.pending);
+          if (!wasSynced) {
+            await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.pending);
+          }
           return;
         }
-        await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.failed);
+        if (!wasSynced) {
+          await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.failed);
+        }
         await _crashlytics.recordError(e, st, reason: 'connection_sync_failed');
       }
     }
   }
+
+  /// Prefer the peer's current public card so both sides store the same fields.
+  Future<FumblePeerCard> _peerCard(Connection row) async {
+    final users = _users;
+    if (users == null) return _cardFromConnection(row);
+    try {
+      final card = await users.findPublicCard(row.peerUid);
+      if (card == null) return _cardFromConnection(row);
+      return FumblePeerCard(
+        uid: row.peerUid,
+        name: card.name.isNotEmpty ? card.name : row.name,
+        email: card.email.isNotEmpty ? card.email : row.email,
+        photoUrl: _filled(card.photoUrl) ? card.photoUrl : row.photoUrl,
+        bio: _filled(card.bio) ? card.bio : row.bio,
+        phone: _filled(card.phone) ? card.phone : row.phone,
+      );
+    } catch (e) {
+      if (_isOfflineError(e)) rethrow;
+      return _cardFromConnection(row);
+    }
+  }
+
+  FumblePeerCard _cardFromConnection(Connection row) {
+    return FumblePeerCard(
+      uid: row.peerUid,
+      name: row.name,
+      email: row.email,
+      photoUrl: row.photoUrl,
+      bio: row.bio,
+      phone: row.phone,
+    );
+  }
+
+  Connection _connectionFromCard(Connection row, FumblePeerCard card) {
+    return row.copyWith(
+      name: card.name,
+      email: card.email,
+      photoUrl: card.photoUrl,
+      bio: card.bio,
+      phone: card.phone,
+    );
+  }
+
+  bool _sameSharedFields(Connection a, Connection b) {
+    return a.name == b.name &&
+        a.email == b.email &&
+        a.photoUrl == b.photoUrl &&
+        a.bio == b.bio &&
+        a.phone == b.phone;
+  }
+
+  static bool _filled(String? value) => value != null && value.trim().isNotEmpty;
 
   Future<void> _pullRemote(String ownerUid) async {
     final snap = await _connections(ownerUid).get();
@@ -445,17 +531,6 @@ class ConnectionRepository {
       where: 'owner_uid = ?',
       whereArgs: [ownerUid],
       orderBy: 'created_at DESC',
-    );
-    return rows.map(Connection.fromLocalRow).toList();
-  }
-
-  Future<List<Connection>> _unsynced(String ownerUid) async {
-    final db = await _local.database;
-    final rows = await db.query(
-      'connections',
-      where: 'owner_uid = ? AND sync_status != ?',
-      whereArgs: [ownerUid, SyncStatus.synced.name],
-      orderBy: 'created_at ASC',
     );
     return rows.map(Connection.fromLocalRow).toList();
   }
