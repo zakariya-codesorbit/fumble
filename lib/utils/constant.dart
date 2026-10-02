@@ -13,8 +13,8 @@ abstract final class AppConstant {
 
   static const String readyTo = 'Ready to';
   static const String fumbleQuestion = 'Fumble?';
-  static const String tapTheButton = 'Tap the button when';
-  static const String readyToConnect = 'you\'re ready to connect.';
+  static const String tapTheQr = 'Show this code to connect,';
+  static const String readyToScan = 'or tap it to scan theirs.';
   static const String fumbleCta = 'FUMBLE';
 
   static const String loginTitle = 'Welcome back';
@@ -89,16 +89,13 @@ abstract final class AppConstant {
   static const String connectionsTitle = 'CONNECTIONS';
   static const String connectionsEmptyTitle = 'No connections yet';
   static const String connectionsEmptyBody =
-      'Tap FUMBLE on the home tab to scan someone\'s QR code.';
+      'Tap your QR on the home tab to scan someone\'s code.';
   static const String fumbledOn = 'Fumbled';
   static const String dataNotFound = 'No connections yet';
 
-  static const String shareMyFumble = 'Share Fumble';
-  static const String connectFumble = 'Find Fumble';
   static const String scannerHint = 'Point your camera at their Fumble code.';
   static const String tapToCancel = 'Tap to cancel';
   static const String authenticating = 'Authenticating…';
-  static const String exchangeTitle = 'Fumble';
   static const String openSettings = 'Open Settings';
   static const String cameraPermissionSettings =
       'Camera access is disabled. Please open Settings and allow Fumble to use your camera.';

@@ -30,7 +30,6 @@ abstract final class AppStyle {
   static const double radiusLg = 16;
   static const double radiusSheet = 20;
   static const double radiusPill = 28;
-  static const double fumbleButtonSize = 260;
   static const double fumbleButtonStroke = 2;
   static const double fumbleQrSize = 240;
   static const double connectionAvatar = 44;

@@ -49,8 +49,6 @@ class FumbleNotifier extends Notifier<FumbleState> {
     push(AppRoutes.fumbleScanner);
   }
 
-  void openShare() => push(AppRoutes.fumbleShare);
-
   /// Decodes and validates a QR locally. Does not create a connection.
   Future<bool> resolveScan(String raw) async {
     if (state.isHandlingScan) return false;

@@ -1,73 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fumble/data/db/local_prefs.dart';
+import 'package:fumble/data/models/user_profile.dart';
+import 'package:fumble/services/fumble/fumble_qr.dart';
 import 'package:fumble/state/providers/app_providers.dart';
-import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/screens/fumble_screen/components/fumble_button.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
-import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/widgets/feedback/app_loader.dart';
+import 'package:fumble/view/widgets/qr/fumble_aura.dart';
+import 'package:fumble/view/widgets/qr/fumble_qr_code.dart';
 
-class FumbleScreen extends ConsumerWidget {
+/// Home — animated share QR. Tap opens the scanner.
+class FumbleScreen extends ConsumerStatefulWidget {
   const FumbleScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FumbleScreen> createState() => _FumbleScreenState();
+}
+
+class _FumbleScreenState extends ConsumerState<FumbleScreen> {
+  UserProfile? _cached;
+  var _cacheLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCache();
+  }
+
+  Future<void> _loadCache() async {
+    final uid = ref.read(authServiceProvider).currentUser?.uid;
+    final profile = await LocalPrefs.loadUserProfile();
+    if (!mounted) return;
+    setState(() {
+      _cacheLoaded = true;
+      if (profile != null && profile.uid == uid) _cached = profile;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final live = ref.watch(currentUserProfileProvider).valueOrNull;
+    final profile = live ?? _cached;
+    final payload = _payloadFor(profile);
+
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final buttonSize = (constraints.maxHeight * 0.36)
-                  .clamp(176.0, AppStyle.fumbleButtonSize)
-                  .toDouble();
               final topGap = constraints.maxHeight < 640 ? 24.0 : 48.0;
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: topGap),
-                        AppConstant.readyTo.toText(
-                          fontSize: 42,
-                          fontWeight: AppStyle.w400,
-                          lineHeight: 1.2,
-                        ),
-                        AppConstant.fumbleQuestion.toText(
-                          color: AppColors.gold,
-                          fontSize: 42,
-                          fontWeight: AppStyle.w400,
-                          lineHeight: 1.2,
-                        ),
-                        16.height,
-                        AppConstant.tapTheButton.toText(
-                          fontSize: 18,
-                          color: AppColors.softGray,
-                        ),
-                        2.height,
-                        AppConstant.readyToConnect.toText(
-                          fontSize: 18,
-                          color: AppColors.softGray,
-                        ),
-                        const Spacer(),
-                        Center(
-                          child: FumbleButton(
-                            size: buttonSize,
-                            onPressed: () => _openExchange(context, ref),
-                          ),
-                        ),
-                        const Spacer(flex: 2),
-                      ],
-                    ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: topGap),
+                  AppConstant.readyTo.toText(
+                    fontSize: 42,
+                    fontWeight: AppStyle.w400,
+                    lineHeight: 1.2,
                   ),
-                ),
+                  AppConstant.fumbleQuestion.toText(
+                    color: AppColors.gold,
+                    fontSize: 42,
+                    fontWeight: AppStyle.w400,
+                    lineHeight: 1.2,
+                  ),
+                  16.height,
+                  AppConstant.tapTheQr.toText(
+                    fontSize: 18,
+                    color: AppColors.softGray,
+                  ),
+                  2.height,
+                  AppConstant.readyToScan.toText(
+                    fontSize: 18,
+                    color: AppColors.softGray,
+                  ),
+                  const Spacer(),
+                  if (payload == null)
+                    Center(
+                      child: !_cacheLoaded && live == null
+                          ? const AppLoader()
+                          : AppConstant.completeProfile.toText(
+                              color: AppColors.softGray,
+                              fontSize: 14,
+                              textAlign: TextAlign.center,
+                            ),
+                    )
+                  else
+                    LayoutBuilder(
+                      builder: (context, qrConstraints) {
+                        final size = (qrConstraints.maxWidth * 1.0)
+                            .clamp(260.0, 360.0)
+                            .toDouble();
+                        return Center(
+                          child: FumbleAura(
+                            size: size,
+                            phase: FumbleAuraPhase.sharing,
+                            onTap: () => ref
+                                .read(fumbleNotifierProvider.notifier)
+                                .startFumble(),
+                            child: FumbleQrCode(
+                              data: payload,
+                              size: size * 0.32 + 30,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  const Spacer(flex: 2),
+                ],
               ).paddingSymmetric(horizontal: 28.w);
             },
           ),
@@ -75,76 +122,17 @@ class FumbleScreen extends ConsumerWidget {
       ),
     );
   }
-}
 
-void _openExchange(BuildContext context, WidgetRef ref) {
-  final actions = ref.read(fumbleNotifierProvider.notifier);
-  showAppBottomSheet<void>(
-    context: context,
-    title: AppConstant.exchangeTitle,
-    builder: (sheetContext) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _ExchangeOption(
-            icon: AppIcons.shareFumble,
-            label: AppConstant.shareMyFumble,
-            onTap: () {
-              Navigator.pop(sheetContext);
-              actions.openShare();
-            },
-          ),
-          Divider(height: 1, thickness: 1, color: AppColors.border),
-          _ExchangeOption(
-            icon: AppIcons.scan,
-            label: AppConstant.connectFumble,
-            onTap: () {
-              Navigator.pop(sheetContext);
-              actions.startFumble();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-class _ExchangeOption extends StatelessWidget {
-  const _ExchangeOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.gold, size: 22),
-            14.width,
-            Expanded(
-              child: label.toText(
-                fontSize: 16,
-                fontWeight: AppStyle.w600,
-                color: AppColors.white,
-              ),
-            ),
-            const Icon(
-              AppIcons.chevronRight,
-              color: AppColors.softGray,
-              size: 22,
-            ),
-          ],
-        ),
-      ),
+  String? _payloadFor(UserProfile? profile) {
+    if (profile == null) return null;
+    final name = profile.name.trim();
+    if (profile.uid.isEmpty || name.isEmpty) return null;
+    return FumbleQr.build(
+      userId: profile.uid,
+      name: name,
+      bio: profile.bio,
+      phone: profile.phone,
+      email: profile.email,
     );
   }
 }
