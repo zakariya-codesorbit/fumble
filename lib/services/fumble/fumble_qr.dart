@@ -1,8 +1,24 @@
 import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:encrypt/encrypt.dart' as enc;
+
+import 'package:fumble/core/config/app_config.dart';
 
 /// Versioned QR payload. Generation and validation do not touch Firebase.
+///
+/// Built codes are AES-encrypted so a generic scanner only sees ciphertext.
+/// The Fumble app decrypts with the shared app key before reading fields.
 abstract final class FumbleQr {
   static const int version = 1;
+
+  /// Wire prefix for encrypted payloads: `fumble:1.<payload>`.
+  static const String _wirePrefix = '${AppConfig.qrPrefix}$version.';
+
+  static final enc.Key _key = enc.Key.fromUtf8(AppConfig.qrSecret);
+  static final enc.Encrypter _aes = enc.Encrypter(
+    enc.AES(_key, mode: enc.AESMode.cbc),
+  );
 
   static String build({
     required String userId,
@@ -28,7 +44,7 @@ abstract final class FumbleQr {
     if (trimmedEmail != null && trimmedEmail.isNotEmpty) {
       payload['email'] = trimmedEmail;
     }
-    return jsonEncode(payload);
+    return _encrypt(jsonEncode(payload));
   }
 
   static fumbleQrDecodeResult decode(String raw) {
@@ -37,12 +53,17 @@ abstract final class FumbleQr {
       return const fumbleQrDecodeResult.error(QrDecodeError.invalid);
     }
 
+    final plain = _decryptIfNeeded(trimmed);
+    if (plain == null) {
+      return const fumbleQrDecodeResult.error(QrDecodeError.invalid);
+    }
+
     final Object? decoded;
     try {
-      decoded = jsonDecode(trimmed);
+      decoded = jsonDecode(plain);
     } catch (_) {
       return fumbleQrDecodeResult.error(
-        trimmed.startsWith('{')
+        plain.startsWith('{')
             ? QrDecodeError.malformed
             : QrDecodeError.invalid,
       );
@@ -115,6 +136,32 @@ abstract final class FumbleQr {
         email: email.value,
       ),
     );
+  }
+
+  static String _encrypt(String plain) {
+    final iv = enc.IV.fromSecureRandom(16);
+    final encrypted = _aes.encrypt(plain, iv: iv);
+    final bytes = Uint8List.fromList([...iv.bytes, ...encrypted.bytes]);
+    return '$_wirePrefix${base64UrlEncode(bytes)}';
+  }
+
+  /// Decrypts `fumble:1.…` payloads. Plain JSON is kept for older codes.
+  static String? _decryptIfNeeded(String raw) {
+    if (raw.startsWith(_wirePrefix)) {
+      try {
+        final packed = base64Url.decode(raw.substring(_wirePrefix.length));
+        if (packed.length <= 16) return null;
+        final iv = enc.IV(Uint8List.fromList(packed.sublist(0, 16)));
+        final cipher = enc.Encrypted(
+          Uint8List.fromList(packed.sublist(16)),
+        );
+        return _aes.decrypt(cipher, iv: iv);
+      } catch (_) {
+        return null;
+      }
+    }
+    if (raw.startsWith('{')) return raw;
+    return null;
   }
 
   static ({String? value, bool invalid}) _optionalString(

@@ -61,7 +61,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
         text: AppConstant.fumbleCta.split('').join(' '),
         style: const TextStyle(
           color: AppColors.background,
-          fontSize: 48,
+          fontSize: 34,
           fontWeight: AppStyle.w700,
           letterSpacing: 1.5,
         ),
@@ -117,7 +117,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
                     ? null
                     : PrettyQrDecorationImage(
                         image: _mark!,
-                        scale: 0.48,
+                        scale: 0.50,
                         position: PrettyQrDecorationImagePosition.embedded,
                         clipper: const PrettyQrCircleClipper(),
                       ),

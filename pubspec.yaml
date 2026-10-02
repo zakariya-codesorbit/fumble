@@ -44,6 +44,7 @@ dependencies:
   flutter_image_compress: ^2.5.1
   country_code_picker: ^3.4.1
   pretty_qr_code: ^3.6.0
+  encrypt: ^5.0.3
 
 dev_dependencies:
   flutter_test:

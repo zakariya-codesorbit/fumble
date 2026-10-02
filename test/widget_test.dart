@@ -36,7 +36,7 @@ void main() {
     expect(AppConfig.androidApplicationId, 'com.fumble.app');
   });
 
-  test('QR payload is versioned contact data', () {
+  test('QR payload is encrypted and round-trips through Fumble', () {
     final raw = FumbleQr.build(
       userId: 'abc123',
       name: 'Muhammad Zakariya',
@@ -44,8 +44,13 @@ void main() {
       phone: '+923001234567',
       email: 'ada@example.com',
     );
-    final decoded = FumbleQr.decode(raw);
 
+    expect(raw.startsWith('fumble:1.'), isTrue);
+    expect(raw.contains('abc123'), isFalse);
+    expect(raw.contains('Muhammad'), isFalse);
+    expect(raw.contains('Flutter Developer'), isFalse);
+
+    final decoded = FumbleQr.decode(raw);
     expect(decoded.error, isNull);
     expect(decoded.payload?.version, 1);
     expect(decoded.payload?.userId, 'abc123');
@@ -66,8 +71,7 @@ void main() {
 
     expect(decoded.payload?.bio, isNull);
     expect(decoded.payload?.phone, isNull);
-    expect(raw.contains('bio'), isFalse);
-    expect(raw.contains('phone'), isFalse);
+    expect(decoded.payload?.email, isNull);
   });
 
   test('QR validation reports payload errors', () {
@@ -84,6 +88,10 @@ void main() {
     expect(
       FumbleQr.decode('{"version":1,"userId":"abc"}').error,
       QrDecodeError.missingName,
+    );
+    expect(
+      FumbleQr.decode('fumble:1.not-valid-cipher').error,
+      QrDecodeError.invalid,
     );
   });
 
