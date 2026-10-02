@@ -95,8 +95,8 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                   else
                     LayoutBuilder(
                       builder: (context, qrConstraints) {
-                        final size = (qrConstraints.maxWidth * 1.0)
-                            .clamp(260.0, 360.0)
+                        final size = (qrConstraints.maxWidth * 1.05)
+                            .clamp(340.0, 480.0)
                             .toDouble();
                         return Center(
                           child: FumbleAura(
@@ -107,7 +107,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                                 .startFumble(),
                             child: FumbleQrCode(
                               data: payload,
-                              size: size * 0.32 + 30,
+                              size: size * 0.56,
                             ),
                           ),
                         );

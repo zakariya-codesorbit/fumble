@@ -61,14 +61,14 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
         text: AppConstant.fumbleCta.split('').join(' '),
         style: const TextStyle(
           color: AppColors.background,
-          fontSize: 28,
-          fontWeight: AppStyle.w600,
-          letterSpacing: 2,
+          fontSize: 48,
+          fontWeight: AppStyle.w700,
+          letterSpacing: 1.5,
         ),
       ),
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
-    )..layout(maxWidth: px * 0.72);
+    )..layout(maxWidth: px * 0.86);
     painter.paint(
       canvas,
       Offset((px - painter.width) / 2, (px - painter.height) / 2),
@@ -117,7 +117,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
                     ? null
                     : PrettyQrDecorationImage(
                         image: _mark!,
-                        scale: 0.18,
+                        scale: 0.48,
                         position: PrettyQrDecorationImagePosition.embedded,
                         clipper: const PrettyQrCircleClipper(),
                       ),
@@ -164,8 +164,8 @@ class _FilledPlatePainter extends CustomPainter {
         final rect = Rect.fromLTWH(
           origin.dx + col * module,
           origin.dy + row * module,
-          module + 0.01,
-          module + 0.01,
+          module - 0.01,
+          module - 0.01,
         );
         final point = rect.center;
         if ((point - center).distance > limit) continue;
