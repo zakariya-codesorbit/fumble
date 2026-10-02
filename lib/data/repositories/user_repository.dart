@@ -256,6 +256,12 @@ class ConnectionRepository {
     });
   }
 
+  /// Re-reads local rows and notifies listeners. Use when opening Connections.
+  void refreshLocal(String ownerUid) {
+    if (ownerUid.isEmpty) return;
+    _changes.add(ownerUid);
+  }
+
   Future<bool> hasLocalConnection({
     required String ownerUid,
     required String peerUid,
@@ -465,10 +471,12 @@ class ConnectionRepository {
 
   Future<void> _pullRemote(String ownerUid) async {
     final snap = await _connections(ownerUid).get();
+    final remotePeerIds = <String>{};
     var changed = false;
     for (final doc in snap.docs) {
       final remote = Connection.fromMap(doc.id, doc.data());
       if (remote.peerUid.isEmpty) continue;
+      remotePeerIds.add(remote.peerUid);
       final local = await _findLocal(ownerUid, remote.peerUid);
       if (local == null) {
         await _upsertLocal(
@@ -494,7 +502,27 @@ class ConnectionRepository {
       await _upsertLocal(ownerUid, merged);
       changed = true;
     }
+
+    // Drop local copies that Firestore no longer has. Keep pending/failed
+    // rows — those may not have been written remotely yet.
+    final localRows = await _localConnections(ownerUid);
+    for (final row in localRows) {
+      if (row.syncStatus != SyncStatus.synced) continue;
+      if (remotePeerIds.contains(row.peerUid)) continue;
+      await _deleteLocal(ownerUid, row.peerUid);
+      changed = true;
+    }
+
     if (changed) _changes.add(ownerUid);
+  }
+
+  Future<void> _deleteLocal(String ownerUid, String peerUid) async {
+    final db = await _local.database;
+    await db.delete(
+      'connections',
+      where: 'owner_uid = ? AND peer_uid = ?',
+      whereArgs: [ownerUid, peerUid],
+    );
   }
 
   Future<UserProfile?> _scannerProfile(String ownerUid) async {

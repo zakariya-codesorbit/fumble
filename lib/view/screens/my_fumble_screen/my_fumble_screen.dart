@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fumble/utils/app_avatars.dart';
 import 'package:intl/intl.dart';
 
+import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
+import 'package:fumble/core/navigation/navigator_keys.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/state/providers/app_providers.dart';
@@ -22,7 +22,6 @@ import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
-import '../../../utils/avatar_svg.dart';
 import 'components/location_card.dart';
 
 class MyFumbleScreen extends ConsumerWidget {
@@ -73,7 +72,7 @@ class _ProfileBody extends ConsumerStatefulWidget {
   ConsumerState<_ProfileBody> createState() => _ProfileBodyState();
 }
 
-class _ProfileBodyState extends ConsumerState<_ProfileBody> {
+class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _name;
   late final TextEditingController _bio;
   late final TextEditingController _phone;
@@ -85,7 +84,36 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> {
   @override
   void initState() {
     super.initState();
-    final profile = widget.profile;
+    _bindControllers(widget.profile);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    _name.dispose();
+    _bio.dispose();
+    _phone.dispose();
+    _about.dispose();
+    _location.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didPushNext() => _discardDraft();
+
+  @override
+  void didPopNext() => _discardDraft();
+
+  void _bindControllers(UserProfile profile) {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
     _phone = TextEditingController(text: profile.phone ?? '');
@@ -93,14 +121,23 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> {
     _location = TextEditingController(text: profile.location ?? '');
   }
 
-  @override
-  void dispose() {
-    _name.dispose();
-    _bio.dispose();
-    _phone.dispose();
-    _about.dispose();
-    _location.dispose();
-    super.dispose();
+  void _applyProfile(UserProfile profile) {
+    _name.text = profile.name;
+    _bio.text = profile.bio ?? '';
+    _phone.text = profile.phone ?? '';
+    _about.text = profile.aboutMe ?? '';
+    _location.text = profile.location ?? '';
+  }
+
+  void _discardDraft() {
+    if (!mounted) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    _applyProfile(widget.profile);
+    ref.read(profileNotifierProvider.notifier).resetEdit();
+    setState(() {
+      _active = null;
+      _readyToClose = false;
+    });
   }
 
   bool get _textChanged {
@@ -134,6 +171,12 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(bottomNavProvider, (previous, next) {
+      final wasMine = previous?.index == AppNavIndex.myfumble;
+      final isMine = next.index == AppNavIndex.myfumble;
+      if (wasMine != isMine) _discardDraft();
+    });
+
     final profile = widget.profile;
     final edit = ref.watch(profileNotifierProvider);
     final actions = ref.read(profileNotifierProvider.notifier);
