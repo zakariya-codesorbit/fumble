@@ -121,7 +121,7 @@ class _GalaxyPainter extends CustomPainter {
     return _Star(
       angle: t * math.pi * 2,
       radius: 0.42 + (i % 7) * 0.07 + (t % 0.05),
-      size: 0.6 + (i % 5) * 0.35,
+      size: 0.9 + (i % 5) * 0.45,
       phase: (i * 0.17) % 1.0,
       bright: i % 4 == 0,
     );
@@ -138,7 +138,7 @@ class _GalaxyPainter extends CustomPainter {
       center,
       radius * 0.9,
       Paint()
-        ..color = AppColors.gold.withValues(alpha: 0.07 + pulse * 0.04)
+        ..color = AppColors.gold.withValues(alpha: 0.08 + pulse * 0.045)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 36),
     );
 
@@ -146,14 +146,14 @@ class _GalaxyPainter extends CustomPainter {
     const ringRadii = [0.52, 0.68, 0.84];
     for (var i = 0; i < ringRadii.length; i++) {
       final r = radius * ringRadii[i];
-      final alpha = 0.10 + (i == 1 ? 0.06 : 0) + pulse * 0.04;
+      final alpha = 0.14 + (i == 1 ? 0.08 : 0) + pulse * 0.05;
       canvas.drawCircle(
         center,
         r,
         Paint()
           ..color = AppColors.gold.withValues(alpha: alpha)
           ..style = PaintingStyle.stroke
-          ..strokeWidth = i == 1 ? 1.4 : 0.9,
+          ..strokeWidth = i == 1 ? 2.2 : 1.5,
       );
 
       // Sparse arc highlight that drifts with orbit.
@@ -165,9 +165,9 @@ class _GalaxyPainter extends CustomPainter {
           0.9,
           false,
           Paint()
-            ..color = AppColors.gold.withValues(alpha: 0.28)
+            ..color = AppColors.gold.withValues(alpha: 0.34)
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.6
+            ..strokeWidth = 2.3
             ..strokeCap = StrokeCap.round,
         );
       }
@@ -185,8 +185,8 @@ class _GalaxyPainter extends CustomPainter {
         );
         canvas.drawCircle(
           p,
-          1.8 - i * 0.15,
-          Paint()..color = AppColors.gold.withValues(alpha: 0.22 - i * 0.022),
+          2.3 - i * 0.18,
+          Paint()..color = AppColors.gold.withValues(alpha: 0.28 - i * 0.026),
         );
       }
     }
@@ -203,13 +203,13 @@ class _GalaxyPainter extends CustomPainter {
         center.dx + r * math.cos(a),
         center.dy + r * math.sin(a),
       );
-      final s = star.size * (0.85 + twinkle * 0.25);
+      final s = star.size * (0.88 + twinkle * 0.28);
 
       if (star.bright) {
         canvas.drawCircle(
           p,
-          s * 2.4,
-          Paint()..color = AppColors.gold.withValues(alpha: 0.10 * twinkle),
+          s * 2.5,
+          Paint()..color = AppColors.gold.withValues(alpha: 0.13 * twinkle),
         );
       }
       canvas.drawCircle(
@@ -217,7 +217,7 @@ class _GalaxyPainter extends CustomPainter {
         s,
         Paint()
           ..color = (star.bright ? AppColors.gold : AppColors.goldMuted)
-              .withValues(alpha: 0.35 + 0.45 * twinkle),
+              .withValues(alpha: 0.42 + 0.45 * twinkle),
       );
     }
   }
