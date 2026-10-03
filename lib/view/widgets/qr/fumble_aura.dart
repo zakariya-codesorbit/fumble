@@ -94,49 +94,11 @@ class _FumbleAuraState extends State<FumbleAura> with TickerProviderStateMixin {
                     active: widget.phase == FumbleAuraPhase.sharing,
                   ),
                 ),
-                Transform.scale(
-                  scale: breath,
-                  child: widget.child ?? _Core(size: widget.size * 0.34),
-                ),
+                Transform.scale(scale: breath, child: widget.child),
               ],
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _Core extends StatelessWidget {
-  const _Core({required this.size});
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const RadialGradient(
-          colors: [AppColors.white, AppColors.gold, AppColors.goldDeep],
-          stops: [0.0, 0.55, 1.0],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gold.withValues(alpha: 0.35),
-            blurRadius: 28,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: 'F'.toText(
-        color: AppColors.background,
-        fontSize: size * 0.42,
-        fontWeight: AppStyle.w800,
-        textAlign: TextAlign.center,
       ),
     );
   }
