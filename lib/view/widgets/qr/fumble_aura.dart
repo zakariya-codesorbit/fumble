@@ -142,10 +142,12 @@ class _GalaxyPainter extends CustomPainter {
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 36),
     );
 
-    // Soft orbital rings.
-    const ringRadii = [0.52, 0.68, 0.84];
+    // Soft orbital rings — all outside the QR child (~0.68 of this radius).
+    const ringRadii = [0.74, 0.85, 0.96];
+    const ringWidths = [1.0, 1.2, 1.4];
     for (var i = 0; i < ringRadii.length; i++) {
       final r = radius * ringRadii[i];
+      final width = ringWidths[i];
       final alpha = 0.14 + (i == 1 ? 0.08 : 0) + pulse * 0.05;
       canvas.drawCircle(
         center,
@@ -153,7 +155,7 @@ class _GalaxyPainter extends CustomPainter {
         Paint()
           ..color = AppColors.gold.withValues(alpha: alpha)
           ..style = PaintingStyle.stroke
-          ..strokeWidth = i == 1 ? 2.2 : 1.5,
+          ..strokeWidth = width,
       );
 
       // Sparse arc highlight that drifts with orbit.
@@ -167,7 +169,7 @@ class _GalaxyPainter extends CustomPainter {
           Paint()
             ..color = AppColors.gold.withValues(alpha: 0.34)
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.3
+            ..strokeWidth = width + 0.3
             ..strokeCap = StrokeCap.round,
         );
       }
@@ -176,7 +178,7 @@ class _GalaxyPainter extends CustomPainter {
     // Slow comet trail on outer orbit.
     if (active) {
       final trailAngle = -spin * 0.85;
-      final trailR = radius * 0.84;
+      final trailR = radius * 0.96;
       for (var i = 0; i < 8; i++) {
         final a = trailAngle - i * 0.08;
         final p = Offset(
