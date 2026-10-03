@@ -117,7 +117,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
                     ? null
                     : PrettyQrDecorationImage(
                         image: _mark!,
-                        scale: 0.60,
+                        scale: 0.30,
                         position: PrettyQrDecorationImagePosition.embedded,
                         clipper: const PrettyQrCircleClipper(),
                       ),
