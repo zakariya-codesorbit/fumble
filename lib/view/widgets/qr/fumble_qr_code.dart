@@ -34,7 +34,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
   static const _ecc = QrErrorCorrectLevel.Q;
 
   /// Quiet modules around the matrix (kept thin for a tighter plate look).
-  static const double _quietModules = 2;
+  static const double _quietModules = 1;
 
   @override
   void initState() {
