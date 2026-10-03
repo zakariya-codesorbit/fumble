@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,7 +57,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final topGap = constraints.maxHeight < 640 ? 24.0 : 48.0;
+              final topGap = constraints.maxHeight < 640 ? 16.0 : 48.0;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -81,39 +83,43 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                     fontSize: 18,
                     color: AppColors.softGray,
                   ),
-                  const Spacer(),
-                  if (payload == null)
-                    Center(
-                      child: !_cacheLoaded && live == null
-                          ? const AppLoader()
-                          : AppConstant.completeProfile.toText(
-                              color: AppColors.softGray,
-                              fontSize: 14,
-                              textAlign: TextAlign.center,
-                            ),
-                    )
-                  else
-                    LayoutBuilder(
-                      builder: (context, qrConstraints) {
-                        final size = (qrConstraints.maxWidth * 1.05)
-                            .clamp(340.0, 480.0)
-                            .toDouble();
-                        return Center(
-                          child: FumbleAura(
-                            size: size,
-                            phase: FumbleAuraPhase.sharing,
-                            onTap: () => ref
-                                .read(fumbleNotifierProvider.notifier)
-                                .startFumble(),
-                            child: FumbleQrCode(
-                              data: payload,
-                              size: size * 0.56,
-                            ),
+                  Expanded(
+                    child: payload == null
+                        ? Center(
+                            child: !_cacheLoaded && live == null
+                                ? const AppLoader()
+                                : AppConstant.completeProfile.toText(
+                                    color: AppColors.softGray,
+                                    fontSize: 14,
+                                    textAlign: TextAlign.center,
+                                  ),
+                          )
+                        : LayoutBuilder(
+                            builder: (context, qrConstraints) {
+                              final size = math
+                                  .min(
+                                    qrConstraints.maxWidth * 1.05,
+                                    qrConstraints.maxHeight * 0.92,
+                                  )
+                                  .clamp(180.0, 520.0)
+                                  .toDouble();
+                              return Center(
+                                child: FumbleAura(
+                                  size: size,
+                                  phase: FumbleAuraPhase.sharing,
+                                  onTap: () => ref
+                                      .read(fumbleNotifierProvider.notifier)
+                                      .startFumble(),
+                                  child: FumbleQrCode(
+                                    data: payload,
+                                    // Larger modules on screen → faster phone-to-phone scans.
+                                    size: size * 0.68,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                  const Spacer(flex: 2),
+                  ),
                 ],
               ).paddingSymmetric(horizontal: 28.w);
             },

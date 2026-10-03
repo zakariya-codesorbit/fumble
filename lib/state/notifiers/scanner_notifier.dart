@@ -34,8 +34,10 @@ class ScannerNotifier extends AutoDisposeNotifier<ScannerState> {
   @override
   ScannerState build() {
     _controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
+      // Analyze every frame for the first hit; ignore repeats until value changes.
+      detectionSpeed: DetectionSpeed.noDuplicates,
       facing: CameraFacing.back,
+      formats: const [BarcodeFormat.qrCode],
     );
     ref.onDispose(() {
       _controller?.dispose();
