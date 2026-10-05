@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/data/models/connection.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
@@ -27,26 +29,97 @@ class ConnectionTile extends StatefulWidget {
 class _ConnectionTileState extends State<ConnectionTile> {
   static const _actionWidth = 72.0;
   double _offset = 0;
+  String? _placeLabel;
+  var _placeLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolvePlace();
+  }
+
+  @override
+  void didUpdateWidget(covariant ConnectionTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldLoc = oldWidget.connection.fumbleLocation;
+    final nextLoc = widget.connection.fumbleLocation;
+    if (oldLoc?.latitude != nextLoc?.latitude ||
+        oldLoc?.longitude != nextLoc?.longitude) {
+      _placeLabel = null;
+      _resolvePlace();
+    }
+  }
+
+  Future<void> _resolvePlace() async {
+    final loc = widget.connection.fumbleLocation;
+    if (loc == null || _placeLoading) return;
+    _placeLoading = true;
+    try {
+      final marks = await Geocoding().placemarkFromCoordinates(
+        loc.latitude,
+        loc.longitude,
+      );
+      if (!mounted || marks.isEmpty) return;
+      final p = marks.first;
+      final streetParts = [
+        p.subThoroughfare?.trim(),
+        p.thoroughfare?.trim(),
+      ].whereType<String>().where((s) => s.isNotEmpty);
+      var street = streetParts.join(' ');
+      if (street.isEmpty) {
+        final fallback = (p.street?.trim().isNotEmpty ?? false)
+            ? p.street!.trim()
+            : (p.name?.trim() ?? '');
+        // Skip bare coordinate-like or locality-only names.
+        if (fallback.isNotEmpty &&
+            fallback != p.locality?.trim() &&
+            !RegExp(r'^-?\d+(\.\d+)?$').hasMatch(fallback)) {
+          street = fallback;
+        }
+      }
+      final city = (p.locality?.trim().isNotEmpty ?? false)
+          ? p.locality!.trim()
+          : (p.subAdministrativeArea?.trim() ?? '');
+      final region = p.administrativeArea?.trim() ?? '';
+      final label = [
+        if (street.isNotEmpty) street,
+        if (city.isNotEmpty) city,
+        if (region.isNotEmpty && region != city) region,
+      ].join(', ');
+      if (label.isEmpty) return;
+      setState(() => _placeLabel = label);
+    } catch (_) {
+      // Keep coords fallback in UI.
+    } finally {
+      _placeLoading = false;
+    }
+  }
 
   void _close() {
     if (_offset == 0) return;
     setState(() => _offset = 0);
   }
 
+  String _locationText(FumbleLocation? loc) {
+    if (_placeLabel != null) return _placeLabel!;
+    if (loc == null) return '';
+    return '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°';
+  }
+
   @override
   Widget build(BuildContext context) {
     final connection = widget.connection;
-    final date = DateFormat(
-      'MMM d, yyyy · h:mm a',
-    ).format(connection.fumbledAt);
-    final subtitle = connection.hasBio ? connection.bio! : null;
+    final date = DateFormat('MMM d, yyyy').format(connection.fumbledAt);
+    final time = DateFormat('h:mm a').format(connection.fumbledAt);
     final phone = connection.visiblePhone;
     final email = connection.visibleEmail;
+    final locationText = _locationText(connection.fumbleLocation);
+    final bio = connection.hasBio ? connection.bio!.trim() : '';
     final badge = _syncBadge(connection.syncStatus);
     final canDelete = widget.onDeleteTap != null;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppStyle.radiusLg),
+      borderRadius: BorderRadius.circular(20),
       child: Stack(
         children: [
           if (canDelete)
@@ -91,73 +164,92 @@ class _ConnectionTileState extends State<ConnectionTile> {
             child: Transform.translate(
               offset: Offset(_offset, 0),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(14, 12, 12, 14),
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(AppStyle.radiusLg),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ProfileAvatar(
-                      photoUrl: connection.photoUrl,
-                      name: connection.name,
-                      size: AppStyle.connectionAvatar,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ProfileAvatar(
+                          photoUrl: connection.photoUrl,
+                          name: connection.name,
+                          size: 52,
+                        ),
+                        12.width,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: connection.name.toText(
+                                      fontSize: 17,
+                                      fontWeight: AppStyle.w700,
+                                      maxLine: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (badge != null) ...[
+                                    8.width,
+                                    _SyncBadge(badge: badge),
+                                  ],
+                                ],
+                              ),
+                              6.height,
+                              _DetailRow(
+                                leading: email.isNotEmpty ? email : null,
+                                trailing: date,
+                              ),
+                              4.height,
+                              _DetailRow(
+                                leading: phone,
+                                trailing: time,
+                              ),
+                              if (locationText.isNotEmpty) ...[
+                                4.height,
+                                Row(
+                                  children: [
+                                    Icon(
+                                      AppIcons.location,
+                                      size: 14,
+                                      color: AppColors.softGray,
+                                    ),
+                                    4.width,
+                                    Expanded(
+                                      child: locationText.toText(
+                                        fontSize: 13,
+                                        fontWeight: AppStyle.w500,
+                                        color: AppColors.softGray,
+                                        maxLine: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    12.width,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          connection.name.toText(
-                            fontSize: 16,
-                            fontWeight: AppStyle.w600,
-                            maxLine: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (subtitle != null) ...[
-                            2.height,
-                            subtitle.toText(
-                              fontSize: 12,
-                              fontWeight: AppStyle.w500,
-                              color: AppColors.gold,
-                              maxLine: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          if (phone != null) ...[
-                            2.height,
-                            phone.toText(
-                              fontSize: 12,
-                              fontWeight: AppStyle.w500,
-                              color: AppColors.softGray,
-                              maxLine: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          if (email.isNotEmpty) ...[
-                            2.height,
-                            email.toText(
-                              fontSize: 12,
-                              fontWeight: AppStyle.w500,
-                              color: AppColors.softGray,
-                              maxLine: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          4.height,
-                          AppConstant.fumbledOnLabel(date).toText(
-                            fontSize: 12,
-                            fontWeight: AppStyle.w500,
-                            color: AppColors.softGray,
-                          ),
-                        ],
+                    if (bio.isNotEmpty) ...[
+                      12.height,
+                      bio.toText(
+                        fontSize: 14,
+                        fontWeight: AppStyle.w400,
+                        color: AppColors.white.withValues(alpha: 0.88),
+                        maxLine: 3,
+                        overflow: TextOverflow.ellipsis,
+                        lineHeight: 1.35,
                       ),
-                    ),
-                    if (badge != null) ...[
-                      8.width,
-                      _SyncBadge(badge: badge),
                     ],
                   ],
                 ),
@@ -166,6 +258,40 @@ class _ConnectionTileState extends State<ConnectionTile> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({
+    this.leading,
+    required this.trailing,
+  });
+
+  final String? leading;
+  final String trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: (leading ?? '').toText(
+            fontSize: 13,
+            fontWeight: AppStyle.w500,
+            color: AppColors.softGray,
+            maxLine: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        8.width,
+        trailing.toText(
+          fontSize: 12,
+          fontWeight: AppStyle.w500,
+          color: AppColors.goldMuted,
+        ),
+      ],
     );
   }
 }
