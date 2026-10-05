@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/data/models/connection.dart';
@@ -41,52 +40,28 @@ class _ConnectionTileState extends State<ConnectionTile> {
   @override
   void didUpdateWidget(covariant ConnectionTile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldLoc = oldWidget.connection.fumbleLocation;
-    final nextLoc = widget.connection.fumbleLocation;
-    if (oldLoc?.latitude != nextLoc?.latitude ||
-        oldLoc?.longitude != nextLoc?.longitude) {
+    final old = oldWidget.connection;
+    final next = widget.connection;
+    if (old.fumblePlace != next.fumblePlace ||
+        old.fumbleLocation?.latitude != next.fumbleLocation?.latitude ||
+        old.fumbleLocation?.longitude != next.fumbleLocation?.longitude) {
       _placeLabel = null;
       _resolvePlace();
     }
   }
 
   Future<void> _resolvePlace() async {
+    final saved = widget.connection.fumblePlace?.trim();
+    if (saved != null && saved.isNotEmpty) {
+      _placeLabel = saved;
+      return;
+    }
     final loc = widget.connection.fumbleLocation;
     if (loc == null || _placeLoading) return;
     _placeLoading = true;
     try {
-      final marks = await Geocoding().placemarkFromCoordinates(
-        loc.latitude,
-        loc.longitude,
-      );
-      if (!mounted || marks.isEmpty) return;
-      final p = marks.first;
-      final streetParts = [
-        p.subThoroughfare?.trim(),
-        p.thoroughfare?.trim(),
-      ].whereType<String>().where((s) => s.isNotEmpty);
-      var street = streetParts.join(' ');
-      if (street.isEmpty) {
-        final fallback = (p.street?.trim().isNotEmpty ?? false)
-            ? p.street!.trim()
-            : (p.name?.trim() ?? '');
-        // Skip bare coordinate-like or locality-only names.
-        if (fallback.isNotEmpty &&
-            fallback != p.locality?.trim() &&
-            !RegExp(r'^-?\d+(\.\d+)?$').hasMatch(fallback)) {
-          street = fallback;
-        }
-      }
-      final city = (p.locality?.trim().isNotEmpty ?? false)
-          ? p.locality!.trim()
-          : (p.subAdministrativeArea?.trim() ?? '');
-      final region = p.administrativeArea?.trim() ?? '';
-      final label = [
-        if (street.isNotEmpty) street,
-        if (city.isNotEmpty) city,
-        if (region.isNotEmpty && region != city) region,
-      ].join(', ');
-      if (label.isEmpty) return;
+      final label = await FumbleLocationService.placeLabel(loc);
+      if (!mounted || label == null) return;
       setState(() => _placeLabel = label);
     } catch (_) {
       // Keep coords fallback in UI.
@@ -100,8 +75,11 @@ class _ConnectionTileState extends State<ConnectionTile> {
     setState(() => _offset = 0);
   }
 
-  String _locationText(FumbleLocation? loc) {
+  String _locationText(Connection connection) {
+    final saved = connection.fumblePlace?.trim();
+    if (saved != null && saved.isNotEmpty) return saved;
     if (_placeLabel != null) return _placeLabel!;
+    final loc = connection.fumbleLocation;
     if (loc == null) return '';
     return '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°';
   }
@@ -113,7 +91,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final time = DateFormat('h:mm a').format(connection.fumbledAt);
     final phone = connection.visiblePhone;
     final email = connection.visibleEmail;
-    final locationText = _locationText(connection.fumbleLocation);
+    final locationText = _locationText(connection);
     final bio = connection.hasBio ? connection.bio!.trim() : '';
     final badge = _syncBadge(connection.syncStatus);
     final canDelete = widget.onDeleteTap != null;

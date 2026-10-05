@@ -60,6 +60,7 @@ class LocalDatabase {
         share_email INTEGER NOT NULL DEFAULT 1,
         fumble_lat REAL,
         fumble_lng REAL,
+        fumble_place TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         sync_status TEXT NOT NULL,
@@ -77,6 +78,9 @@ class LocalDatabase {
     }
     if (!names.contains('fumble_lng')) {
       await db.execute('ALTER TABLE connections ADD COLUMN fumble_lng REAL');
+    }
+    if (!names.contains('fumble_place')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN fumble_place TEXT');
     }
   }
 

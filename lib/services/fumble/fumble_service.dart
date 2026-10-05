@@ -151,12 +151,17 @@ class FumbleService {
     );
     if (already) return;
 
-    final place =
+    final coords =
         await FumbleLocationService.currentLocation() ?? peerCard.fumbleLocation;
+    String? placeLabel = peerCard.fumblePlace;
+    if (coords != null && (placeLabel == null || placeLabel.trim().isEmpty)) {
+      placeLabel = await FumbleLocationService.placeLabel(coords);
+    }
     await _connections.createMutualConnection(
       scanner: scanner,
       peer: peerCard,
-      fumbleLocation: place,
+      fumbleLocation: coords,
+      fumblePlace: placeLabel,
     );
   }
 
@@ -181,6 +186,9 @@ class FumbleService {
       sharePhone: sharePhone,
       shareEmail: shareEmail,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
+      fumblePlace: (data['fumblePlace'] as String?)?.trim().isNotEmpty == true
+          ? (data['fumblePlace'] as String).trim()
+          : null,
     );
   }
 

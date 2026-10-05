@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -121,6 +122,50 @@ abstract final class FumbleLocationService {
         : await hasPermission();
     if (!allowed) return null;
     return currentLocation();
+  }
+
+  /// Reverse-geocodes coordinates to a street/city label. Null when offline
+  /// or the platform geocoder has no result.
+  static Future<String?> placeLabel(FumbleLocation location) async {
+    try {
+      final marks = await Geocoding().placemarkFromCoordinates(
+        location.latitude,
+        location.longitude,
+      );
+      if (marks.isEmpty) return null;
+      return labelFromPlacemark(marks.first);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Builds "street, city, region" from a platform placemark.
+  static String? labelFromPlacemark(Placemark p) {
+    final streetParts = [
+      p.subThoroughfare?.trim(),
+      p.thoroughfare?.trim(),
+    ].whereType<String>().where((s) => s.isNotEmpty);
+    var street = streetParts.join(' ');
+    if (street.isEmpty) {
+      final fallback = (p.street?.trim().isNotEmpty ?? false)
+          ? p.street!.trim()
+          : (p.name?.trim() ?? '');
+      if (fallback.isNotEmpty &&
+          fallback != p.locality?.trim() &&
+          !RegExp(r'^-?\d+(\.\d+)?$').hasMatch(fallback)) {
+        street = fallback;
+      }
+    }
+    final city = (p.locality?.trim().isNotEmpty ?? false)
+        ? p.locality!.trim()
+        : (p.subAdministrativeArea?.trim() ?? '');
+    final region = p.administrativeArea?.trim() ?? '';
+    final label = [
+      if (street.isNotEmpty) street,
+      if (city.isNotEmpty) city,
+      if (region.isNotEmpty && region != city) region,
+    ].join(', ');
+    return label.isEmpty ? null : label;
   }
 }
 

@@ -16,6 +16,7 @@ class Connection {
     this.sharePhone = true,
     this.shareEmail = true,
     this.fumbleLocation,
+    this.fumblePlace,
     required this.fumbledAt,
     required this.updatedAt,
     required this.syncStatus,
@@ -31,6 +32,8 @@ class Connection {
   final bool sharePhone;
   final bool shareEmail;
   final FumbleLocation? fumbleLocation;
+  /// Human-readable place (street/city) saved with the connection.
+  final String? fumblePlace;
   final DateTime fumbledAt;
   final DateTime updatedAt;
   final SyncStatus syncStatus;
@@ -63,6 +66,7 @@ class Connection {
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
+      fumblePlace: _blankToNull(data['fumblePlace'] as String?),
       fumbledAt: fumbledAt,
       updatedAt: _asDateTime(data['updatedAt']) ?? fumbledAt,
       syncStatus: SyncStatus.synced,
@@ -91,6 +95,7 @@ class Connection {
               longitude: lng.toDouble(),
             )
           : null,
+      fumblePlace: _blankToNull(row['fumble_place'] as String?),
       fumbledAt: createdAt,
       updatedAt: DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int),
       syncStatus: SyncStatus.values.firstWhere(
@@ -113,6 +118,7 @@ class Connection {
       'share_email': shareEmail ? 1 : 0,
       'fumble_lat': fumbleLocation?.latitude,
       'fumble_lng': fumbleLocation?.longitude,
+      'fumble_place': fumblePlace,
       'created_at': fumbledAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
       'sync_status': syncStatus.name,
@@ -130,6 +136,8 @@ class Connection {
     bool? shareEmail,
     FumbleLocation? fumbleLocation,
     bool clearFumbleLocation = false,
+    String? fumblePlace,
+    bool clearFumblePlace = false,
     DateTime? fumbledAt,
     DateTime? updatedAt,
     SyncStatus? syncStatus,
@@ -147,6 +155,9 @@ class Connection {
       fumbleLocation: clearFumbleLocation
           ? null
           : (fumbleLocation ?? this.fumbleLocation),
+      fumblePlace: clearFumblePlace
+          ? null
+          : (fumblePlace ?? this.fumblePlace),
       fumbledAt: fumbledAt ?? this.fumbledAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -164,6 +175,7 @@ class Connection {
         shareEmail == other.shareEmail &&
         fumbleLocation?.latitude == other.fumbleLocation?.latitude &&
         fumbleLocation?.longitude == other.fumbleLocation?.longitude &&
+        fumblePlace == other.fumblePlace &&
         fumbledAt == other.fumbledAt &&
         syncStatus == other.syncStatus;
   }
