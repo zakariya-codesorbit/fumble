@@ -56,12 +56,12 @@ class ProfileInfoCard extends StatelessWidget {
                   Transform.scale(
                     scale: 0.85,
                     alignment: Alignment.centerRight,
-                    child: Switch.adaptive(
+                    child: Switch(
                       value: shareValue!,
                       onChanged: onShareChanged,
                       activeThumbColor: AppColors.background,
                       activeTrackColor: AppColors.gold,
-                      inactiveThumbColor: AppColors.softGray,
+                      inactiveThumbColor: AppColors.gold,
                       inactiveTrackColor: AppColors.surfaceElevated,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
