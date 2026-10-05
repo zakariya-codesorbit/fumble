@@ -669,6 +669,27 @@ class ConnectionRepository {
     return snap.exists;
   }
 
+  /// Removes the connection for both users (Firestore + local).
+  Future<void> removeConnection({
+    required String ownerUid,
+    required String peerUid,
+  }) async {
+    if (ownerUid.isEmpty || peerUid.isEmpty) return;
+
+    await ConnectionManager().ready();
+    if (!ConnectionManager().isConnected) {
+      throw StateError(AppConstant.offline);
+    }
+
+    final batch = _db.batch();
+    batch.delete(_connections(ownerUid).doc(peerUid));
+    batch.delete(_connections(peerUid).doc(ownerUid));
+    await batch.commit();
+
+    await _deleteLocal(ownerUid, peerUid);
+    _changes.add(ownerUid);
+  }
+
   /// Creates both sides of a connection in one batch.
   Future<void> createMutualConnection({
     required UserProfile scanner,

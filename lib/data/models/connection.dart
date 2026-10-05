@@ -31,6 +31,11 @@ class Connection {
   final DateTime updatedAt;
   final SyncStatus syncStatus;
 
+  String get firstName {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    return parts.isEmpty ? name : parts.first;
+  }
+
   bool get hasBio => bio != null && bio!.trim().isNotEmpty;
 
   bool get hasPhone => phone != null && phone!.trim().isNotEmpty;

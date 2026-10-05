@@ -126,6 +126,13 @@ abstract final class AppConstant {
   static const String syncStatusFailed = 'Sync failed';
   static const String somethingWrong = 'Something went wrong';
   static const String ok = 'OK';
+  static const String removeConnection = 'Remove connection';
+  static String removeConnectionConfirm(String name) =>
+      'This will remove $name from your connections and remove you from theirs. This cannot be undone.';
+  static const String connectionRemoved = 'Connection removed';
+  static const String removeConnectionFailed =
+      'Couldn\'t remove connection. Try again.';
+
   static const String delete = 'Delete';
   static const String closeTooltip = 'Close';
   static const String reloadTooltip = 'Reload';
