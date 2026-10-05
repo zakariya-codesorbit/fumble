@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fumble/data/db/local_prefs.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/services/fumble/fumble_qr.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/colors.dart';
 import 'package:fumble/utils/constant.dart';
@@ -29,11 +31,15 @@ class FumbleScreen extends ConsumerStatefulWidget {
 class _FumbleScreenState extends ConsumerState<FumbleScreen> {
   UserProfile? _cached;
   var _cacheLoaded = false;
+  var _locationBootstrapped = false;
 
   @override
   void initState() {
     super.initState();
     _loadCache();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_bootstrapLocation());
+    });
   }
 
   Future<void> _loadCache() async {
@@ -44,6 +50,37 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
       _cacheLoaded = true;
       if (profile != null && profile.uid == uid) _cached = profile;
     });
+  }
+
+  /// Ask for location if needed and publish coords for peers who scan this QR.
+  Future<void> _bootstrapLocation() async {
+    if (!mounted || _locationBootstrapped) return;
+    _locationBootstrapped = true;
+    await _publishLocation(promptIfDenied: true);
+  }
+
+  Future<void> _publishLocation({required bool promptIfDenied}) async {
+    if (!mounted) return;
+    final uid = ref.read(authServiceProvider).currentUser?.uid;
+    if (uid == null) return;
+
+    final place = await FumbleLocationService.capture(
+      context,
+      promptIfDenied: promptIfDenied,
+    );
+    if (!mounted) return;
+    try {
+      await ref.read(userRepositoryProvider).publishFumbleLocation(
+            uid: uid,
+            location: place,
+          );
+    } catch (_) {
+      // Non-blocking — fumble still works without published location.
+    }
+  }
+
+  void _openScanner() {
+    ref.read(fumbleNotifierProvider.notifier).startFumble();
   }
 
   @override
@@ -107,9 +144,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                                 child: FumbleAura(
                                   size: size,
                                   phase: FumbleAuraPhase.sharing,
-                                  onTap: () => ref
-                                      .read(fumbleNotifierProvider.notifier)
-                                      .startFumble(),
+                                  onTap: _openScanner,
                                   child: FumbleQrCode(
                                     data: payload,
                                     // Larger modules on screen → faster phone-to-phone scans.

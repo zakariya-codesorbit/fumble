@@ -27,6 +27,9 @@ class LocalDatabase {
         await _createPendingFumbles(db);
         await _createConnections(db);
       },
+      onOpen: (db) async {
+        await _ensureConnectionColumns(db);
+      },
     );
   }
 
@@ -55,12 +58,26 @@ class LocalDatabase {
         phone TEXT,
         share_phone INTEGER NOT NULL DEFAULT 1,
         share_email INTEGER NOT NULL DEFAULT 1,
+        fumble_lat REAL,
+        fumble_lng REAL,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         sync_status TEXT NOT NULL,
         PRIMARY KEY (owner_uid, peer_uid)
       )
     ''');
+  }
+
+  /// Keeps existing installs in sync while the schema stays at version 1.
+  static Future<void> _ensureConnectionColumns(Database db) async {
+    final info = await db.rawQuery('PRAGMA table_info(connections)');
+    final names = info.map((row) => row['name'] as String).toSet();
+    if (!names.contains('fumble_lat')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN fumble_lat REAL');
+    }
+    if (!names.contains('fumble_lng')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN fumble_lng REAL');
+    }
   }
 
   Future<void> close() async {

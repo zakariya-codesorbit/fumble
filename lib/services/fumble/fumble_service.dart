@@ -10,6 +10,7 @@ import '../../data/repositories/user_repository.dart';
 import '../../utils/constant.dart';
 import '../analytics/analytics_service.dart';
 import '../crashlytics/crashlytics_service.dart';
+import '../location/fumble_location_service.dart';
 import '../network/connection_manager.dart';
 import '../offline/offline_fumble_queue.dart';
 
@@ -150,7 +151,13 @@ class FumbleService {
     );
     if (already) return;
 
-    await _connections.createMutualConnection(scanner: scanner, peer: peerCard);
+    final place =
+        await FumbleLocationService.currentLocation() ?? peerCard.fumbleLocation;
+    await _connections.createMutualConnection(
+      scanner: scanner,
+      peer: peerCard,
+      fumbleLocation: place,
+    );
   }
 
   Future<FumblePeerCard?> _lookupPeerCard(String peerUid) async {
@@ -173,6 +180,7 @@ class FumbleService {
       phone: sharePhone && phone != null && phone.isNotEmpty ? phone : null,
       sharePhone: sharePhone,
       shareEmail: shareEmail,
+      fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
     );
   }
 

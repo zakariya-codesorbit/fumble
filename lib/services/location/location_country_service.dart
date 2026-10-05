@@ -1,7 +1,8 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'package:fumble/services/location/fumble_location_service.dart';
 
 /// Resolves the user's country dial code from device location.
 abstract final class LocationCountryService {
@@ -16,19 +17,12 @@ abstract final class LocationCountryService {
       }
       if (!status.isGranted) return null;
 
-      final enabled = await Geolocator.isLocationServiceEnabled();
-      if (!enabled) return null;
-
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-          timeLimit: Duration(seconds: 10),
-        ),
-      );
+      final coords = await FumbleLocationService.currentLocation();
+      if (coords == null) return null;
 
       final placemarks = await Geocoding().placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
+        coords.latitude,
+        coords.longitude,
       );
       if (placemarks.isEmpty) return null;
 

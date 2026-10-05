@@ -1,10 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/fumble_preview.dart';
 import 'package:fumble/services/analytics/analytics_service.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/services/notifications/notification_service.dart';
 import 'package:fumble/state/notifiers/bottom_navigation_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
@@ -44,8 +47,8 @@ class FumbleNotifier extends Notifier<FumbleState> {
   @override
   FumbleState build() => const FumbleState();
 
-  Future<void> startFumble() async {
-    await AnalyticsService.instance.logFumbleStarted();
+  void startFumble() {
+    unawaited(AnalyticsService.instance.logFumbleStarted());
     push(AppRoutes.fumbleScanner);
   }
 
@@ -118,9 +121,16 @@ class FumbleNotifier extends Notifier<FumbleState> {
 
     state = state.copyWith(isConfirming: true);
     try {
+      // Scanner location if permission is on; peer location is used as fallback
+      // inside createLocalConnection when this is null.
+      final place = await FumbleLocationService.currentLocation();
       final created = await ref
           .read(connectionRepositoryProvider)
-          .createLocalConnection(ownerUid: uid, preview: preview);
+          .createLocalConnection(
+            ownerUid: uid,
+            preview: preview,
+            fumbleLocation: place,
+          );
       if (!created) {
         state = state.copyWith(isConfirming: false);
         showAppToast(AppConstant.alreadyConnected, isError: true);

@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../services/crashlytics/crashlytics_service.dart';
+import '../../services/location/fumble_location_service.dart';
 import '../../services/network/connection_manager.dart';
 import '../../utils/constant.dart';
 import '../db/local_database.dart';
@@ -64,7 +65,32 @@ class UserRepository {
       phone: ConnectionRepository._blankToNull(data['phone'] as String?),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
+      fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
     );
+  }
+
+  /// Publishes (or clears) this user's live fumble coordinates on their public card.
+  Future<void> publishFumbleLocation({
+    required String uid,
+    FumbleLocation? location,
+  }) async {
+    final userSnap = await _userRef(uid).get();
+    if (!userSnap.exists || userSnap.data() == null) return;
+    final current = UserProfile.fromMap(uid, userSnap.data()!);
+    if (current.fumbleCode.isEmpty) return;
+
+    final value = location?.toGeoPoint();
+    final batch = _db.batch();
+    batch.set(_userRef(uid), {
+      'fumbleLocation': value,
+      'lastActiveAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    batch.set(_codeRef(current.fumbleCode), {
+      'uid': uid,
+      'fumbleLocation': value,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    await batch.commit();
   }
 
   Future<UserProfile> createUser({
@@ -310,12 +336,22 @@ class ConnectionRepository {
   Future<bool> createLocalConnection({
     required String ownerUid,
     required FumblePreview preview,
+    FumbleLocation? fumbleLocation,
   }) async {
     if (await hasLocalConnection(
       ownerUid: ownerUid,
       peerUid: preview.peerUid,
     )) {
       return false;
+    }
+
+    // Prefer scanner location; else use peer's published fumble location.
+    var place = fumbleLocation;
+    if (place == null) {
+      try {
+        final card = await _users?.findPublicCard(preview.peerUid);
+        place = card?.fumbleLocation;
+      } catch (_) {}
     }
 
     final now = DateTime.now();
@@ -329,6 +365,7 @@ class ConnectionRepository {
       phone: _blankToNull(preview.phone),
       sharePhone: _filled(preview.phone),
       shareEmail: _filled(preview.email),
+      fumbleLocation: place,
       fumbledAt: now,
       updatedAt: now,
       syncStatus: SyncStatus.pending,
@@ -430,6 +467,7 @@ class ConnectionRepository {
           scanner: scanner,
           peer: peer,
           fumbledAt: row.fumbledAt,
+          fumbleLocation: row.fumbleLocation ?? peer.fumbleLocation,
         );
         await _setSyncStatus(ownerUid, row.peerUid, SyncStatus.synced);
       } catch (e, st) {
@@ -464,6 +502,7 @@ class ConnectionRepository {
         phone: card.sharePhone ? card.phone : null,
         sharePhone: card.sharePhone,
         shareEmail: card.shareEmail,
+        fumbleLocation: card.fumbleLocation ?? row.fumbleLocation,
       );
     } catch (e) {
       if (_isOfflineError(e)) rethrow;
@@ -481,6 +520,7 @@ class ConnectionRepository {
       phone: row.sharePhone ? row.phone : null,
       sharePhone: row.sharePhone,
       shareEmail: row.shareEmail,
+      fumbleLocation: row.fumbleLocation,
     );
   }
 
@@ -494,6 +534,9 @@ class ConnectionRepository {
       clearPhone: !card.sharePhone || !_filled(card.phone),
       sharePhone: card.sharePhone,
       shareEmail: card.shareEmail,
+      fumbleLocation: row.fumbleLocation ?? card.fumbleLocation,
+      clearFumbleLocation:
+          row.fumbleLocation == null && card.fumbleLocation == null,
     );
   }
 
@@ -504,7 +547,9 @@ class ConnectionRepository {
         a.bio == b.bio &&
         a.phone == b.phone &&
         a.sharePhone == b.sharePhone &&
-        a.shareEmail == b.shareEmail;
+        a.shareEmail == b.shareEmail &&
+        a.fumbleLocation?.latitude == b.fumbleLocation?.latitude &&
+        a.fumbleLocation?.longitude == b.fumbleLocation?.longitude;
   }
 
   static bool _filled(String? value) => value != null && value.trim().isNotEmpty;
@@ -537,6 +582,9 @@ class ConnectionRepository {
         clearPhone: !remote.sharePhone || !_filled(remote.phone),
         sharePhone: remote.sharePhone,
         shareEmail: remote.shareEmail,
+        fumbleLocation: remote.fumbleLocation ?? local.fumbleLocation,
+        clearFumbleLocation:
+            remote.fumbleLocation == null && local.fumbleLocation == null,
         fumbledAt: remote.fumbledAt,
         updatedAt: remote.updatedAt,
         syncStatus: SyncStatus.synced,
@@ -691,14 +739,20 @@ class ConnectionRepository {
   }
 
   /// Creates both sides of a connection in one batch.
+  ///
+  /// [fumbleLocation] is stored for both users when either side has location.
+  /// When null (both sides off), `fumbleLocation` is written empty/null.
   Future<void> createMutualConnection({
     required UserProfile scanner,
     required FumblePeerCard peer,
     DateTime? fumbledAt,
+    FumbleLocation? fumbleLocation,
   }) async {
     final at = fumbledAt == null
         ? FieldValue.serverTimestamp()
         : Timestamp.fromDate(fumbledAt);
+    final place = fumbleLocation ?? peer.fumbleLocation;
+    final placeValue = place?.toGeoPoint();
     final batch = _db.batch();
 
     batch.set(_connections(scanner.uid).doc(peer.uid), {
@@ -710,6 +764,7 @@ class ConnectionRepository {
       'phone': peer.sharePhone ? peer.phone : null,
       'sharePhone': peer.sharePhone,
       'shareEmail': peer.shareEmail,
+      'fumbleLocation': placeValue,
       'fumbledAt': at,
     }, SetOptions(merge: true));
 
@@ -722,6 +777,7 @@ class ConnectionRepository {
       'phone': scanner.publicPhone,
       'sharePhone': scanner.sharePhone,
       'shareEmail': scanner.shareEmail,
+      'fumbleLocation': placeValue,
       'fumbledAt': at,
     }, SetOptions(merge: true));
 
@@ -739,6 +795,7 @@ class FumblePeerCard {
     this.phone,
     this.sharePhone = true,
     this.shareEmail = true,
+    this.fumbleLocation,
   });
 
   final String uid;
@@ -749,4 +806,5 @@ class FumblePeerCard {
   final String? phone;
   final bool sharePhone;
   final bool shareEmail;
+  final FumbleLocation? fumbleLocation;
 }

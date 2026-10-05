@@ -95,6 +95,9 @@ abstract final class AppConstant {
   static const String galleryPermissionSettings =
       'Photo access is disabled. Please open Settings and allow Fumble to access your photos.';
   static const String photoPermissionTitle = 'Permission needed';
+  static const String locationPermissionTitle = 'Permission needed';
+  static const String locationPermissionSettings =
+      'Location access is disabled. Please open Settings and allow Fumble to use your location.';
   static const String invalidQr = 'This isn\'t a valid Fumble code.';
   static const String malformedQr = 'This Fumble code is malformed.';
   static const String unsupportedQrVersion =

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:fumble/services/location/fumble_location_service.dart';
+
 enum SyncStatus { pending, syncing, synced, failed }
 
 class Connection {
@@ -13,6 +15,7 @@ class Connection {
     this.phone,
     this.sharePhone = true,
     this.shareEmail = true,
+    this.fumbleLocation,
     required this.fumbledAt,
     required this.updatedAt,
     required this.syncStatus,
@@ -27,6 +30,7 @@ class Connection {
   final String? phone;
   final bool sharePhone;
   final bool shareEmail;
+  final FumbleLocation? fumbleLocation;
   final DateTime fumbledAt;
   final DateTime updatedAt;
   final SyncStatus syncStatus;
@@ -58,6 +62,7 @@ class Connection {
       phone: _blankToNull(data['phone'] as String?),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
+      fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
       fumbledAt: fumbledAt,
       updatedAt: _asDateTime(data['updatedAt']) ?? fumbledAt,
       syncStatus: SyncStatus.synced,
@@ -68,6 +73,8 @@ class Connection {
     final createdAt = DateTime.fromMillisecondsSinceEpoch(
       row['created_at'] as int,
     );
+    final lat = row['fumble_lat'];
+    final lng = row['fumble_lng'];
     return Connection(
       id: row['peer_uid'] as String,
       peerUid: row['peer_uid'] as String,
@@ -78,6 +85,12 @@ class Connection {
       phone: _blankToNull(row['phone'] as String?),
       sharePhone: _boolFromSql(row['share_phone']),
       shareEmail: _boolFromSql(row['share_email']),
+      fumbleLocation: lat is num && lng is num
+          ? FumbleLocation(
+              latitude: lat.toDouble(),
+              longitude: lng.toDouble(),
+            )
+          : null,
       fumbledAt: createdAt,
       updatedAt: DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int),
       syncStatus: SyncStatus.values.firstWhere(
@@ -98,6 +111,8 @@ class Connection {
       'phone': phone,
       'share_phone': sharePhone ? 1 : 0,
       'share_email': shareEmail ? 1 : 0,
+      'fumble_lat': fumbleLocation?.latitude,
+      'fumble_lng': fumbleLocation?.longitude,
       'created_at': fumbledAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
       'sync_status': syncStatus.name,
@@ -113,6 +128,8 @@ class Connection {
     bool clearPhone = false,
     bool? sharePhone,
     bool? shareEmail,
+    FumbleLocation? fumbleLocation,
+    bool clearFumbleLocation = false,
     DateTime? fumbledAt,
     DateTime? updatedAt,
     SyncStatus? syncStatus,
@@ -127,6 +144,9 @@ class Connection {
       phone: clearPhone ? null : (phone ?? this.phone),
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
+      fumbleLocation: clearFumbleLocation
+          ? null
+          : (fumbleLocation ?? this.fumbleLocation),
       fumbledAt: fumbledAt ?? this.fumbledAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -142,6 +162,8 @@ class Connection {
         phone == other.phone &&
         sharePhone == other.sharePhone &&
         shareEmail == other.shareEmail &&
+        fumbleLocation?.latitude == other.fumbleLocation?.latitude &&
+        fumbleLocation?.longitude == other.fumbleLocation?.longitude &&
         fumbledAt == other.fumbledAt &&
         syncStatus == other.syncStatus;
   }
