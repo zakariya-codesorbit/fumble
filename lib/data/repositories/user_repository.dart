@@ -62,6 +62,8 @@ class UserRepository {
       photoUrl: data['photoUrl'] as String?,
       bio: ConnectionRepository._blankToNull(data['bio'] as String?),
       phone: ConnectionRepository._blankToNull(data['phone'] as String?),
+      sharePhone: data['sharePhone'] as bool? ?? true,
+      shareEmail: data['shareEmail'] as bool? ?? true,
     );
   }
 
@@ -87,10 +89,12 @@ class UserRepository {
     batch.set(_codeRef(fumbleCode), {
       'uid': uid,
       'name': profile.name,
-      'email': profile.email,
+      'email': profile.publicEmail,
       'photoUrl': null,
       'bio': null,
-      'phone': null,
+      'phone': profile.publicPhone,
+      'sharePhone': profile.sharePhone,
+      'shareEmail': profile.shareEmail,
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();
@@ -103,6 +107,8 @@ class UserRepository {
     String? photoUrl,
     String? bio,
     String? phone,
+    bool? sharePhone,
+    bool? shareEmail,
   }) async {
     final userSnap = await _userRef(uid).get();
     if (!userSnap.exists || userSnap.data() == null) return;
@@ -117,6 +123,8 @@ class UserRepository {
     }
     if (bio != null) data['bio'] = bio.trim();
     if (phone != null) data['phone'] = phone.trim();
+    if (sharePhone != null) data['sharePhone'] = sharePhone;
+    if (shareEmail != null) data['shareEmail'] = shareEmail;
     data['aboutMe'] = FieldValue.delete();
     data['location'] = FieldValue.delete();
 
@@ -126,20 +134,46 @@ class UserRepository {
         : current.photoUrl;
     final nextBio = bio?.trim() ?? current.bio;
     final nextPhone = phone?.trim() ?? current.phone;
+    final nextSharePhone = sharePhone ?? current.sharePhone;
+    final nextShareEmail = shareEmail ?? current.shareEmail;
+    final publicEmail = nextShareEmail ? current.email.trim() : '';
+    final publicPhone =
+        nextSharePhone && nextPhone != null && nextPhone.trim().isNotEmpty
+            ? nextPhone.trim()
+            : null;
 
     final batch = _db.batch();
     batch.update(_userRef(uid), data);
     batch.set(_codeRef(current.fumbleCode), {
       'uid': uid,
       'name': nextName,
-      'email': current.email,
+      'email': publicEmail,
       'photoUrl': nextPhoto,
       'bio': nextBio,
-      'phone': nextPhone,
+      'phone': publicPhone,
+      'sharePhone': nextSharePhone,
+      'shareEmail': nextShareEmail,
       'aboutMe': FieldValue.delete(),
       'location': FieldValue.delete(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+
+    // Keep existing connections in sync with visibility preferences.
+    final connections = await _userRef(uid).collection('connections').get();
+    for (final doc in connections.docs) {
+      final peerUid = doc.id;
+      batch.set(_userRef(peerUid).collection('connections').doc(uid), {
+        'peerUid': uid,
+        'name': nextName,
+        'email': publicEmail,
+        'photoUrl': nextPhoto,
+        'bio': nextBio,
+        'phone': publicPhone,
+        'sharePhone': nextSharePhone,
+        'shareEmail': nextShareEmail,
+      }, SetOptions(merge: true));
+    }
+
     await batch.commit();
   }
 
@@ -160,10 +194,12 @@ class UserRepository {
     batch.set(_codeRef(next), {
       'uid': uid,
       'name': current.name,
-      'email': current.email,
+      'email': current.publicEmail,
       'photoUrl': current.photoUrl,
       'bio': current.bio,
-      'phone': current.phone,
+      'phone': current.publicPhone,
+      'sharePhone': current.sharePhone,
+      'shareEmail': current.shareEmail,
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();
@@ -291,6 +327,8 @@ class ConnectionRepository {
       photoUrl: preview.photoUrl,
       bio: _blankToNull(preview.bio),
       phone: _blankToNull(preview.phone),
+      sharePhone: _filled(preview.phone),
+      shareEmail: _filled(preview.email),
       fumbledAt: now,
       updatedAt: now,
       syncStatus: SyncStatus.pending,
@@ -416,13 +454,16 @@ class ConnectionRepository {
     try {
       final card = await users.findPublicCard(row.peerUid);
       if (card == null) return _cardFromConnection(row);
+      // Public card is source of truth for share flags + contact visibility.
       return FumblePeerCard(
         uid: row.peerUid,
         name: card.name.isNotEmpty ? card.name : row.name,
-        email: card.email.isNotEmpty ? card.email : row.email,
+        email: card.shareEmail ? card.email : '',
         photoUrl: _filled(card.photoUrl) ? card.photoUrl : row.photoUrl,
         bio: _filled(card.bio) ? card.bio : row.bio,
-        phone: _filled(card.phone) ? card.phone : row.phone,
+        phone: card.sharePhone ? card.phone : null,
+        sharePhone: card.sharePhone,
+        shareEmail: card.shareEmail,
       );
     } catch (e) {
       if (_isOfflineError(e)) rethrow;
@@ -434,20 +475,25 @@ class ConnectionRepository {
     return FumblePeerCard(
       uid: row.peerUid,
       name: row.name,
-      email: row.email,
+      email: row.shareEmail ? row.email : '',
       photoUrl: row.photoUrl,
       bio: row.bio,
-      phone: row.phone,
+      phone: row.sharePhone ? row.phone : null,
+      sharePhone: row.sharePhone,
+      shareEmail: row.shareEmail,
     );
   }
 
   Connection _connectionFromCard(Connection row, FumblePeerCard card) {
     return row.copyWith(
       name: card.name,
-      email: card.email,
+      email: card.shareEmail ? card.email : '',
       photoUrl: card.photoUrl,
       bio: card.bio,
-      phone: card.phone,
+      phone: card.sharePhone ? card.phone : null,
+      clearPhone: !card.sharePhone || !_filled(card.phone),
+      sharePhone: card.sharePhone,
+      shareEmail: card.shareEmail,
     );
   }
 
@@ -456,7 +502,9 @@ class ConnectionRepository {
         a.email == b.email &&
         a.photoUrl == b.photoUrl &&
         a.bio == b.bio &&
-        a.phone == b.phone;
+        a.phone == b.phone &&
+        a.sharePhone == b.sharePhone &&
+        a.shareEmail == b.shareEmail;
   }
 
   static bool _filled(String? value) => value != null && value.trim().isNotEmpty;
@@ -482,10 +530,13 @@ class ConnectionRepository {
 
       final merged = local.copyWith(
         name: remote.name.isNotEmpty ? remote.name : local.name,
-        email: remote.email.isNotEmpty ? remote.email : local.email,
+        email: remote.shareEmail ? remote.email : '',
         photoUrl: remote.photoUrl ?? local.photoUrl,
         bio: remote.bio ?? local.bio,
-        phone: remote.phone ?? local.phone,
+        phone: remote.sharePhone ? remote.phone : null,
+        clearPhone: !remote.sharePhone || !_filled(remote.phone),
+        sharePhone: remote.sharePhone,
+        shareEmail: remote.shareEmail,
         fumbledAt: remote.fumbledAt,
         updatedAt: remote.updatedAt,
         syncStatus: SyncStatus.synced,
@@ -632,20 +683,24 @@ class ConnectionRepository {
     batch.set(_connections(scanner.uid).doc(peer.uid), {
       'peerUid': peer.uid,
       'name': peer.name,
-      'email': peer.email,
+      'email': peer.shareEmail ? peer.email : '',
       'photoUrl': peer.photoUrl,
       'bio': peer.bio,
-      'phone': peer.phone,
+      'phone': peer.sharePhone ? peer.phone : null,
+      'sharePhone': peer.sharePhone,
+      'shareEmail': peer.shareEmail,
       'fumbledAt': at,
     }, SetOptions(merge: true));
 
     batch.set(_connections(peer.uid).doc(scanner.uid), {
       'peerUid': scanner.uid,
       'name': scanner.name,
-      'email': scanner.email,
+      'email': scanner.publicEmail,
       'photoUrl': scanner.photoUrl,
       'bio': scanner.bio,
-      'phone': scanner.phone,
+      'phone': scanner.publicPhone,
+      'sharePhone': scanner.sharePhone,
+      'shareEmail': scanner.shareEmail,
       'fumbledAt': at,
     }, SetOptions(merge: true));
 
@@ -661,6 +716,8 @@ class FumblePeerCard {
     this.photoUrl,
     this.bio,
     this.phone,
+    this.sharePhone = true,
+    this.shareEmail = true,
   });
 
   final String uid;
@@ -669,4 +726,6 @@ class FumblePeerCard {
   final String? photoUrl;
   final String? bio;
   final String? phone;
+  final bool sharePhone;
+  final bool shareEmail;
 }

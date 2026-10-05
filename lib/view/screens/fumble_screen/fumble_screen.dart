@@ -137,8 +137,8 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
       userId: profile.uid,
       name: name,
       bio: profile.bio,
-      phone: profile.phone,
-      email: profile.email,
+      phone: profile.publicPhone,
+      email: profile.shareEmail ? profile.email : null,
     );
   }
 }

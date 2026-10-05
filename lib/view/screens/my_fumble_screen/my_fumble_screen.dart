@@ -74,6 +74,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _name;
   late final TextEditingController _bio;
   late final TextEditingController _phone;
+  late bool _sharePhone;
+  late bool _shareEmail;
   String? _active;
   bool _readyToClose = false;
 
@@ -111,12 +113,16 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
     _phone = TextEditingController(text: profile.phone ?? '');
+    _sharePhone = profile.sharePhone;
+    _shareEmail = profile.shareEmail;
   }
 
   void _applyProfile(UserProfile profile) {
     _name.text = profile.name;
     _bio.text = profile.bio ?? '';
     _phone.text = profile.phone ?? '';
+    _sharePhone = profile.sharePhone;
+    _shareEmail = profile.shareEmail;
   }
 
   void _discardDraft() {
@@ -134,7 +140,9 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final profile = widget.profile;
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
-        _phone.text.trim() != (profile.phone ?? '').trim();
+        _phone.text.trim() != (profile.phone ?? '').trim() ||
+        _sharePhone != profile.sharePhone ||
+        _shareEmail != profile.shareEmail;
   }
 
   void _openField(String key) {
@@ -207,6 +215,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
             controller: _phone,
             placeholder: AppConstant.addPhone,
             keyboardType: TextInputType.phone,
+            shareValue: _sharePhone,
+            onShareChanged: (value) => setState(() => _sharePhone = value),
           ),
           12.height,
           ProfileInfoCard(
@@ -215,6 +225,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 ? profile.email.trim()
                 : AppConstant.emailHint,
             placeholder: profile.email.trim().isEmpty,
+            shareValue: _shareEmail,
+            onShareChanged: (value) => setState(() => _shareEmail = value),
           ),
           if (showSave) ...[
             16.height,
@@ -225,6 +237,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 name: _name.text,
                 bio: _bio.text,
                 phone: _phone.text,
+                sharePhone: _sharePhone,
+                shareEmail: _shareEmail,
               ),
             ),
           ],
@@ -249,6 +263,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     required String placeholder,
     int maxLine = 1,
     TextInputType? keyboardType,
+    bool? shareValue,
+    ValueChanged<bool>? onShareChanged,
   }) {
     final text = controller.text.trim();
     final editing = _active == keyName;
@@ -257,6 +273,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
       body: text.isNotEmpty ? text : placeholder,
       placeholder: text.isEmpty,
       onTap: editing ? null : () => _openField(keyName),
+      shareValue: shareValue,
+      onShareChanged: onShareChanged,
       editor: editing
           ? _inlineField(
               fieldKey: keyName,

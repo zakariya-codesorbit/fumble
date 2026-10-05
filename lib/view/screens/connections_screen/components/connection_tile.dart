@@ -21,7 +21,8 @@ class ConnectionTile extends StatelessWidget {
       'MMM d, yyyy · h:mm a',
     ).format(connection.fumbledAt);
     final subtitle = connection.hasBio ? connection.bio! : null;
-    final email = connection.email.trim();
+    final phone = connection.visiblePhone;
+    final email = connection.visibleEmail;
     final badge = _syncBadge(connection.syncStatus);
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 12, 14),
@@ -55,6 +56,16 @@ class ConnectionTile extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: AppStyle.w500,
                     color: AppColors.gold,
+                    maxLine: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                if (phone != null) ...[
+                  2.height,
+                  phone.toText(
+                    fontSize: 12,
+                    fontWeight: AppStyle.w500,
+                    color: AppColors.softGray,
                     maxLine: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

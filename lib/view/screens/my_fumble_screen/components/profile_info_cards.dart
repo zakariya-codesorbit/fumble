@@ -13,6 +13,8 @@ class ProfileInfoCard extends StatelessWidget {
     this.onTap,
     this.placeholder = false,
     this.editor,
+    this.shareValue,
+    this.onShareChanged,
   });
 
   final String title;
@@ -20,6 +22,10 @@ class ProfileInfoCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool placeholder;
   final Widget? editor;
+
+  /// When set, shows a visibility switch next to the title.
+  final bool? shareValue;
+  final ValueChanged<bool>? onShareChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +42,31 @@ class ProfileInfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            title.toText(
-              color: AppColors.gold,
-              fontSize: 12,
-              fontWeight: AppStyle.w600,
-              letterSpacing: 1.2,
+            Row(
+              children: [
+                Expanded(
+                  child: title.toText(
+                    color: AppColors.gold,
+                    fontSize: 12,
+                    fontWeight: AppStyle.w600,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                if (shareValue != null && onShareChanged != null)
+                  Transform.scale(
+                    scale: 0.85,
+                    alignment: Alignment.centerRight,
+                    child: Switch.adaptive(
+                      value: shareValue!,
+                      onChanged: onShareChanged,
+                      activeThumbColor: AppColors.background,
+                      activeTrackColor: AppColors.gold,
+                      inactiveThumbColor: AppColors.softGray,
+                      inactiveTrackColor: AppColors.surfaceElevated,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+              ],
             ),
             10.height,
             if (editor != null)

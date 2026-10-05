@@ -161,11 +161,18 @@ class FumbleService {
         .get();
     if (query.docs.isEmpty) return null;
     final data = query.docs.first.data();
+    final sharePhone = data['sharePhone'] as bool? ?? true;
+    final shareEmail = data['shareEmail'] as bool? ?? true;
+    final email = (data['email'] as String?)?.trim() ?? '';
+    final phone = (data['phone'] as String?)?.trim();
     return FumblePeerCard(
       uid: peerUid,
       name: (data['name'] as String?)?.trim() ?? '',
-      email: (data['email'] as String?)?.trim() ?? '',
+      email: shareEmail ? email : '',
       photoUrl: data['photoUrl'] as String?,
+      phone: sharePhone && phone != null && phone.isNotEmpty ? phone : null,
+      sharePhone: sharePhone,
+      shareEmail: shareEmail,
     );
   }
 

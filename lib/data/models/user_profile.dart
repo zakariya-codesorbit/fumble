@@ -9,6 +9,8 @@ class UserProfile {
     required this.fumbleCode,
     this.bio,
     this.phone,
+    this.sharePhone = true,
+    this.shareEmail = true,
     this.createdAt,
     this.lastActiveAt,
     this.fcmToken,
@@ -21,6 +23,8 @@ class UserProfile {
   final String fumbleCode;
   final String? bio;
   final String? phone;
+  final bool sharePhone;
+  final bool shareEmail;
   final DateTime? createdAt;
   final DateTime? lastActiveAt;
   final String? fcmToken;
@@ -38,6 +42,11 @@ class UserProfile {
 
   bool get isOnboardingComplete => hasPhoto && hasPhone;
 
+  /// Contact values exposed to connections / QR when sharing is on.
+  String get publicEmail => shareEmail ? email.trim() : '';
+
+  String? get publicPhone => sharePhone && _filled(phone) ? phone!.trim() : null;
+
   static bool _filled(String? value) =>
       value != null && value.trim().isNotEmpty;
 
@@ -50,6 +59,8 @@ class UserProfile {
       fumbleCode: (data['fumbleCode'] as String?) ?? '',
       bio: (data['bio'] as String?)?.trim(),
       phone: (data['phone'] as String?)?.trim(),
+      sharePhone: data['sharePhone'] as bool? ?? true,
+      shareEmail: data['shareEmail'] as bool? ?? true,
       createdAt: _asDateTime(data['createdAt']),
       lastActiveAt: _asDateTime(data['lastActiveAt']),
       fcmToken: data['fcmToken'] as String?,
@@ -64,6 +75,8 @@ class UserProfile {
       'fumbleCode': fumbleCode,
       'bio': bio,
       'phone': phone,
+      'sharePhone': sharePhone,
+      'shareEmail': shareEmail,
       'createdAt': FieldValue.serverTimestamp(),
       'lastActiveAt': FieldValue.serverTimestamp(),
     };
@@ -76,6 +89,8 @@ class UserProfile {
     String? fumbleCode,
     String? bio,
     String? phone,
+    bool? sharePhone,
+    bool? shareEmail,
     DateTime? createdAt,
     DateTime? lastActiveAt,
     String? fcmToken,
@@ -88,6 +103,8 @@ class UserProfile {
       fumbleCode: fumbleCode ?? this.fumbleCode,
       bio: bio ?? this.bio,
       phone: phone ?? this.phone,
+      sharePhone: sharePhone ?? this.sharePhone,
+      shareEmail: shareEmail ?? this.shareEmail,
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
       fcmToken: fcmToken ?? this.fcmToken,
@@ -103,6 +120,8 @@ class UserProfile {
       'fumbleCode': fumbleCode,
       'bio': bio,
       'phone': phone,
+      'sharePhone': sharePhone,
+      'shareEmail': shareEmail,
       'createdAt': createdAt?.millisecondsSinceEpoch,
     };
   }
@@ -117,6 +136,8 @@ class UserProfile {
       fumbleCode: (json['fumbleCode'] as String?) ?? '',
       bio: (json['bio'] as String?)?.trim(),
       phone: (json['phone'] as String?)?.trim(),
+      sharePhone: json['sharePhone'] as bool? ?? true,
+      shareEmail: json['shareEmail'] as bool? ?? true,
       createdAt: createdAtMs is int
           ? DateTime.fromMillisecondsSinceEpoch(createdAtMs)
           : null,

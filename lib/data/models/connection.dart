@@ -11,6 +11,8 @@ class Connection {
     this.photoUrl,
     this.bio,
     this.phone,
+    this.sharePhone = true,
+    this.shareEmail = true,
     required this.fumbledAt,
     required this.updatedAt,
     required this.syncStatus,
@@ -23,6 +25,8 @@ class Connection {
   final String? photoUrl;
   final String? bio;
   final String? phone;
+  final bool sharePhone;
+  final bool shareEmail;
   final DateTime fumbledAt;
   final DateTime updatedAt;
   final SyncStatus syncStatus;
@@ -30,6 +34,12 @@ class Connection {
   bool get hasBio => bio != null && bio!.trim().isNotEmpty;
 
   bool get hasPhone => phone != null && phone!.trim().isNotEmpty;
+
+  /// Contact shown in the connections UI (respects peer share toggles).
+  String get visibleEmail => shareEmail ? email.trim() : '';
+
+  String? get visiblePhone =>
+      sharePhone && hasPhone ? phone!.trim() : null;
 
   factory Connection.fromMap(String id, Map<String, dynamic> data) {
     final fumbledAt = _asDateTime(data['fumbledAt']) ?? DateTime.now();
@@ -41,6 +51,8 @@ class Connection {
       photoUrl: data['photoUrl'] as String?,
       bio: _blankToNull(data['bio'] as String?),
       phone: _blankToNull(data['phone'] as String?),
+      sharePhone: data['sharePhone'] as bool? ?? true,
+      shareEmail: data['shareEmail'] as bool? ?? true,
       fumbledAt: fumbledAt,
       updatedAt: _asDateTime(data['updatedAt']) ?? fumbledAt,
       syncStatus: SyncStatus.synced,
@@ -59,6 +71,8 @@ class Connection {
       photoUrl: row['photo_url'] as String?,
       bio: _blankToNull(row['bio'] as String?),
       phone: _blankToNull(row['phone'] as String?),
+      sharePhone: _boolFromSql(row['share_phone']),
+      shareEmail: _boolFromSql(row['share_email']),
       fumbledAt: createdAt,
       updatedAt: DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int),
       syncStatus: SyncStatus.values.firstWhere(
@@ -77,6 +91,8 @@ class Connection {
       'photo_url': photoUrl,
       'bio': bio,
       'phone': phone,
+      'share_phone': sharePhone ? 1 : 0,
+      'share_email': shareEmail ? 1 : 0,
       'created_at': fumbledAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
       'sync_status': syncStatus.name,
@@ -89,6 +105,9 @@ class Connection {
     String? photoUrl,
     String? bio,
     String? phone,
+    bool clearPhone = false,
+    bool? sharePhone,
+    bool? shareEmail,
     DateTime? fumbledAt,
     DateTime? updatedAt,
     SyncStatus? syncStatus,
@@ -100,7 +119,9 @@ class Connection {
       email: email ?? this.email,
       photoUrl: photoUrl ?? this.photoUrl,
       bio: bio ?? this.bio,
-      phone: phone ?? this.phone,
+      phone: clearPhone ? null : (phone ?? this.phone),
+      sharePhone: sharePhone ?? this.sharePhone,
+      shareEmail: shareEmail ?? this.shareEmail,
       fumbledAt: fumbledAt ?? this.fumbledAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -114,8 +135,16 @@ class Connection {
         photoUrl == other.photoUrl &&
         bio == other.bio &&
         phone == other.phone &&
+        sharePhone == other.sharePhone &&
+        shareEmail == other.shareEmail &&
         fumbledAt == other.fumbledAt &&
         syncStatus == other.syncStatus;
+  }
+
+  static bool _boolFromSql(Object? value) {
+    if (value is bool) return value;
+    if (value is int) return value != 0;
+    return true;
   }
 
   static String? _blankToNull(String? value) {
