@@ -18,6 +18,7 @@ class PhoneCountryField extends StatefulWidget {
     this.textInputAction = TextInputAction.done,
     this.onSubmitted,
     this.onChanged,
+    this.onCountryChanged,
   });
 
   final TextEditingController controller;
@@ -26,6 +27,7 @@ class PhoneCountryField extends StatefulWidget {
   final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onCountryChanged;
 
   /// Country from the device region / current locale (e.g. PK, US).
   static ({String dialCode, String countryCode}) fromDeviceLocale() {
@@ -131,6 +133,21 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
     _countryCode = widget.initialCountryCode ?? device.countryCode;
   }
 
+  /// Updates the picker from an external source (e.g. GPS country).
+  void applyCountry({
+    required String countryCode,
+    required String dialCode,
+  }) {
+    final nextCountry = countryCode.trim().toUpperCase();
+    final nextDial = dialCode.trim().isEmpty ? _dialCode : dialCode.trim();
+    if (nextCountry.isEmpty) return;
+    if (_countryCode == nextCountry && _dialCode == nextDial) return;
+    setState(() {
+      _countryCode = nextCountry;
+      _dialCode = nextDial;
+    });
+  }
+
   @override
   void didUpdateWidget(PhoneCountryField oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -165,11 +182,13 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                 border: Border.all(color: AppColors.border),
               ),
               child: CountryCodePicker(
+                key: ValueKey(_countryCode),
                 onChanged: (code) {
                   setState(() {
                     _dialCode = code.dialCode ?? _dialCode;
                     _countryCode = code.code ?? _countryCode;
                   });
+                  widget.onCountryChanged?.call();
                   widget.onChanged?.call(fullNumber);
                 },
                 onInit: (code) {

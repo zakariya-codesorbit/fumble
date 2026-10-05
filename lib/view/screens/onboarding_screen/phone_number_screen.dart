@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/core/navigation/onboarding_gate.dart';
+import 'package:fumble/services/location/location_country_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/screens/onboarding_screen/components/onboarding_layout.dart';
@@ -21,6 +24,8 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
   late String _initialDialCode;
   late String _initialCountryCode;
   var _initialized = false;
+  var _locationRequested = false;
+  var _allowLocationOverride = true;
 
   @override
   void initState() {
@@ -28,6 +33,9 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
     final device = PhoneCountryField.fromDeviceLocale();
     _initialDialCode = device.dialCode;
     _initialCountryCode = device.countryCode;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_resolveCountryFromLocation());
+    });
   }
 
   @override
@@ -36,16 +44,42 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
     super.dispose();
   }
 
+  Future<void> _resolveCountryFromLocation() async {
+    if (!mounted || _locationRequested) return;
+    _locationRequested = true;
+
+    // Keep an existing saved phone's country; only auto-detect for empty profiles.
+    final profile = ref.read(currentUserProfileProvider).valueOrNull;
+    if (profile != null && (profile.phone?.trim().isNotEmpty ?? false)) {
+      return;
+    }
+
+    final resolved = await LocationCountryService.resolveFromDeviceLocation();
+    if (!mounted || resolved == null || !_allowLocationOverride) return;
+
+    setState(() {
+      _initialDialCode = resolved.dialCode;
+      _initialCountryCode = resolved.countryCode;
+    });
+    _phoneFieldKey.currentState?.applyCountry(
+      countryCode: resolved.countryCode,
+      dialCode: resolved.dialCode,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
     final actions = ref.read(onboardingNotifierProvider.notifier);
 
     if (profile != null && !_initialized) {
-      final parsed = PhoneCountryField.parseStored(profile.phone);
-      _initialDialCode = parsed.dialCode;
-      _initialCountryCode = parsed.countryCode;
-      _phone.text = parsed.national;
+      final hasPhone = profile.phone?.trim().isNotEmpty ?? false;
+      if (hasPhone) {
+        final parsed = PhoneCountryField.parseStored(profile.phone);
+        _initialDialCode = parsed.dialCode;
+        _initialCountryCode = parsed.countryCode;
+        _phone.text = parsed.national;
+      }
       _initialized = true;
     }
 
@@ -78,6 +112,7 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
         initialCountryCode: _initialCountryCode,
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => submit(),
+        onCountryChanged: () => _allowLocationOverride = false,
       ),
     );
   }
