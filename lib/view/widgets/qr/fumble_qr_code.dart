@@ -34,7 +34,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
   static const _ecc = QrErrorCorrectLevel.Q;
 
   /// Quiet modules around the matrix (kept thin for a tighter plate look).
-  static const double _quietModules = 1;
+  static const double _quietModules = 0;
 
   @override
   void initState() {
@@ -134,7 +134,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
                     : PrettyQrDecorationImage(
                         image: _mark!,
                         // Keep the mark small so modules stay easy to resolve.
-                        scale: 0.3,
+                        scale: 0.4,
                         position: PrettyQrDecorationImagePosition.embedded,
                         clipper: const PrettyQrCircleClipper(),
                       ),
