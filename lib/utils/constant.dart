@@ -32,8 +32,6 @@ abstract final class AppConstant {
   static const String nameHint = 'Your full name';
   static const String bioHint = 'Filmmaker. Creative Director.';
   static const String phoneHint = 'Phone number';
-  static const String aboutMeHint = 'A short introduction about you';
-  static const String locationHint = 'City, State';
   static const String loginCta = 'Log in';
   static const String signupCta = 'Sign up';
   static const String forgotPassword = 'Forgot password?';
@@ -48,16 +46,11 @@ abstract final class AppConstant {
   static const String scanToFumble = 'SCAN TO FUMBLE';
   static const String memberSince = 'Member since';
   static const String editProfile = 'Edit profile';
-  static const String aboutMe = 'About me';
   static const String bioLabel = 'Bio';
   static const String phoneLabel = 'Phone';
-  static const String aboutMeLabel = 'About me';
-  static const String locationLabel = 'Location';
   static const String call = 'Call';
   static const String text = 'Text';
   static const String addBio = 'Add a short bio';
-  static const String addAboutMe = 'Tell people about yourself';
-  static const String addLocation = 'Add location';
   static const String addPhone = 'Add phone number';
   static const String sharefumble = 'Share Fumble';
   static const String changePhoto = 'Change photo';

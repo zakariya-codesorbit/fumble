@@ -91,8 +91,6 @@ class UserRepository {
       'photoUrl': null,
       'bio': null,
       'phone': null,
-      'aboutMe': null,
-      'location': null,
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();
@@ -105,8 +103,6 @@ class UserRepository {
     String? photoUrl,
     String? bio,
     String? phone,
-    String? aboutMe,
-    String? location,
   }) async {
     final userSnap = await _userRef(uid).get();
     if (!userSnap.exists || userSnap.data() == null) return;
@@ -121,8 +117,8 @@ class UserRepository {
     }
     if (bio != null) data['bio'] = bio.trim();
     if (phone != null) data['phone'] = phone.trim();
-    if (aboutMe != null) data['aboutMe'] = aboutMe.trim();
-    if (location != null) data['location'] = location.trim();
+    data['aboutMe'] = FieldValue.delete();
+    data['location'] = FieldValue.delete();
 
     final nextName = name?.trim() ?? current.name;
     final nextPhoto = photoUrl != null
@@ -130,8 +126,6 @@ class UserRepository {
         : current.photoUrl;
     final nextBio = bio?.trim() ?? current.bio;
     final nextPhone = phone?.trim() ?? current.phone;
-    final nextAbout = aboutMe?.trim() ?? current.aboutMe;
-    final nextLocation = location?.trim() ?? current.location;
 
     final batch = _db.batch();
     batch.update(_userRef(uid), data);
@@ -142,8 +136,8 @@ class UserRepository {
       'photoUrl': nextPhoto,
       'bio': nextBio,
       'phone': nextPhone,
-      'aboutMe': nextAbout,
-      'location': nextLocation,
+      'aboutMe': FieldValue.delete(),
+      'location': FieldValue.delete(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
     await batch.commit();
@@ -170,8 +164,6 @@ class UserRepository {
       'photoUrl': current.photoUrl,
       'bio': current.bio,
       'phone': current.phone,
-      'aboutMe': current.aboutMe,
-      'location': current.location,
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();

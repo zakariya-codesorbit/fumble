@@ -9,8 +9,6 @@ class UserProfile {
     required this.fumbleCode,
     this.bio,
     this.phone,
-    this.aboutMe,
-    this.location,
     this.createdAt,
     this.lastActiveAt,
     this.fcmToken,
@@ -23,8 +21,6 @@ class UserProfile {
   final String fumbleCode;
   final String? bio;
   final String? phone;
-  final String? aboutMe;
-  final String? location;
   final DateTime? createdAt;
   final DateTime? lastActiveAt;
   final String? fcmToken;
@@ -40,12 +36,6 @@ class UserProfile {
 
   bool get hasBio => _filled(bio);
 
-  bool get hasAboutMe => _filled(aboutMe);
-
-  bool get hasLocation => _filled(location);
-
-  bool get hasProfileDetails => hasBio && hasAboutMe && hasLocation;
-
   bool get isOnboardingComplete => hasPhoto && hasPhone;
 
   static bool _filled(String? value) =>
@@ -60,8 +50,6 @@ class UserProfile {
       fumbleCode: (data['fumbleCode'] as String?) ?? '',
       bio: (data['bio'] as String?)?.trim(),
       phone: (data['phone'] as String?)?.trim(),
-      aboutMe: (data['aboutMe'] as String?)?.trim(),
-      location: (data['location'] as String?)?.trim(),
       createdAt: _asDateTime(data['createdAt']),
       lastActiveAt: _asDateTime(data['lastActiveAt']),
       fcmToken: data['fcmToken'] as String?,
@@ -76,8 +64,6 @@ class UserProfile {
       'fumbleCode': fumbleCode,
       'bio': bio,
       'phone': phone,
-      'aboutMe': aboutMe,
-      'location': location,
       'createdAt': FieldValue.serverTimestamp(),
       'lastActiveAt': FieldValue.serverTimestamp(),
     };
@@ -90,8 +76,6 @@ class UserProfile {
     String? fumbleCode,
     String? bio,
     String? phone,
-    String? aboutMe,
-    String? location,
     DateTime? createdAt,
     DateTime? lastActiveAt,
     String? fcmToken,
@@ -104,8 +88,6 @@ class UserProfile {
       fumbleCode: fumbleCode ?? this.fumbleCode,
       bio: bio ?? this.bio,
       phone: phone ?? this.phone,
-      aboutMe: aboutMe ?? this.aboutMe,
-      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
       fcmToken: fcmToken ?? this.fcmToken,
@@ -121,8 +103,6 @@ class UserProfile {
       'fumbleCode': fumbleCode,
       'bio': bio,
       'phone': phone,
-      'aboutMe': aboutMe,
-      'location': location,
       'createdAt': createdAt?.millisecondsSinceEpoch,
     };
   }
@@ -137,8 +117,6 @@ class UserProfile {
       fumbleCode: (json['fumbleCode'] as String?) ?? '',
       bio: (json['bio'] as String?)?.trim(),
       phone: (json['phone'] as String?)?.trim(),
-      aboutMe: (json['aboutMe'] as String?)?.trim(),
-      location: (json['location'] as String?)?.trim(),
       createdAt: createdAtMs is int
           ? DateTime.fromMillisecondsSinceEpoch(createdAtMs)
           : null,

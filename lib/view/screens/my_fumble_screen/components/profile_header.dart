@@ -40,7 +40,7 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        10.height,
+        20.height,
         ProfileAvatar(
           photoUrl: photoUrl,
           localFile: localFile,
@@ -49,7 +49,7 @@ class ProfileHeader extends StatelessWidget {
           size: 120,
           onTap: onPhotoTap,
         ),
-        18.height,
+        25.height,
         if (editingName && nameController != null)
           CustomTextField(
             controller: nameController!,

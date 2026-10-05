@@ -133,8 +133,6 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     required String name,
     required String bio,
     required String phone,
-    required String aboutMe,
-    required String location,
   }) async {
     final profile = _currentProfile;
     if (profile == null) return;
@@ -163,8 +161,6 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         photoUrl: nextPhoto,
         bio: bio,
         phone: phone,
-        aboutMe: aboutMe,
-        location: location,
       );
 
       state = const ProfileEditState();

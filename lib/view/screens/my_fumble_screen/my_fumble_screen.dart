@@ -22,8 +22,6 @@ import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
-import 'components/location_card.dart';
-
 class MyFumbleScreen extends ConsumerWidget {
   const MyFumbleScreen({super.key});
 
@@ -76,8 +74,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _name;
   late final TextEditingController _bio;
   late final TextEditingController _phone;
-  late final TextEditingController _about;
-  late final TextEditingController _location;
   String? _active;
   bool _readyToClose = false;
 
@@ -102,8 +98,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _name.dispose();
     _bio.dispose();
     _phone.dispose();
-    _about.dispose();
-    _location.dispose();
     super.dispose();
   }
 
@@ -117,16 +111,12 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
     _phone = TextEditingController(text: profile.phone ?? '');
-    _about = TextEditingController(text: profile.aboutMe ?? '');
-    _location = TextEditingController(text: profile.location ?? '');
   }
 
   void _applyProfile(UserProfile profile) {
     _name.text = profile.name;
     _bio.text = profile.bio ?? '';
     _phone.text = profile.phone ?? '';
-    _about.text = profile.aboutMe ?? '';
-    _location.text = profile.location ?? '';
   }
 
   void _discardDraft() {
@@ -144,9 +134,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final profile = widget.profile;
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
-        _phone.text.trim() != (profile.phone ?? '').trim() ||
-        _about.text.trim() != (profile.aboutMe ?? '').trim() ||
-        _location.text.trim() != (profile.location ?? '').trim();
+        _phone.text.trim() != (profile.phone ?? '').trim();
   }
 
   void _openField(String key) {
@@ -228,29 +216,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 : AppConstant.emailHint,
             placeholder: profile.email.trim().isEmpty,
           ),
-          12.height,
-          _field(
-            keyName: 'about',
-            title: AppConstant.aboutMe,
-            controller: _about,
-            placeholder: AppConstant.addAboutMe,
-            maxLine: 4,
-          ),
-          12.height,
-          LocationCard(
-            location: _location.text.trim().isNotEmpty
-                ? _location.text.trim()
-                : AppConstant.addLocation,
-            placeholder: _location.text.trim().isEmpty,
-            onTap: _active == 'location' ? null : () => _openField('location'),
-            editor: _active == 'location'
-                ? _inlineField(
-                    fieldKey: 'location',
-                    controller: _location,
-                    hint: AppConstant.addLocation,
-                  )
-                : null,
-          ),
           if (showSave) ...[
             16.height,
             PrimaryButton(
@@ -260,8 +225,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 name: _name.text,
                 bio: _bio.text,
                 phone: _phone.text,
-                aboutMe: _about.text,
-                location: _location.text,
               ),
             ),
           ],

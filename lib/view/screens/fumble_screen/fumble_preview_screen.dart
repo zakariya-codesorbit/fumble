@@ -101,21 +101,6 @@ class FumblePreviewScreen extends ConsumerWidget {
                         ),
                         20.height,
                       ],
-                      if (preview.hasLocation) ...[
-                        PreviewDetailRow(
-                          label: AppConstant.locationLabel,
-                          value: preview.location!,
-                          icon: AppIcons.location,
-                        ),
-                        20.height,
-                      ],
-                      if (preview.hasAboutMe) ...[
-                        PreviewDetailRow(
-                          label: AppConstant.aboutMeLabel,
-                          value: preview.aboutMe!,
-                        ),
-                        20.height,
-                      ],
                     ],
                   ).paddingSymmetric(horizontal: 28.w),
                 ),
