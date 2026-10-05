@@ -183,12 +183,12 @@ class _ConnectionTileState extends State<ConnectionTile> {
                               ),
                               6.height,
                               _DetailRow(
-                                leading: email.isNotEmpty ? email : null,
+                                leading: email.isNotEmpty ? email : '__ __',
                                 trailing: date,
                               ),
                               4.height,
                               _DetailRow(
-                                leading: phone,
+                                leading: phone ?? '__ __',
                                 trailing: time,
                               ),
                               if (locationText.isNotEmpty) ...[
@@ -242,12 +242,18 @@ class _ConnectionTileState extends State<ConnectionTile> {
 
 class _DetailRow extends StatelessWidget {
   const _DetailRow({
-    this.leading,
+    required this.leading,
     required this.trailing,
   });
 
-  final String? leading;
+  final String leading;
   final String trailing;
+
+  static const _style = (
+    fontSize: 13.0,
+    fontWeight: AppStyle.w500,
+    color: AppColors.softGray,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -255,19 +261,19 @@ class _DetailRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: (leading ?? '').toText(
-            fontSize: 13,
-            fontWeight: AppStyle.w500,
-            color: AppColors.softGray,
+          child: leading.toText(
+            fontSize: _style.fontSize,
+            fontWeight: _style.fontWeight,
+            color: _style.color,
             maxLine: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         8.width,
         trailing.toText(
-          fontSize: 12,
-          fontWeight: AppStyle.w500,
-          color: AppColors.goldMuted,
+          fontSize: _style.fontSize,
+          fontWeight: _style.fontWeight,
+          color: _style.color,
         ),
       ],
     );
