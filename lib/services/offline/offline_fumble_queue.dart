@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../data/db/pending_fumble_repository.dart';
+import '../../data/db/pending_fumble_local_store.dart';
 import '../../data/models/pending_fumble_op.dart';
 import '../analytics/analytics_service.dart';
 import '../crashlytics/crashlytics_service.dart';
@@ -14,12 +14,12 @@ import '../network/connection_manager.dart';
 /// Retries queued completeFumble operations with exponential backoff.
 class OfflineFumbleQueue {
   OfflineFumbleQueue({
-    required PendingFumbleRepository repository,
+    required PendingFumbleLocalStore repository,
     FumbleService? fumbleService,
   })  : _repo = repository,
         _fumbleService = fumbleService;
 
-  final PendingFumbleRepository _repo;
+  final PendingFumbleLocalStore _repo;
   FumbleService? _fumbleService;
   StreamSubscription<bool>? _connectivitySub;
   bool _processing = false;

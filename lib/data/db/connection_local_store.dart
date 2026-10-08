@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../db/local_database.dart';
 import '../models/connection.dart';
+import 'local_database.dart';
 
 /// On-device SQLite store for the owner's connections list.
 class ConnectionLocalStore {

@@ -3,8 +3,9 @@ import 'package:sqflite/sqflite.dart';
 import '../models/pending_fumble_op.dart';
 import 'local_database.dart';
 
-class PendingFumbleRepository {
-  PendingFumbleRepository({LocalDatabase? database})
+/// On-device SQLite store for offline pending fumble operations.
+class PendingFumbleLocalStore {
+  PendingFumbleLocalStore({LocalDatabase? database})
       : _database = database ?? LocalDatabase.instance;
 
   final LocalDatabase _database;

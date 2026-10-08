@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/db/connection_local_store.dart';
 import '../../data/db/local_prefs.dart';
-import '../../data/db/pending_fumble_repository.dart';
+import '../../data/db/pending_fumble_local_store.dart';
 import '../../data/models/connection.dart';
 import '../../data/models/user_profile.dart';
-import '../../data/repositories/connection_local_store.dart';
 import '../../data/repositories/connection_repository.dart';
 import '../../data/repositories/fumble_code_repository.dart';
 import '../../data/repositories/user_repository.dart';
@@ -18,10 +18,10 @@ import '../../services/offline/connection_sync.dart';
 import '../../services/offline/offline_fumble_queue.dart';
 import '../../services/storage/profile_photo_service.dart';
 
-final pendingFumbleRepositoryProvider = Provider<PendingFumbleRepository>((
+final pendingFumbleLocalStoreProvider = Provider<PendingFumbleLocalStore>((
   ref,
 ) {
-  return PendingFumbleRepository();
+  return PendingFumbleLocalStore();
 });
 
 final fumbleCodeRepositoryProvider = Provider<FumbleCodeRepository>((ref) {
@@ -61,7 +61,7 @@ final profilePhotoServiceProvider = Provider<ProfilePhotoService>((ref) {
 
 final offlineQueueProvider = Provider<OfflineFumbleQueue>((ref) {
   final queue = OfflineFumbleQueue(
-    repository: ref.read(pendingFumbleRepositoryProvider),
+    repository: ref.read(pendingFumbleLocalStoreProvider),
   );
   ref.onDispose(queue.dispose);
   return queue;
@@ -73,7 +73,7 @@ final fumbleServiceProvider = Provider<FumbleService>((ref) {
     userRepository: ref.read(userRepositoryProvider),
     fumbleCodeRepository: ref.read(fumbleCodeRepositoryProvider),
     connectionRepository: ref.read(connectionRepositoryProvider),
-    pendingRepo: ref.read(pendingFumbleRepositoryProvider),
+    pendingRepo: ref.read(pendingFumbleLocalStoreProvider),
     queue: queue,
   );
   queue.attachFumbleService(service);

@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../data/db/pending_fumble_repository.dart';
+import '../../data/db/pending_fumble_local_store.dart';
 import '../../data/models/fumble_preview.dart';
 import '../../data/models/pending_fumble_op.dart';
 import '../../data/models/public_fumble_profile.dart';
@@ -23,7 +23,7 @@ class FumbleService {
     required FumbleCodeRepository fumbleCodeRepository,
     required ConnectionRepository connectionRepository,
     FirebaseAuth? auth,
-    required PendingFumbleRepository pendingRepo,
+    required PendingFumbleLocalStore pendingRepo,
     OfflineFumbleQueue? queue,
     AnalyticsService? analytics,
     CrashlyticsService? crashlytics,
@@ -40,7 +40,7 @@ class FumbleService {
   final FumbleCodeRepository _codes;
   final ConnectionRepository _connections;
   final FirebaseAuth _auth;
-  final PendingFumbleRepository _pendingRepo;
+  final PendingFumbleLocalStore _pendingRepo;
   final OfflineFumbleQueue? _queue;
   final AnalyticsService _analytics;
   final CrashlyticsService _crashlytics;
