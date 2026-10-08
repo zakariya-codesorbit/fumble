@@ -36,13 +36,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    unfocusKeyboard();
+  void _submit() async {
+    await unfocusKeyboard();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref.read(authNotifierProvider.notifier).login(
-          email: _email.text,
-          password: _password.text,
-        );
+    ref
+        .read(authNotifierProvider.notifier)
+        .login(email: _email.text, password: _password.text);
   }
 
   @override

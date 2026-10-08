@@ -86,8 +86,34 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
   @override
   Widget build(BuildContext context) {
     final live = ref.watch(currentUserProfileProvider).valueOrNull;
-    final profile = live ?? _cached;
+    final shareOverride = ref.watch(shareVisibilityProvider);
+
+    ref.listen(currentUserProfileProvider, (_, next) {
+      final profile = next.valueOrNull;
+      if (profile == null || !mounted) return;
+      setState(() => _cached = profile);
+      final override = ref.read(shareVisibilityProvider);
+      if (override != null &&
+          profile.sharePhone == override.sharePhone &&
+          profile.shareEmail == override.shareEmail) {
+        ref.read(shareVisibilityProvider.notifier).state = null;
+      }
+    });
+
+    var profile = live ?? _cached;
+    if (profile != null && shareOverride != null) {
+      profile = profile.copyWith(
+        sharePhone: shareOverride.sharePhone,
+        shareEmail: shareOverride.shareEmail,
+      );
+    }
     final payload = _payloadFor(profile);
+    final qrKey = profile == null
+        ? null
+        : ValueKey(
+            'qr_${profile.sharePhone}_${profile.shareEmail}_'
+            '${profile.publicPhone ?? ''}_${profile.publicEmail}',
+          );
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -146,6 +172,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                                   phase: FumbleAuraPhase.sharing,
                                   onTap: _openScanner,
                                   child: FumbleQrCode(
+                                    key: qrKey,
                                     data: payload,
                                     // Larger modules on screen → faster phone-to-phone scans.
                                     size: size * 0.68,

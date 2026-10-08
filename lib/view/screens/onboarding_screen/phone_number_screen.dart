@@ -88,14 +88,11 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
       final full = national.isEmpty
           ? ''
           : (_phoneFieldKey.currentState?.fullNumber ??
-              PhoneCountryField.formatFull(
-                dialCode: _initialDialCode,
-                national: national,
-              ));
-      actions.savePhoneAndContinue(
-        formKey: _formKey,
-        phone: full,
-      );
+                PhoneCountryField.formatFull(
+                  dialCode: _initialDialCode,
+                  national: national,
+                ));
+      actions.savePhoneAndContinue(formKey: _formKey, phone: full);
     }
 
     return OnboardingLayout(

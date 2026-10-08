@@ -102,6 +102,10 @@ final currentUserProfileProvider = StreamProvider<UserProfile?>((ref) {
   return ref.watch(userRepositoryProvider).watchUser(auth.uid);
 });
 
+/// Optimistic share flags so the Fumble QR updates before Firestore catches up.
+final shareVisibilityProvider =
+    StateProvider<({bool sharePhone, bool shareEmail})?>((ref) => null);
+
 final connectionsProvider = StreamProvider<List<Connection>>((ref) {
   final auth = ref.watch(authStateProvider).valueOrNull;
   if (auth == null) return Stream<List<Connection>>.value(const []);

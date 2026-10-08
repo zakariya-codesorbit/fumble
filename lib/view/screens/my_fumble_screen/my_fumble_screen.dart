@@ -86,6 +86,16 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   }
 
   @override
+  void didUpdateWidget(covariant _ProfileBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.profile.sharePhone != widget.profile.sharePhone ||
+        oldWidget.profile.shareEmail != widget.profile.shareEmail) {
+      _sharePhone = widget.profile.sharePhone;
+      _shareEmail = widget.profile.shareEmail;
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final route = ModalRoute.of(context);

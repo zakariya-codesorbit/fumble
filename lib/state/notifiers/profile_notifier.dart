@@ -1,11 +1,16 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:fumble/data/db/local_prefs.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/data/repositories/user_repository.dart';
+import 'package:fumble/services/fumble/fumble_qr.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
@@ -14,8 +19,6 @@ import 'package:fumble/view/widgets/avatar/avatar_picker_sheet.dart';
 import 'package:fumble/view/widgets/dialogs/photo_permission_popup.dart';
 import 'package:fumble/view/widgets/dialogs/photo_source_sheet.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
-
-import '../../services/fumble/fumble_qr.dart';
 
 class ProfileEditState {
   const ProfileEditState({
@@ -157,6 +160,26 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         nextPhoto = await _photos.toBase64(state.localPhoto!);
       }
 
+      // Update QR immediately on save (before Firestore stream catches up).
+      ref.read(shareVisibilityProvider.notifier).state = (
+        sharePhone: sharePhone,
+        shareEmail: shareEmail,
+      );
+      unawaited(
+        LocalPrefs.saveUserProfile(
+          profile.copyWith(
+            name: trimmedName,
+            bio: bio.trim().isEmpty ? null : bio.trim(),
+            phone: phone.trim().isEmpty ? null : phone.trim(),
+            sharePhone: sharePhone,
+            shareEmail: shareEmail,
+            photoUrl: nextPhoto == null
+                ? profile.photoUrl
+                : (nextPhoto.isEmpty ? null : nextPhoto),
+          ),
+        ),
+      );
+
       await _users.updateProfile(
         uid: profile.uid,
         name: trimmedName,
@@ -174,6 +197,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
             : AppConstant.profileUpdated,
       );
     } catch (e) {
+      ref.read(shareVisibilityProvider.notifier).state = null;
       state = state.copyWith(isSaving: false);
       showAppToast(e.toString(), isError: true);
     }
