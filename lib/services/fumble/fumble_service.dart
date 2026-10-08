@@ -110,7 +110,7 @@ class FumbleService {
 
     try {
       await _completeWithPeer(preview.peerUid);
-      await _pendingRepo.removeBySession(preview.peerUid);
+      await _pendingRepo.removePendingFumblesBySession(preview.peerUid);
       await _analytics.logConnectionCreated();
     } on FumbleException catch (e, st) {
       await _crashlytics.recordError(e, st, reason: 'complete_fumble_failed');
@@ -190,7 +190,7 @@ class FumbleService {
       attemptCount: 0,
       status: PendingOpStatus.pending,
     );
-    await _pendingRepo.enqueue(op);
+    await _pendingRepo.insertPendingFumble(op);
     _queue?.kick();
   }
 

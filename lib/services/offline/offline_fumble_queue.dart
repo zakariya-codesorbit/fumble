@@ -14,12 +14,12 @@ import '../network/connection_manager.dart';
 /// Retries queued completeFumble operations with exponential backoff.
 class OfflineFumbleQueue {
   OfflineFumbleQueue({
-    required PendingFumbleLocalStore repository,
+    required PendingFumbleLocalStore localStore,
     FumbleService? fumbleService,
-  })  : _repo = repository,
+  })  : _localStore = localStore,
         _fumbleService = fumbleService;
 
-  final PendingFumbleLocalStore _repo;
+  final PendingFumbleLocalStore _localStore;
   FumbleService? _fumbleService;
   StreamSubscription<bool>? _connectivitySub;
   bool _processing = false;
@@ -43,7 +43,7 @@ class OfflineFumbleQueue {
   }
 
   Future<void> enqueueSession(String sessionId) async {
-    await _repo.enqueue(
+    await _localStore.insertPendingFumble(
       PendingFumbleOp(
         id: _uuid.v4(),
         sessionId: sessionId,
@@ -63,17 +63,17 @@ class OfflineFumbleQueue {
 
     _processing = true;
     try {
-      final pending = await _repo.getPending();
+      final pending = await _localStore.loadPendingFumbles();
       for (final op in pending) {
         if (!ConnectionManager().isConnected) break;
         try {
           await service.completeRemoteForQueue(op.sessionId);
-          await _repo.remove(op.id);
+          await _localStore.removePendingFumble(op.id);
           await AnalyticsService.instance.logConnectionCreated();
         } catch (e, st) {
           final nextAttempt = op.attemptCount + 1;
           if (nextAttempt >= _maxAttempts) {
-            await _repo.update(
+            await _localStore.savePendingFumble(
               op.copyWith(
                 attemptCount: nextAttempt,
                 status: PendingOpStatus.failed,
@@ -86,7 +86,7 @@ class OfflineFumbleQueue {
               reason: 'offline_fumble_exhausted',
             );
           } else {
-            await _repo.update(
+            await _localStore.savePendingFumble(
               op.copyWith(
                 attemptCount: nextAttempt,
                 lastError: e.toString(),

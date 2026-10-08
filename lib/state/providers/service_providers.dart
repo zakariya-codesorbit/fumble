@@ -61,7 +61,7 @@ final profilePhotoServiceProvider = Provider<ProfilePhotoService>((ref) {
 
 final offlineQueueProvider = Provider<OfflineFumbleQueue>((ref) {
   final queue = OfflineFumbleQueue(
-    repository: ref.read(pendingFumbleLocalStoreProvider),
+    localStore: ref.read(pendingFumbleLocalStoreProvider),
   );
   ref.onDispose(queue.dispose);
   return queue;

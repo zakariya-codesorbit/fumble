@@ -10,7 +10,7 @@ class PendingFumbleLocalStore {
 
   final LocalDatabase _database;
 
-  Future<void> enqueue(PendingFumbleOp op) async {
+  Future<void> insertPendingFumble(PendingFumbleOp op) async {
     final db = await _database.database;
     await db.insert(
       'pending_fumbles',
@@ -26,13 +26,13 @@ class PendingFumbleLocalStore {
     );
   }
 
-  Future<List<PendingFumbleOp>> getAll() async {
+  Future<List<PendingFumbleOp>> loadAllPendingFumbles() async {
     final db = await _database.database;
     final rows = await db.query('pending_fumbles', orderBy: 'created_at ASC');
     return rows.map(_fromRow).toList();
   }
 
-  Future<List<PendingFumbleOp>> getPending() async {
+  Future<List<PendingFumbleOp>> loadPendingFumbles() async {
     final db = await _database.database;
     final rows = await db.query(
       'pending_fumbles',
@@ -43,7 +43,7 @@ class PendingFumbleLocalStore {
     return rows.map(_fromRow).toList();
   }
 
-  Future<void> update(PendingFumbleOp op) async {
+  Future<void> savePendingFumble(PendingFumbleOp op) async {
     final db = await _database.database;
     await db.update(
       'pending_fumbles',
@@ -57,12 +57,12 @@ class PendingFumbleLocalStore {
     );
   }
 
-  Future<void> remove(String id) async {
+  Future<void> removePendingFumble(String id) async {
     final db = await _database.database;
     await db.delete('pending_fumbles', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<void> removeBySession(String sessionId) async {
+  Future<void> removePendingFumblesBySession(String sessionId) async {
     final db = await _database.database;
     await db.delete(
       'pending_fumbles',
