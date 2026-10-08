@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
@@ -6,6 +5,9 @@ import 'package:uuid/uuid.dart';
 import '../../data/db/pending_fumble_repository.dart';
 import '../../data/models/fumble_preview.dart';
 import '../../data/models/pending_fumble_op.dart';
+import '../../data/models/public_fumble_profile.dart';
+import '../../data/repositories/connection_repository.dart';
+import '../../data/repositories/fumble_code_repository.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../utils/constant.dart';
 import '../analytics/analytics_service.dart';
@@ -18,26 +20,26 @@ import '../offline/offline_fumble_queue.dart';
 class FumbleService {
   FumbleService({
     required UserRepository userRepository,
+    required FumbleCodeRepository fumbleCodeRepository,
     required ConnectionRepository connectionRepository,
     FirebaseAuth? auth,
-    FirebaseFirestore? firestore,
     required PendingFumbleRepository pendingRepo,
     OfflineFumbleQueue? queue,
     AnalyticsService? analytics,
     CrashlyticsService? crashlytics,
   }) : _users = userRepository,
+       _codes = fumbleCodeRepository,
        _connections = connectionRepository,
        _auth = auth ?? FirebaseAuth.instance,
-       _db = firestore ?? FirebaseFirestore.instance,
        _pendingRepo = pendingRepo,
        _queue = queue,
        _analytics = analytics ?? AnalyticsService.instance,
        _crashlytics = crashlytics ?? CrashlyticsService.instance;
 
   final UserRepository _users;
+  final FumbleCodeRepository _codes;
   final ConnectionRepository _connections;
   final FirebaseAuth _auth;
-  final FirebaseFirestore _db;
   final PendingFumbleRepository _pendingRepo;
   final OfflineFumbleQueue? _queue;
   final AnalyticsService _analytics;
@@ -55,15 +57,15 @@ class FumbleService {
         );
       }
 
-      final card = await _users.getfumbleCodeCard(fumbleCode);
-      if (card == null) {
+      final profile = await _codes.fetchPublicProfileByCode(fumbleCode);
+      if (profile == null) {
         throw FumbleException(
           AppConstant.fumbleCodeNotFound,
           code: 'not-found',
         );
       }
 
-      final preview = FumblePreview.fromMap(card);
+      final preview = FumblePreview.fromMap(profile);
       if (preview.peerUid.isEmpty) {
         throw FumbleException(
           AppConstant.fumbleCodeNotFound,
@@ -77,7 +79,7 @@ class FumbleService {
         );
       }
 
-      final already = await _connections.hasConnection(
+      final already = await _connections.existsOnServer(
         uid: scannerUid,
         peerUid: preview.peerUid,
       );
@@ -145,7 +147,7 @@ class FumbleService {
       throw FumbleException(AppConstant.fumbleCodeNotFound, code: 'not-found');
     }
 
-    final already = await _connections.hasConnection(
+    final already = await _connections.existsOnServer(
       uid: scannerUid,
       peerUid: peerUid,
     );
@@ -157,7 +159,7 @@ class FumbleService {
     if (coords != null && (placeLabel == null || placeLabel.trim().isEmpty)) {
       placeLabel = await FumbleLocationService.placeLabel(coords);
     }
-    await _connections.createMutualConnection(
+    await _connections.linkBothUsers(
       scanner: scanner,
       peer: peerCard,
       fumbleLocation: coords,
@@ -165,31 +167,8 @@ class FumbleService {
     );
   }
 
-  Future<FumblePeerCard?> _lookupPeerCard(String peerUid) async {
-    final query = await _db
-        .collection('fumbleCodes')
-        .where('uid', isEqualTo: peerUid)
-        .limit(1)
-        .get();
-    if (query.docs.isEmpty) return null;
-    final data = query.docs.first.data();
-    final sharePhone = data['sharePhone'] as bool? ?? true;
-    final shareEmail = data['shareEmail'] as bool? ?? true;
-    final email = (data['email'] as String?)?.trim() ?? '';
-    final phone = (data['phone'] as String?)?.trim();
-    return FumblePeerCard(
-      uid: peerUid,
-      name: (data['name'] as String?)?.trim() ?? '',
-      email: shareEmail ? email : '',
-      photoUrl: data['photoUrl'] as String?,
-      phone: sharePhone && phone != null && phone.isNotEmpty ? phone : null,
-      sharePhone: sharePhone,
-      shareEmail: shareEmail,
-      fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
-      fumblePlace: (data['fumblePlace'] as String?)?.trim().isNotEmpty == true
-          ? (data['fumblePlace'] as String).trim()
-          : null,
-    );
+  Future<PublicFumbleProfile?> _lookupPeerCard(String peerUid) async {
+    return _codes.fetchPublicProfile(peerUid);
   }
 
   Future<String> rotateFumbleCode() async {
@@ -200,7 +179,7 @@ class FumbleService {
         code: 'unauthenticated',
       );
     }
-    return _users.rotatefumbleCode(uid);
+    return _codes.rotateFumbleCode(uid);
   }
 
   Future<void> _enqueue(String peerUid) async {

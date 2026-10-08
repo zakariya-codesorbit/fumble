@@ -77,7 +77,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
     try {
       final already = await ref
           .read(connectionRepositoryProvider)
-          .hasLocalConnection(ownerUid: uid, peerUid: payload.userId);
+          .isAlreadyConnected(ownerUid: uid, peerUid: payload.userId);
       if (already) {
         state = state.copyWith(isHandlingScan: false);
         showAppToast(AppConstant.alreadyConnected, isError: true);
@@ -122,11 +122,11 @@ class FumbleNotifier extends Notifier<FumbleState> {
     state = state.copyWith(isConfirming: true);
     try {
       // Scanner location if permission is on; peer location is used as fallback
-      // inside createLocalConnection when this is null.
+      // inside saveScannedConnection when this is null.
       final place = await FumbleLocationService.currentLocation();
       final created = await ref
           .read(connectionRepositoryProvider)
-          .createLocalConnection(
+          .saveScannedConnection(
             ownerUid: uid,
             preview: preview,
             fumbleLocation: place,

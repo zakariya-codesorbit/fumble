@@ -34,7 +34,7 @@ class BottomNavNotifier extends Notifier<BottomNavState> {
   void _refreshConnections() {
     final uid = ref.read(authServiceProvider).currentUser?.uid;
     if (uid == null || uid.isEmpty) return;
-    ref.read(connectionRepositoryProvider).refreshLocal(uid);
+    ref.read(connectionRepositoryProvider).notifyConnectionsChanged(uid);
     ref.read(connectionSyncProvider).kick();
   }
 

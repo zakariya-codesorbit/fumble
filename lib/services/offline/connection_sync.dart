@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../../data/repositories/user_repository.dart';
+import '../../data/repositories/connection_repository.dart';
 import '../network/connection_manager.dart';
 
 /// Retries local connections that are not yet synced.
@@ -33,7 +33,7 @@ class ConnectionSync with WidgetsBindingObserver {
   void kick() {
     final uid = _currentUid();
     if (uid == null || uid.isEmpty) return;
-    unawaited(_repository.synchronize(uid));
+    unawaited(_repository.syncWithCloud(uid));
   }
 
   @override

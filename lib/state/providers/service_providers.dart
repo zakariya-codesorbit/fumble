@@ -7,6 +7,9 @@ import '../../data/db/local_prefs.dart';
 import '../../data/db/pending_fumble_repository.dart';
 import '../../data/models/connection.dart';
 import '../../data/models/user_profile.dart';
+import '../../data/repositories/connection_local_store.dart';
+import '../../data/repositories/connection_repository.dart';
+import '../../data/repositories/fumble_code_repository.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/fumble/fumble_service.dart';
@@ -21,12 +24,24 @@ final pendingFumbleRepositoryProvider = Provider<PendingFumbleRepository>((
   return PendingFumbleRepository();
 });
 
+final fumbleCodeRepositoryProvider = Provider<FumbleCodeRepository>((ref) {
+  return FumbleCodeRepository();
+});
+
 final userRepositoryProvider = Provider<UserRepository>((ref) {
-  return UserRepository();
+  return UserRepository(fumbleCodes: ref.read(fumbleCodeRepositoryProvider));
+});
+
+final connectionLocalStoreProvider = Provider<ConnectionLocalStore>((ref) {
+  return ConnectionLocalStore();
 });
 
 final connectionRepositoryProvider = Provider<ConnectionRepository>((ref) {
-  return ConnectionRepository(userRepository: ref.read(userRepositoryProvider));
+  return ConnectionRepository(
+    userRepository: ref.read(userRepositoryProvider),
+    fumbleCodes: ref.read(fumbleCodeRepositoryProvider),
+    localStore: ref.read(connectionLocalStoreProvider),
+  );
 });
 
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -56,6 +71,7 @@ final fumbleServiceProvider = Provider<FumbleService>((ref) {
   final queue = ref.read(offlineQueueProvider);
   final service = FumbleService(
     userRepository: ref.read(userRepositoryProvider),
+    fumbleCodeRepository: ref.read(fumbleCodeRepositoryProvider),
     connectionRepository: ref.read(connectionRepositoryProvider),
     pendingRepo: ref.read(pendingFumbleRepositoryProvider),
     queue: queue,
@@ -109,5 +125,5 @@ final shareVisibilityProvider =
 final connectionsProvider = StreamProvider<List<Connection>>((ref) {
   final auth = ref.watch(authStateProvider).valueOrNull;
   if (auth == null) return Stream<List<Connection>>.value(const []);
-  return ref.watch(connectionRepositoryProvider).watchConnections(auth.uid);
+  return ref.watch(connectionRepositoryProvider).watchOwnerConnections(auth.uid);
 });
