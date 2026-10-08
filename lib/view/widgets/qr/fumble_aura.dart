@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 

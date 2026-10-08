@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
@@ -33,7 +33,8 @@ class AppBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-    final resolvedPadding = padding ??
+    final resolvedPadding =
+        padding ??
         EdgeInsets.only(
           left: 16.w,
           right: 16.w,

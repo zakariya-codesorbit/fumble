@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -12,11 +12,7 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
 
 class ConnectionTile extends StatefulWidget {
-  const ConnectionTile({
-    super.key,
-    required this.connection,
-    this.onDeleteTap,
-  });
+  const ConnectionTile({super.key, required this.connection, this.onDeleteTap});
 
   final Connection connection;
   final VoidCallback? onDeleteTap;
@@ -126,14 +122,17 @@ class _ConnectionTileState extends State<ConnectionTile> {
             onHorizontalDragUpdate: canDelete
                 ? (details) {
                     setState(() {
-                      _offset = (_offset + details.delta.dx)
-                          .clamp(-_actionWidth, 0.0);
+                      _offset = (_offset + details.delta.dx).clamp(
+                        -_actionWidth,
+                        0.0,
+                      );
                     });
                   }
                 : null,
             onHorizontalDragEnd: canDelete
                 ? (details) {
-                    final open = _offset < -_actionWidth / 2 ||
+                    final open =
+                        _offset < -_actionWidth / 2 ||
                         (details.primaryVelocity ?? 0) < -400;
                     setState(() => _offset = open ? -_actionWidth : 0);
                   }
@@ -241,10 +240,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.leading,
-    required this.trailing,
-  });
+  const _DetailRow({required this.leading, required this.trailing});
 
   final String leading;
   final String trailing;

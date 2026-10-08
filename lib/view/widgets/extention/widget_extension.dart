@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 
 extension WidgetExtension on Widget {
   Widget onPress(VoidCallback onTap, {VoidCallback? onLongPress}) => InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        splashColor: AppColors.clear,
-        highlightColor: AppColors.clear,
-        child: this,
-      );
+    onTap: onTap,
+    onLongPress: onLongPress,
+    splashColor: AppColors.clear,
+    highlightColor: AppColors.clear,
+    child: this,
+  );
 
   Widget get center => Center(child: this);
 
@@ -34,40 +34,33 @@ extension WidgetExtension on Widget {
 
   Widget get expanded => Expanded(child: this);
 
-  Widget align(Alignment alignment) =>
-      Align(alignment: alignment, child: this);
+  Widget align(Alignment alignment) => Align(alignment: alignment, child: this);
 
   Widget baseline(double width) => Baseline(
-        baseline: width,
-        baselineType: TextBaseline.alphabetic,
-        child: this,
-      );
+    baseline: width,
+    baselineType: TextBaseline.alphabetic,
+    child: this,
+  );
 
-  Widget rotate(int degree) => RotatedBox(
-        quarterTurns: degree,
-        child: this,
-      );
+  Widget rotate(int degree) => RotatedBox(quarterTurns: degree, child: this);
 
   Widget paddingOnly({
     double top = 0,
     double bottom = 0,
     double left = 0,
     double right = 0,
-  }) =>
-      Padding(
-        padding: EdgeInsets.only(
-          top: top,
-          bottom: bottom,
-          left: left,
-          right: right,
-        ),
-        child: this,
-      );
+  }) => Padding(
+    padding: EdgeInsets.only(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+    ),
+    child: this,
+  );
 
-  Widget paddingAll(double padding) => Padding(
-        padding: EdgeInsets.all(padding),
-        child: this,
-      );
+  Widget paddingAll(double padding) =>
+      Padding(padding: EdgeInsets.all(padding), child: this);
 
   Widget paddingSymmetric({double horizontal = 0, double vertical = 0}) =>
       Padding(
@@ -83,12 +76,11 @@ extension WidgetExtension on Widget {
     double bottom = 0,
     double left = 0,
     double right = 0,
-  }) =>
-      Positioned(
-        top: top,
-        bottom: bottom,
-        left: left,
-        right: right,
-        child: this,
-      );
+  }) => Positioned(
+    top: top,
+    bottom: bottom,
+    left: left,
+    right: right,
+    child: this,
+  );
 }

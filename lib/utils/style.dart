@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
+import '../core/theme/colors.dart';
 
 /// Font / weight helpers for fumble.
 abstract final class AppStyle {

@@ -9,7 +9,7 @@ import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/services/fumble/fumble_qr.dart';
 import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
@@ -70,10 +70,9 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
     );
     if (!mounted) return;
     try {
-      await ref.read(userRepositoryProvider).publishFumbleLocation(
-            uid: uid,
-            location: place,
-          );
+      await ref
+          .read(userRepositoryProvider)
+          .publishFumbleLocation(uid: uid, location: place);
     } catch (_) {
       // Non-blocking — fumble still works without published location.
     }

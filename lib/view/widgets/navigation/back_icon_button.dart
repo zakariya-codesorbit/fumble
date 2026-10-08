@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 
 import '../extention/int_extension.dart';
 
 class BackIconButton extends StatelessWidget {
-  const BackIconButton({
-    super.key,
-    this.onTap,
-    this.color,
-    this.icon,
-  });
+  const BackIconButton({super.key, this.onTap, this.color, this.icon});
 
   final VoidCallback? onTap;
   final Color? color;

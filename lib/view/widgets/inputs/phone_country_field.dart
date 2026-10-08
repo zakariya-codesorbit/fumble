@@ -2,7 +2,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -134,10 +134,7 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
   }
 
   /// Updates the picker from an external source (e.g. GPS country).
-  void applyCountry({
-    required String countryCode,
-    required String dialCode,
-  }) {
+  void applyCountry({required String countryCode, required String dialCode}) {
     final nextCountry = countryCode.trim().toUpperCase();
     final nextDial = dialCode.trim().isEmpty ? _dialCode : dialCode.trim();
     if (nextCountry.isEmpty) return;

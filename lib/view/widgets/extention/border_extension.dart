@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 
 Border borderAll({Color? color, double width = 1}) => Border(
-      top: BorderSide(color: color ?? AppColors.white, width: width),
-      bottom: BorderSide(color: color ?? AppColors.white, width: width),
-      left: BorderSide(color: color ?? AppColors.white, width: width),
-      right: BorderSide(color: color ?? AppColors.white, width: width),
-    );
+  top: BorderSide(color: color ?? AppColors.white, width: width),
+  bottom: BorderSide(color: color ?? AppColors.white, width: width),
+  left: BorderSide(color: color ?? AppColors.white, width: width),
+  right: BorderSide(color: color ?? AppColors.white, width: width),
+);
 
 Border borderOnly({
   Color? topColor,
@@ -18,21 +18,20 @@ Border borderOnly({
   double leftWidth = 1,
   Color? rightColor,
   double rightWidth = 1,
-}) =>
-    Border(
-      top: topColor == null
-          ? BorderSide.none
-          : BorderSide(color: topColor, width: topWidth),
-      bottom: bottomColor == null
-          ? BorderSide.none
-          : BorderSide(color: bottomColor, width: bottomWidth),
-      left: leftColor == null
-          ? BorderSide.none
-          : BorderSide(color: leftColor, width: leftWidth),
-      right: rightColor == null
-          ? BorderSide.none
-          : BorderSide(color: rightColor, width: rightWidth),
-    );
+}) => Border(
+  top: topColor == null
+      ? BorderSide.none
+      : BorderSide(color: topColor, width: topWidth),
+  bottom: bottomColor == null
+      ? BorderSide.none
+      : BorderSide(color: bottomColor, width: bottomWidth),
+  left: leftColor == null
+      ? BorderSide.none
+      : BorderSide(color: leftColor, width: leftWidth),
+  right: rightColor == null
+      ? BorderSide.none
+      : BorderSide(color: rightColor, width: rightWidth),
+);
 
 BorderRadius borderRadiusCircular(double radius) =>
     BorderRadius.circular(radius);
@@ -42,10 +41,9 @@ BorderRadius borderRadiusOnly({
   double bottomLeft = 0,
   double bottomRight = 0,
   double topRight = 0,
-}) =>
-    BorderRadius.only(
-      topLeft: Radius.circular(topLeft),
-      topRight: Radius.circular(topRight),
-      bottomLeft: Radius.circular(bottomLeft),
-      bottomRight: Radius.circular(bottomRight),
-    );
+}) => BorderRadius.only(
+  topLeft: Radius.circular(topLeft),
+  topRight: Radius.circular(topRight),
+  bottomLeft: Radius.circular(bottomLeft),
+  bottomRight: Radius.circular(bottomRight),
+);

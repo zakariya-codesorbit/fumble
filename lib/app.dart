@@ -11,7 +11,7 @@ import 'core/theme/app_theme.dart';
 import 'core/ui/scroll_behaviour.dart';
 import 'services/analytics/analytics_service.dart';
 import 'state/providers/app_providers.dart';
-import 'utils/colors.dart';
+import 'core/theme/colors.dart';
 import 'utils/constant.dart';
 import 'view/widgets/dialogs/loading_dialog.dart';
 import 'view/widgets/feedback/custom_snackbar.dart';

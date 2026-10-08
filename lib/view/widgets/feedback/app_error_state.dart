@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/buttons/text_button_widget.dart';
@@ -25,10 +25,7 @@ class AppErrorState extends StatelessWidget {
             fontWeight: AppStyle.w400,
           ),
           12.height,
-          TextButtonWidget(
-            buttonName: AppConstant.retry,
-            onPressed: onRetry,
-          ),
+          TextButtonWidget(buttonName: AppConstant.retry, onPressed: onRetry),
         ],
       ),
     );

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/screens/setting_screen/components/setting_row_tile.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
@@ -19,10 +19,7 @@ class SettingScreen extends ConsumerWidget {
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
-        appBar: const AppAppBar(
-          title: AppConstant.settings,
-          showBack: true,
-        ),
+        appBar: const AppAppBar(title: AppConstant.settings, showBack: true),
         body: ListView(
           padding: EdgeInsets.all(28.w),
           children: [

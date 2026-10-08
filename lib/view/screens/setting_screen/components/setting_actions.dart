@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
@@ -35,17 +35,15 @@ abstract final class SettingActions {
               fontWeight: AppStyle.w500,
               maxLine: 4,
             ),
-            if (body != null) ...[
-              16.height,
-              body,
-            ],
+            if (body != null) ...[16.height, body],
             25.height,
             PrimaryButton(
               buttonName: primaryCta,
               buttonColor: destructive ? AppColors.error : AppColors.gold,
               borderColor: destructive ? AppColors.error : AppColors.gold,
-              buttonTextColor:
-                  destructive ? AppColors.white : AppColors.background,
+              buttonTextColor: destructive
+                  ? AppColors.white
+                  : AppColors.background,
               onPressed: () {
                 Navigator.pop(sheetContext);
                 onPrimaryTap();

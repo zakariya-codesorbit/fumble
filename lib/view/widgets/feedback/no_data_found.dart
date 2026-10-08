@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -28,7 +28,10 @@ class NoDataFound extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (topSpacing != null) topSpacing!.height else const SizedBox.shrink(),
+          if (topSpacing != null)
+            topSpacing!.height
+          else
+            const SizedBox.shrink(),
           Icon(
             icon ?? AppIcons.peopleOutline,
             size: 48,

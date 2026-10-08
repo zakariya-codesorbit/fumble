@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 
 class AppLoader extends StatelessWidget {

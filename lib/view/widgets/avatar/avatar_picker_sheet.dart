@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fumble/utils/app_avatars.dart';
 import 'package:fumble/utils/avatar_svg.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';

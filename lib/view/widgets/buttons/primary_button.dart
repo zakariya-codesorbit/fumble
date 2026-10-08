@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/border_extension.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -46,10 +46,11 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bg = buttonColor ?? (filled ? AppColors.gold : AppColors.clear);
-    final border = borderColor ??
+    final border =
+        borderColor ??
         (filled ? (buttonColor ?? AppColors.gold) : AppColors.border);
-    final fg = buttonTextColor ??
-        (filled ? AppColors.background : AppColors.white);
+    final fg =
+        buttonTextColor ?? (filled ? AppColors.background : AppColors.white);
     final br = borderRadiusCircular(radius);
 
     return SizedBox(
@@ -71,10 +72,7 @@ class PrimaryButton extends StatelessWidget {
             ? SizedBox(
                 width: 22.h,
                 height: 22.h,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: fg,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 2, color: fg),
               )
             : buttonName.toText(
                 color: fg,

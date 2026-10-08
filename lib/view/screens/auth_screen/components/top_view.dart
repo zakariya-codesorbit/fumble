@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -38,16 +38,9 @@ class TopView extends StatelessWidget {
           BackIconButton(onTap: onBack).paddingOnly(bottom: 25.h)
         else
           topSpacing.height,
-        title.toText(
-          fontSize: 28,
-          fontWeight: AppStyle.w700,
-          lineHeight: 1.15,
-        ),
+        title.toText(fontSize: 28, fontWeight: AppStyle.w700, lineHeight: 1.15),
         titleSubtitleGap.height,
-        subtitle.toText(
-          fontSize: 14,
-          color: AppColors.softGray,
-        ),
+        subtitle.toText(fontSize: 14, color: AppColors.softGray),
         afterSubtitle.height,
       ],
     );

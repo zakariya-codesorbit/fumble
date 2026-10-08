@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -36,10 +36,7 @@ class PreviewDetailRow extends StatelessWidget {
               10.width,
             ],
             Expanded(
-              child: value.toText(
-                fontSize: 16,
-                fontWeight: AppStyle.w400,
-              ),
+              child: value.toText(fontSize: 16, fontWeight: AppStyle.w400),
             ),
           ],
         ),

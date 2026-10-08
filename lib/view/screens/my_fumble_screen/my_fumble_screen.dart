@@ -9,7 +9,7 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/profile_header.dart';

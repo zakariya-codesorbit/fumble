@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 
@@ -61,7 +61,8 @@ extension StringExtension on String {
         fontFamilyFallback: AppStyle.fontFamilyFallback,
         fontStyle: FontStyle.normal,
         letterSpacing: letterSpacing,
-        fontWeight: fontWeight ??
+        fontWeight:
+            fontWeight ??
             (isBold == true
                 ? FontWeight.bold
                 : (isMedium == true ? AppStyle.w500 : AppStyle.w400)),

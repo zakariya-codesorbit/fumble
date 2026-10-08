@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 
 class BaseScreenWidget extends ConsumerWidget {
   final Widget Function(BuildContext context)? builder;
   final SystemUiOverlayStyle? systemUiOverlayStyle;
 
   const BaseScreenWidget({super.key, this.builder, this.systemUiOverlayStyle})
-      : assert(builder != null, 'builder must be provided');
+    : assert(builder != null, 'builder must be provided');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,10 +62,7 @@ class ScaffoldContent extends StatelessWidget {
               bottomNavigationBar: bottomNavigationBar,
               resizeToAvoidBottomInset: resizeToAvoidBottomInset,
             ),
-            if (overlay != null)
-              Positioned.fill(
-                child: overlay,
-              ),
+            if (overlay != null) Positioned.fill(child: overlay),
           ],
         ),
       ),

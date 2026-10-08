@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fumble/core/navigation/onboarding_gate.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';

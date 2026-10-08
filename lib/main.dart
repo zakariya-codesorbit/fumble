@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/app_initializer.dart';
 import 'app.dart';
-import 'utils/colors.dart';
+import 'core/theme/colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

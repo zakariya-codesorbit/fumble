@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -128,7 +128,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
               color: AppColors.error,
               fontFamilyFallback: AppStyle.fontFamilyFallback,
             ),
-            suffixIcon: widget.suffixIcon ??
+            suffixIcon:
+                widget.suffixIcon ??
                 (widget.isPassword
                     ? IconButton(
                         onPressed: () => setState(() => _obscure = !_obscure),

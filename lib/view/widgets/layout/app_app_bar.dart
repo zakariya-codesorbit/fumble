@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fumble/utils/colors.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
@@ -35,11 +35,11 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading ?? (showBack ? BackIconButton(onTap: onBack) : null),
       automaticallyImplyLeading: leading != null || showBack,
       title: title?.toText(
-              color: brandTitle ? AppColors.gold : AppColors.white,
-              fontSize: brandTitle ? 18 : 20,
-              fontWeight: brandTitle ? AppStyle.w700 : AppStyle.w600,
-              letterSpacing: brandTitle ? 3 : 0,
-            ),
+        color: brandTitle ? AppColors.gold : AppColors.white,
+        fontSize: brandTitle ? 18 : 20,
+        fontWeight: brandTitle ? AppStyle.w700 : AppStyle.w600,
+        letterSpacing: brandTitle ? 3 : 0,
+      ),
       actions: actions,
     );
   }
