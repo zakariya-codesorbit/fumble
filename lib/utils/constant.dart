@@ -175,7 +175,7 @@ abstract final class AppConstant {
   static const String connectionCreated = 'Connection created';
 
   static const String authEmailInUse =
-      'An account already exists for this email.';
+      'An account already exists for this email. try logging in.';
   static const String authInvalidEmail = 'Enter a valid email address.';
   static const String authWeakPassword =
       'Password must be at least 6 characters.';
