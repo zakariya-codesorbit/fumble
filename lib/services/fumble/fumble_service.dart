@@ -57,7 +57,7 @@ class FumbleService {
         );
       }
 
-      final profile = await _codes.fetchPublicProfileByCode(fumbleCode);
+      final profile = await _codes.loadPublicProfileByCode(fumbleCode);
       if (profile == null) {
         throw FumbleException(
           AppConstant.fumbleCodeNotFound,
@@ -79,7 +79,7 @@ class FumbleService {
         );
       }
 
-      final already = await _connections.existsOnServer(
+      final already = await _connections.hasRemoteConnection(
         uid: scannerUid,
         peerUid: preview.peerUid,
       );
@@ -137,7 +137,7 @@ class FumbleService {
       );
     }
 
-    final scanner = await _users.getUser(scannerUid);
+    final scanner = await _users.loadUserProfile(scannerUid);
     if (scanner == null) {
       throw FumbleException(AppConstant.profileMissing, code: 'not-found');
     }
@@ -147,7 +147,7 @@ class FumbleService {
       throw FumbleException(AppConstant.fumbleCodeNotFound, code: 'not-found');
     }
 
-    final already = await _connections.existsOnServer(
+    final already = await _connections.hasRemoteConnection(
       uid: scannerUid,
       peerUid: peerUid,
     );
@@ -159,7 +159,7 @@ class FumbleService {
     if (coords != null && (placeLabel == null || placeLabel.trim().isEmpty)) {
       placeLabel = await FumbleLocationService.placeLabel(coords);
     }
-    await _connections.linkBothUsers(
+    await _connections.saveConnectionForBoth(
       scanner: scanner,
       peer: peerCard,
       fumbleLocation: coords,
@@ -168,10 +168,10 @@ class FumbleService {
   }
 
   Future<PublicFumbleProfile?> _lookupPeerCard(String peerUid) async {
-    return _codes.fetchPublicProfile(peerUid);
+    return _codes.loadPublicProfile(peerUid);
   }
 
-  Future<String> rotateFumbleCode() async {
+  Future<String> regenerateFumbleCode() async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
       throw FumbleException(
@@ -179,7 +179,7 @@ class FumbleService {
         code: 'unauthenticated',
       );
     }
-    return _codes.rotateFumbleCode(uid);
+    return _codes.regeneratePublicFumbleCode(uid);
   }
 
   Future<void> _enqueue(String peerUid) async {

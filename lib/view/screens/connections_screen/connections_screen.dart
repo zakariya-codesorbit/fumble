@@ -97,7 +97,7 @@ class ConnectionsScreen extends ConsumerWidget {
     final uid = ref.read(authServiceProvider).currentUser?.uid;
     if (uid == null) return;
     try {
-      await ref.read(connectionRepositoryProvider).deleteConnectionForBoth(
+      await ref.read(connectionRepositoryProvider).removeConnectionForBoth(
             ownerUid: uid,
             peerUid: connection.peerUid,
           );

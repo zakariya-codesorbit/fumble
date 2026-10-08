@@ -22,14 +22,14 @@ class FumbleCodeRepository {
       _db.collection('fumbleCodes').doc(code.toUpperCase());
 
   /// Loads public profile fields for a fumble / QR code string.
-  Future<Map<String, dynamic>?> fetchPublicProfileByCode(String code) async {
+  Future<Map<String, dynamic>?> loadPublicProfileByCode(String code) async {
     final snap = await _codeRef(code).get();
     if (!snap.exists || snap.data() == null) return null;
     return snap.data();
   }
 
   /// Loads the latest public fumble profile for a user id.
-  Future<PublicFumbleProfile?> fetchPublicProfile(String uid) async {
+  Future<PublicFumbleProfile?> loadPublicProfile(String uid) async {
     final query = await _db
         .collection('fumbleCodes')
         .where('uid', isEqualTo: uid)
@@ -99,7 +99,7 @@ class FumbleCodeRepository {
   }
 
   /// Publishes (or clears) meeting coordinates + place label on user + card.
-  Future<void> publishMeetingPlace({
+  Future<void> publishPublicMeetingPlace({
     required String uid,
     FumbleLocation? location,
   }) async {
@@ -127,8 +127,8 @@ class FumbleCodeRepository {
     await batch.commit();
   }
 
-  /// Issues a new fumble code and rewrites the public card.
-  Future<String> rotateFumbleCode(String uid) async {
+  /// Generates a new fumble code and rewrites the public profile.
+  Future<String> regeneratePublicFumbleCode(String uid) async {
     final userSnap = await _userRef(uid).get();
     if (!userSnap.exists || userSnap.data() == null) {
       throw StateError(AppConstant.profileMissing);

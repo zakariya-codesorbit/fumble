@@ -180,7 +180,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         ),
       );
 
-      await _users.updateProfile(
+      await _users.updateUserProfile(
         uid: profile.uid,
         name: trimmedName,
         photoUrl: nextPhoto,

@@ -70,7 +70,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     if (await LocalPrefs.onboardingCompleted) return AppRoutes.main;
     UserProfile? profile = ref.read(currentUserProfileProvider).valueOrNull;
     try {
-      profile = await _users.getUser(uid) ?? profile;
+      profile = await _users.loadUserProfile(uid) ?? profile;
     } catch (_) {
       // Use the cached stream profile when Firestore is unavailable.
     }
@@ -133,12 +133,12 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     return _saveAndContinue(
       persist: (uid) async {
         if (state.avatarSvg != null) {
-          await _users.updateProfile(uid: uid, photoUrl: state.avatarSvg);
+          await _users.updateUserProfile(uid: uid, photoUrl: state.avatarSvg);
           return;
         }
         if (state.localPhoto == null) return;
         final encoded = await _photos.toBase64(state.localPhoto!);
-        await _users.updateProfile(uid: uid, photoUrl: encoded);
+        await _users.updateUserProfile(uid: uid, photoUrl: encoded);
       },
       photoFilled: true,
     );
@@ -152,7 +152,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
       formKey: formKey,
       persist: (uid) async {
         if (phone.trim().isEmpty) return;
-        await _users.updateProfile(uid: uid, phone: phone);
+        await _users.updateUserProfile(uid: uid, phone: phone);
       },
       phoneFilled: true,
     );

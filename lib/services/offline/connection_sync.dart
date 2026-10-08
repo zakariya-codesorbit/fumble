@@ -33,7 +33,7 @@ class ConnectionSync with WidgetsBindingObserver {
   void kick() {
     final uid = _currentUid();
     if (uid == null || uid.isEmpty) return;
-    unawaited(_repository.syncWithCloud(uid));
+    unawaited(_repository.syncConnections(uid));
   }
 
   @override

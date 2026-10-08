@@ -48,7 +48,7 @@ class ConnectionRepository {
       _db.collection('users').doc(uid).collection('connections');
 
   /// Live list of this owner's connections (local store).
-  Stream<List<Connection>> watchOwnerConnections(String ownerUid) {
+  Stream<List<Connection>> watchConnections(String ownerUid) {
     return Stream<List<Connection>>.multi((listener) {
       var generation = 0;
 
@@ -73,12 +73,12 @@ class ConnectionRepository {
   }
 
   /// Asks listeners to reload from the local store (e.g. opening Connections).
-  void notifyConnectionsChanged(String ownerUid) {
+  void refreshConnections(String ownerUid) {
     if (ownerUid.isEmpty) return;
     _changes.add(ownerUid);
   }
 
-  Future<bool> isAlreadyConnected({
+  Future<bool> hasLocalConnection({
     required String ownerUid,
     required String peerUid,
   }) {
@@ -92,7 +92,7 @@ class ConnectionRepository {
     required FumblePreview preview,
     FumbleLocation? fumbleLocation,
   }) async {
-    if (await isAlreadyConnected(
+    if (await hasLocalConnection(
       ownerUid: ownerUid,
       peerUid: preview.peerUid,
     )) {
@@ -103,7 +103,7 @@ class ConnectionRepository {
     String? placeLabel;
     if (coords == null) {
       try {
-        final card = await _codes.fetchPublicProfile(preview.peerUid);
+        final card = await _codes.loadPublicProfile(preview.peerUid);
         coords = card?.fumbleLocation;
         placeLabel = card?.fumblePlace;
       } catch (_) {}
@@ -133,12 +133,12 @@ class ConnectionRepository {
     final inserted = await _local.insertConnection(ownerUid, connection);
     if (!inserted) return false;
     _changes.add(ownerUid);
-    unawaited(syncWithCloud(ownerUid));
+    unawaited(syncConnections(ownerUid));
     return true;
   }
 
   /// Pushes pending local rows to Firestore, then pulls remote updates.
-  Future<void> syncWithCloud(String ownerUid) async {
+  Future<void> syncConnections(String ownerUid) async {
     if (ownerUid.isEmpty) return;
     if (_syncing.contains(ownerUid)) {
       _resync.add(ownerUid);
@@ -174,7 +174,7 @@ class ConnectionRepository {
     } finally {
       _syncing.remove(ownerUid);
       if (_resync.remove(ownerUid)) {
-        unawaited(syncWithCloud(ownerUid));
+        unawaited(syncConnections(ownerUid));
       }
     }
   }
@@ -227,7 +227,7 @@ class ConnectionRepository {
             );
           }
         }
-        await linkBothUsers(
+        await saveConnectionForBoth(
           scanner: scanner,
           peer: peer,
           fumbledAt: row.fumbledAt,
@@ -252,7 +252,7 @@ class ConnectionRepository {
 
   Future<PublicFumbleProfile> _resolvePeerProfile(Connection row) async {
     try {
-      final card = await _codes.fetchPublicProfile(row.peerUid);
+      final card = await _codes.loadPublicProfile(row.peerUid);
       if (card == null) return _profileFromLocalConnection(row);
       return PublicFumbleProfile(
         uid: row.peerUid,
@@ -392,7 +392,7 @@ class ConnectionRepository {
     final users = _users;
     if (users != null) {
       try {
-        final remote = await users.getUser(ownerUid);
+        final remote = await users.loadUserProfile(ownerUid);
         if (remote != null) return remote;
       } catch (e, st) {
         lookupError = e;
@@ -427,7 +427,7 @@ class ConnectionRepository {
     _changes.add(ownerUid);
   }
 
-  Future<bool> existsOnServer({
+  Future<bool> hasRemoteConnection({
     required String uid,
     required String peerUid,
   }) async {
@@ -436,7 +436,7 @@ class ConnectionRepository {
   }
 
   /// Deletes the connection for both users (Firestore + local).
-  Future<void> deleteConnectionForBoth({
+  Future<void> removeConnectionForBoth({
     required String ownerUid,
     required String peerUid,
   }) async {
@@ -457,7 +457,7 @@ class ConnectionRepository {
   }
 
   /// Writes the connection under both users' Firestore trees.
-  Future<void> linkBothUsers({
+  Future<void> saveConnectionForBoth({
     required UserProfile scanner,
     required PublicFumbleProfile peer,
     DateTime? fumbledAt,

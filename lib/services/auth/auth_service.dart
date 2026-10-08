@@ -47,7 +47,7 @@ class AuthService {
         );
       }
       await user.updateDisplayName(name.trim());
-      final profile = await _users.createUser(
+      final profile = await _users.createUserProfile(
         uid: user.uid,
         name: name,
         email: email,
@@ -92,9 +92,9 @@ class AuthService {
       }
       await _crashlytics.setUserId(user.uid);
       // If Auth succeeded earlier but profile write failed, create it now.
-      final existing = await _users.getUser(user.uid);
+      final existing = await _users.loadUserProfile(user.uid);
       if (existing == null) {
-        await _users.createUser(
+        await _users.createUserProfile(
           uid: user.uid,
           name: user.displayName?.trim().isNotEmpty == true
               ? user.displayName!.trim()
@@ -102,7 +102,7 @@ class AuthService {
           email: user.email ?? email,
         );
       } else {
-        await _users.touchLastActive(user.uid);
+        await _users.updateUserLastActive(user.uid);
       }
       await _analytics.logLogin();
       return user;
@@ -121,7 +121,7 @@ class AuthService {
     if (uid != null) {
       try {
         await _users
-            .updateFcmToken(uid, null)
+            .updateUserFcmToken(uid, null)
             .timeout(const Duration(seconds: 2));
       } catch (_) {/* best effort — never block sign-out */}
     }
@@ -156,7 +156,7 @@ class AuthService {
     final user = currentUser;
     if (user == null) return;
     await reauthenticate(password);
-    await _users.deleteUserDoc(user.uid);
+    await _users.deleteUserProfile(user.uid);
     await user.delete();
     try {
       await LocalPrefs.clearUserProfile();

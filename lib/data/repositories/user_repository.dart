@@ -20,20 +20,20 @@ class UserRepository {
   DocumentReference<Map<String, dynamic>> _userRef(String uid) =>
       _db.collection('users').doc(uid);
 
-  Future<UserProfile?> getUser(String uid) async {
+  Future<UserProfile?> loadUserProfile(String uid) async {
     final snap = await _userRef(uid).get();
     if (!snap.exists || snap.data() == null) return null;
     return UserProfile.fromMap(uid, snap.data()!);
   }
 
-  Stream<UserProfile?> watchUser(String uid) {
+  Stream<UserProfile?> watchUserProfile(String uid) {
     return _userRef(uid).snapshots().map((snap) {
       if (!snap.exists || snap.data() == null) return null;
       return UserProfile.fromMap(uid, snap.data()!);
     });
   }
 
-  Future<UserProfile> createUser({
+  Future<UserProfile> createUserProfile({
     required String uid,
     required String name,
     required String email,
@@ -55,7 +55,7 @@ class UserRepository {
     return profile;
   }
 
-  Future<void> updateProfile({
+  Future<void> updateUserProfile({
     required String uid,
     String? name,
     String? photoUrl,
@@ -129,20 +129,20 @@ class UserRepository {
     );
   }
 
-  Future<void> updateFcmToken(String uid, String? token) async {
+  Future<void> updateUserFcmToken(String uid, String? token) async {
     await _userRef(uid).set({
       'fcmToken': token,
       'lastActiveAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
-  Future<void> touchLastActive(String uid) async {
+  Future<void> updateUserLastActive(String uid) async {
     await _userRef(uid).set({
       'lastActiveAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
-  Future<void> deleteUserDoc(String uid) async {
+  Future<void> deleteUserProfile(String uid) async {
     final userSnap = await _userRef(uid).get();
     final code = userSnap.data()?['fumbleCode'] as String?;
 

@@ -77,14 +77,14 @@ class NotificationService {
       if (token == null) return;
       final last = await LocalPrefs.lastFcmToken;
       if (last == token) return;
-      await _users.updateFcmToken(uid, token);
+      await _users.updateUserFcmToken(uid, token);
       await LocalPrefs.setLastFcmToken(token);
 
       _tokenRefreshSub?.cancel();
       _tokenRefreshSub = _messaging.onTokenRefresh.listen((newToken) async {
         final currentUid = _auth.currentUser?.uid;
         if (currentUid == null) return;
-        await _users.updateFcmToken(currentUid, newToken);
+        await _users.updateUserFcmToken(currentUid, newToken);
         await LocalPrefs.setLastFcmToken(newToken);
       });
     } catch (e) {

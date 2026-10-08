@@ -72,7 +72,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
     try {
       await ref
           .read(fumbleCodeRepositoryProvider)
-          .publishMeetingPlace(uid: uid, location: place);
+          .publishPublicMeetingPlace(uid: uid, location: place);
     } catch (_) {
       // Non-blocking — fumble still works without published location.
     }

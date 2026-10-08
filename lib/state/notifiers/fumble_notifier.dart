@@ -77,7 +77,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
     try {
       final already = await ref
           .read(connectionRepositoryProvider)
-          .isAlreadyConnected(ownerUid: uid, peerUid: payload.userId);
+          .hasLocalConnection(ownerUid: uid, peerUid: payload.userId);
       if (already) {
         state = state.copyWith(isHandlingScan: false);
         showAppToast(AppConstant.alreadyConnected, isError: true);
