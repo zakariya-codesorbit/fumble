@@ -10,7 +10,7 @@ class ConnectionLocalStore {
 
   final LocalDatabase _local;
 
-  Future<bool> exists({
+  Future<bool> hasConnection({
     required String ownerUid,
     required String peerUid,
   }) async {
@@ -25,7 +25,7 @@ class ConnectionLocalStore {
     return rows.isNotEmpty;
   }
 
-  Future<List<Connection>> loadAllForOwner(String ownerUid) async {
+  Future<List<Connection>> loadAllConnections(String ownerUid) async {
     final db = await _local.database;
     final rows = await db.query(
       'connections',
@@ -36,7 +36,7 @@ class ConnectionLocalStore {
     return rows.map(Connection.fromLocalRow).toList();
   }
 
-  Future<Connection?> loadOne({
+  Future<Connection?> loadSingleConnection({
     required String ownerUid,
     required String peerUid,
   }) async {
@@ -52,7 +52,7 @@ class ConnectionLocalStore {
   }
 
   /// Inserts a new row. Returns false if that peer is already saved.
-  Future<bool> insertIfAbsent(String ownerUid, Connection connection) async {
+  Future<bool> insertConnection(String ownerUid, Connection connection) async {
     final db = await _local.database;
     try {
       await db.insert(
@@ -67,7 +67,7 @@ class ConnectionLocalStore {
     }
   }
 
-  Future<void> save(String ownerUid, Connection connection) async {
+  Future<void> saveConnection(String ownerUid, Connection connection) async {
     final db = await _local.database;
     await db.insert(
       'connections',
@@ -76,7 +76,7 @@ class ConnectionLocalStore {
     );
   }
 
-  Future<void> updateSyncStatus({
+  Future<void> updateConnectionSyncStatus({
     required String ownerUid,
     required String peerUid,
     required SyncStatus status,
@@ -93,7 +93,7 @@ class ConnectionLocalStore {
     );
   }
 
-  Future<void> remove({
+  Future<void> removeConnection({
     required String ownerUid,
     required String peerUid,
   }) async {

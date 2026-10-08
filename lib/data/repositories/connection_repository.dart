@@ -55,7 +55,7 @@ class ConnectionRepository {
       Future<void> emit() async {
         final token = ++generation;
         try {
-          final rows = await _local.loadAllForOwner(ownerUid);
+          final rows = await _local.loadAllConnections(ownerUid);
           if (token != generation || listener.isClosed) return;
           listener.add(rows);
         } catch (e, st) {
@@ -82,7 +82,7 @@ class ConnectionRepository {
     required String ownerUid,
     required String peerUid,
   }) {
-    return _local.exists(ownerUid: ownerUid, peerUid: peerUid);
+    return _local.hasConnection(ownerUid: ownerUid, peerUid: peerUid);
   }
 
   /// Saves a scanned peer locally, then starts a background cloud sync.
@@ -130,7 +130,7 @@ class ConnectionRepository {
       syncStatus: SyncStatus.pending,
     );
 
-    final inserted = await _local.insertIfAbsent(ownerUid, connection);
+    final inserted = await _local.insertConnection(ownerUid, connection);
     if (!inserted) return false;
     _changes.add(ownerUid);
     unawaited(syncWithCloud(ownerUid));
@@ -180,7 +180,7 @@ class ConnectionRepository {
   }
 
   Future<void> _pushPendingToCloud(String ownerUid) async {
-    final rows = await _local.loadAllForOwner(ownerUid);
+    final rows = await _local.loadAllConnections(ownerUid);
     if (rows.isEmpty) return;
 
     final scanner = await _loadOwnerProfile(ownerUid);
@@ -201,7 +201,7 @@ class ConnectionRepository {
       if (!needsWrite) continue;
 
       if (changed) {
-        await _local.save(
+        await _local.saveConnection(
           ownerUid,
           next.copyWith(updatedAt: DateTime.now()),
         );
@@ -218,7 +218,7 @@ class ConnectionRepository {
         if (coords != null && (placeLabel == null || placeLabel.isEmpty)) {
           placeLabel = await FumbleLocationService.placeLabel(coords);
           if (RepoUtils.filled(placeLabel)) {
-            await _local.save(
+            await _local.saveConnection(
               ownerUid,
               next.copyWith(
                 fumblePlace: placeLabel,
@@ -336,12 +336,12 @@ class ConnectionRepository {
       final remote = Connection.fromMap(doc.id, doc.data());
       if (remote.peerUid.isEmpty) continue;
       remotePeerIds.add(remote.peerUid);
-      final local = await _local.loadOne(
+      final local = await _local.loadSingleConnection(
         ownerUid: ownerUid,
         peerUid: remote.peerUid,
       );
       if (local == null) {
-        await _local.save(
+        await _local.saveConnection(
           ownerUid,
           remote.copyWith(syncStatus: SyncStatus.synced),
         );
@@ -372,15 +372,15 @@ class ConnectionRepository {
         syncStatus: SyncStatus.synced,
       );
       if (merged.sameContent(local)) continue;
-      await _local.save(ownerUid, merged);
+      await _local.saveConnection(ownerUid, merged);
       changed = true;
     }
 
-    final localRows = await _local.loadAllForOwner(ownerUid);
+    final localRows = await _local.loadAllConnections(ownerUid);
     for (final row in localRows) {
       if (row.syncStatus != SyncStatus.synced) continue;
       if (remotePeerIds.contains(row.peerUid)) continue;
-      await _local.remove(ownerUid: ownerUid, peerUid: row.peerUid);
+      await _local.removeConnection(ownerUid: ownerUid, peerUid: row.peerUid);
       changed = true;
     }
 
@@ -419,7 +419,7 @@ class ConnectionRepository {
     String peerUid,
     SyncStatus status,
   ) async {
-    await _local.updateSyncStatus(
+    await _local.updateConnectionSyncStatus(
       ownerUid: ownerUid,
       peerUid: peerUid,
       status: status,
@@ -452,7 +452,7 @@ class ConnectionRepository {
     batch.delete(_connections(peerUid).doc(ownerUid));
     await batch.commit();
 
-    await _local.remove(ownerUid: ownerUid, peerUid: peerUid);
+    await _local.removeConnection(ownerUid: ownerUid, peerUid: peerUid);
     _changes.add(ownerUid);
   }
 
