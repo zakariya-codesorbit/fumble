@@ -36,10 +36,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     await unfocusKeyboard();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref
+    await ref
         .read(authNotifierProvider.notifier)
         .login(email: _email.text, password: _password.text);
   }
@@ -50,49 +50,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       builder: (context) => ScaffoldContent(
         body: SafeArea(
           child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const TopView(
-                    title: AppConstant.loginTitle,
-                    subtitle: AppConstant.loginSubtitle,
-                  ),
-                  BaseEmailField(controller: _email),
-                  20.height,
-                  BasePasswordField(
-                    controller: _password,
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButtonWidget(
-                      buttonName: AppConstant.forgotPassword,
-                      onPressed: () => push(AppRoutes.forgotPassword),
+            child: AutofillGroup(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const TopView(
+                      title: AppConstant.loginTitle,
+                      subtitle: AppConstant.loginSubtitle,
                     ),
-                  ),
-                  15.height,
-                  PrimaryButton(
-                    buttonName: AppConstant.loginCta,
-                    onPressed: _submit,
-                  ),
-                  24.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppConstant.noAccount.toText(
-                        fontSize: 14,
-                        color: AppColors.softGray,
+                    BaseEmailField(controller: _email),
+                    20.height,
+                    BasePasswordField(
+                      controller: _password,
+                      onSubmitted: (_) => _submit(),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButtonWidget(
+                        buttonName: AppConstant.forgotPassword,
+                        onPressed: () => push(AppRoutes.forgotPassword),
                       ),
-                      TextButtonWidget(
-                        buttonName: AppConstant.signupCta,
-                        fontWeight: AppStyle.w600,
-                        onPressed: () => replace(AppRoutes.signup),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                    15.height,
+                    PrimaryButton(
+                      buttonName: AppConstant.loginCta,
+                      onPressed: _submit,
+                    ),
+                    24.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AppConstant.noAccount.toText(
+                          fontSize: 14,
+                          color: AppColors.softGray,
+                        ),
+                        TextButtonWidget(
+                          buttonName: AppConstant.signupCta,
+                          fontWeight: AppStyle.w600,
+                          onPressed: () => replace(AppRoutes.signup),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ).paddingSymmetric(horizontal: 28.w),
           ),

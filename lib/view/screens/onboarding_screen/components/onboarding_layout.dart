@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
 import 'package:fumble/view/screens/onboarding_screen/components/onboarding_progress.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
@@ -48,8 +49,8 @@ class OnboardingLayout extends StatelessWidget {
           buttonName: cta,
           onPressed: onContinue == null
               ? null
-              : () {
-                  FocusScope.of(context).unfocus();
+              : () async {
+                  await unfocusKeyboard();
                   onContinue?.call();
                 },
         ),

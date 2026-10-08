@@ -83,6 +83,9 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
 
   Future<void> navigateAfterAuth() async {
     reset();
+    // Close IME before tearing down auth TextFields — avoids keyboard flash
+    // on onboarding/home during pushAndClearAll.
+    await unfocusKeyboard(saveAutofill: true);
     pushAndClearAll(await resolveRoute());
   }
 
@@ -162,7 +165,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     bool photoFilled = false,
     bool phoneFilled = false,
   }) async {
-    unfocusKeyboard();
+    await unfocusKeyboard();
     if (formKey != null && !(formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -181,6 +184,8 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
       );
       hideLoadingDialog();
       state = state.copyWith(isSaving: false);
+      // Close IME before tearing down onboarding TextFields.
+      await unfocusKeyboard();
       pushAndClearAll(next);
     } catch (e) {
       hideLoadingDialog();

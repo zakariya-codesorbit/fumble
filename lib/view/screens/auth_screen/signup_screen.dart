@@ -38,10 +38,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     await unfocusKeyboard();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref
+    await ref
         .read(authNotifierProvider.notifier)
         .signUp(name: _name.text, email: _email.text, password: _password.text);
   }
@@ -52,58 +52,60 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       builder: (context) => ScaffoldContent(
         body: SafeArea(
           child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const TopView(
-                    title: AppConstant.signupTitle,
-                    subtitle: AppConstant.signupSubtitle,
-                  ),
-                  CustomTextField(
-                    controller: _name,
-                    label: AppConstant.nameLabel,
-                    hintText: AppConstant.nameHint,
-                    textInputAction: TextInputAction.next,
-                    autofillHints: const [AutofillHints.name],
-                    validator: (value) {
-                      if (value == null || value.isBlank) {
-                        return AppConstant.nameRequired;
-                      }
-                      return null;
-                    },
-                  ),
-                  20.height,
-                  BaseEmailField(controller: _email),
-                  20.height,
-                  BasePasswordField(
-                    controller: _password,
-                    hintText: AppConstant.passwordCreateHint,
-                    autofillHints: const [AutofillHints.newPassword],
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  30.height,
-                  PrimaryButton(
-                    buttonName: AppConstant.signupCta,
-                    onPressed: _submit,
-                  ),
-                  24.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppConstant.hasAccount.toText(
-                        fontSize: 14,
-                        color: AppColors.softGray,
-                      ),
-                      TextButtonWidget(
-                        buttonName: AppConstant.loginCta,
-                        fontWeight: AppStyle.w600,
-                        onPressed: () => replace(AppRoutes.login),
-                      ),
-                    ],
-                  ),
-                ],
+            child: AutofillGroup(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const TopView(
+                      title: AppConstant.signupTitle,
+                      subtitle: AppConstant.signupSubtitle,
+                    ),
+                    CustomTextField(
+                      controller: _name,
+                      label: AppConstant.nameLabel,
+                      hintText: AppConstant.nameHint,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.name],
+                      validator: (value) {
+                        if (value == null || value.isBlank) {
+                          return AppConstant.nameRequired;
+                        }
+                        return null;
+                      },
+                    ),
+                    20.height,
+                    BaseEmailField(controller: _email),
+                    20.height,
+                    BasePasswordField(
+                      controller: _password,
+                      hintText: AppConstant.passwordCreateHint,
+                      autofillHints: const [AutofillHints.newPassword],
+                      onSubmitted: (_) => _submit(),
+                    ),
+                    30.height,
+                    PrimaryButton(
+                      buttonName: AppConstant.signupCta,
+                      onPressed: _submit,
+                    ),
+                    24.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AppConstant.hasAccount.toText(
+                          fontSize: 14,
+                          color: AppColors.softGray,
+                        ),
+                        TextButtonWidget(
+                          buttonName: AppConstant.loginCta,
+                          fontWeight: AppStyle.w600,
+                          onPressed: () => replace(AppRoutes.login),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ).paddingSymmetric(horizontal: 28.w),
           ),
