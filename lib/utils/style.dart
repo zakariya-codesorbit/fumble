@@ -6,6 +6,9 @@ import '../core/theme/colors.dart';
 abstract final class AppStyle {
   AppStyle._();
 
+  /// Registered in pubspec.yaml from `assets/fonts/SF-Pro-Display-*.otf`.
+  static const String fontFamily = 'SF Pro Display';
+
   static const List<String> fontFamilyFallback = <String>[
     '.SF Pro Text',
     'SF Pro Text',
@@ -40,6 +43,7 @@ abstract final class AppStyle {
     fontSize: 18,
     fontWeight: w700,
     letterSpacing: 3,
+    fontFamily: fontFamily,
     fontFamilyFallback: fontFamilyFallback,
   );
 }

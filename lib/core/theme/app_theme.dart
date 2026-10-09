@@ -9,6 +9,7 @@ abstract final class AppTheme {
   static ThemeData get dark => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    fontFamily: AppStyle.fontFamily,
     scaffoldBackgroundColor: AppColors.background,
     canvasColor: AppColors.background,
     primaryColor: AppColors.gold,
@@ -53,6 +54,7 @@ abstract final class AppTheme {
         fontSize: 14,
         fontWeight: AppStyle.w400,
         color: AppColors.softGray,
+        fontFamily: AppStyle.fontFamily,
         fontFamilyFallback: AppStyle.fontFamilyFallback,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
