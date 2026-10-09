@@ -34,6 +34,9 @@ void main() {
   test('App branding', () {
     expect(AppConfig.displayName, 'Fumble');
     expect(AppConfig.androidApplicationId, 'com.fumble.app');
+    expect(AppConfig.appVersionName, '1.0.0');
+    expect(AppConfig.appBuildNumber, 1);
+    expect(AppConfig.databaseSchemaVersion, 1);
   });
 
   test('QR payload is encrypted and round-trips through Fumble', () {

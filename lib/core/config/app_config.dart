@@ -5,6 +5,10 @@ abstract final class AppConfig {
   static const String displayName = 'Fumble';
   static const String brandUpper = 'FUMBLE';
 
+  /// App Version 1 (not published / not live). Keep in sync with pubspec.
+  static const String appVersionName = '1.0.0';
+  static const int appBuildNumber = 1;
+
   static const String androidApplicationId = 'com.fumble.app';
   static const String iosBundleId = 'com.fumble.app';
 
@@ -13,6 +17,8 @@ abstract final class AppConfig {
   static const String termsOfServiceUrl = AppUrls.termsOfServiceUrl;
 
   static const String databaseFileName = 'fumble.db';
+  /// Local SQLite schema for app Version 1.
+  static const int databaseSchemaVersion = 1;
 
   /// Prefix for encrypted QR wire format: `fumble:1.<ciphertext>`.
   static const String qrPrefix = 'fumble:';

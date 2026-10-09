@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/setting_screen/components/setting_action_group.dart';
 import 'package:fumble/view/screens/setting_screen/components/setting_toggle_group.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
+import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
 class SettingScreen extends ConsumerWidget {
@@ -68,6 +70,13 @@ class SettingScreen extends ConsumerWidget {
                   onTap: () => settings.deleteAccount(context),
                 ),
               ],
+            ),
+            32.height,
+            AppConstant.appVersionLabel.toText(
+              color: AppColors.softGrayDim,
+              fontSize: 12,
+              fontWeight: AppStyle.w500,
+              textAlign: TextAlign.center,
             ),
           ],
         ),

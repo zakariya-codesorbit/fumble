@@ -226,4 +226,8 @@ abstract final class AppConstant {
 
   static String settingsAppVersionLabel(String version, String build) =>
       '${AppConfig.displayName} $version ($build)';
+
+  /// Fallback when PackageInfo is unavailable (matches pubspec Version 1).
+  static String get appVersionLabel =>
+      settingsAppVersionLabel(AppConfig.appVersionName, '${AppConfig.appBuildNumber}');
 }

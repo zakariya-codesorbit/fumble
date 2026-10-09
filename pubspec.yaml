@@ -2,6 +2,7 @@ name: fumble
 description: "fumble — a premium, private way to exchange contact cards in real life."
 publish_to: 'none'
 
+# App Version 1 (not live). name+build → Flutter versionName / versionCode.
 version: 1.0.0+1
 
 environment:

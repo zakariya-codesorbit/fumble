@@ -22,10 +22,18 @@ class LocalDatabase {
 
     return openDatabase(
       path,
-      version: 1,
+      version: AppConfig.databaseSchemaVersion,
       onCreate: (db, version) async {
         await _createPendingFumbles(db);
         await _createConnections(db);
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // Version 1 schema: ensure all connection columns exist.
+        if (oldVersion < 1) {
+          await _createPendingFumbles(db);
+          await _createConnections(db);
+        }
+        await _ensureConnectionColumns(db);
       },
       onOpen: (db) async {
         await _ensureConnectionColumns(db);
@@ -71,9 +79,10 @@ class LocalDatabase {
     ''');
   }
 
-  /// Keeps existing installs in sync while the schema stays at version 1.
+  /// Backfills columns for installs that opened an older schema.
   static Future<void> _ensureConnectionColumns(Database db) async {
     final info = await db.rawQuery('PRAGMA table_info(connections)');
+    if (info.isEmpty) return;
     final names = info.map((row) => row['name'] as String).toSet();
     if (!names.contains('fumble_lat')) {
       await db.execute('ALTER TABLE connections ADD COLUMN fumble_lat REAL');
