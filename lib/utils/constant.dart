@@ -30,7 +30,7 @@ abstract final class AppConstant {
   static const String passwordHint = 'Enter your password';
   static const String passwordCreateHint = 'At least 6 characters';
   static const String nameHint = 'Your full name';
-  static const String bioHint = 'Filmmaker. Creative Director.';
+  static const String bioHint = 'Filmmaker Creative Director. Love dogs!';
   static const String phoneHint = 'Phone number';
   static const String loginCta = 'Log in';
   static const String signupCta = 'Sign up';
@@ -47,6 +47,7 @@ abstract final class AppConstant {
   static const String memberSince = 'Member since';
   static const String editProfile = 'Edit profile';
   static const String bioLabel = 'Bio';
+  static const String aboutMeLabel = 'ABOUT ME';
   static const String phoneLabel = 'Phone';
   static const String call = 'Call';
   static const String text = 'Text';

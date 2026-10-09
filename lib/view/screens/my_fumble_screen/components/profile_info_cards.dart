@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:fumble/core/theme/colors.dart';
+import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -13,8 +15,7 @@ class ProfileInfoCard extends StatelessWidget {
     this.onTap,
     this.placeholder = false,
     this.editor,
-    this.shareValue,
-    this.onShareChanged,
+    this.showEditIcon = false,
   });
 
   final String title;
@@ -22,10 +23,7 @@ class ProfileInfoCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool placeholder;
   final Widget? editor;
-
-  /// When set, shows a visibility switch next to the title.
-  final bool? shareValue;
-  final ValueChanged<bool>? onShareChanged;
+  final bool showEditIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -52,18 +50,14 @@ class ProfileInfoCard extends StatelessWidget {
                     letterSpacing: 1.2,
                   ),
                 ),
-                if (shareValue != null && onShareChanged != null)
-                  Transform.scale(
-                    scale: 0.85,
-                    alignment: Alignment.centerRight,
-                    child: Switch(
-                      value: shareValue!,
-                      onChanged: onShareChanged,
-                      activeThumbColor: AppColors.background,
-                      activeTrackColor: AppColors.gold,
-                      inactiveThumbColor: AppColors.gold,
-                      inactiveTrackColor: AppColors.surfaceElevated,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                if (showEditIcon)
+                  SvgPicture.asset(
+                    AppIcons.iconEdit,
+                    width: 16,
+                    height: 16,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.warmGray,
+                      BlendMode.srcIn,
                     ),
                   ),
               ],

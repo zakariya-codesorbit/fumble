@@ -19,7 +19,6 @@ abstract final class AppColors {
   static const Color qrModule = background;
   static const Color softGray = Color(0xFF8A8A8A);
   static const Color warmGray = Color.fromRGBO(143, 132, 121, 1);
-  //Color(0xFF968D7D);
   static const Color softGrayDim = Color(0xFF5C5C5C);
   //static const Color border = Color(0x1AFFFFFF);
   static const Color border = Color(0x1EB8962E);

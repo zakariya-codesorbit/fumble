@@ -13,7 +13,6 @@ import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/profile_header.dart';
-import 'package:fumble/view/screens/my_fumble_screen/components/profile_info_cards.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -35,7 +34,7 @@ class MyFumbleScreen extends ConsumerWidget {
           title: AppConstant.brand,
           brandTitle: true,
           leading: IconButton(
-            icon: const Icon(AppIcons.settings, color: AppColors.white),
+            icon: const Icon(AppIcons.settings, color: AppColors.warmGray),
             onPressed: () => push(AppRoutes.settings),
           ),
         ),
@@ -73,7 +72,6 @@ class _ProfileBody extends ConsumerStatefulWidget {
 class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _name;
   late final TextEditingController _bio;
-  late final TextEditingController _phone;
   late bool _sharePhone;
   late bool _shareEmail;
   String? _active;
@@ -109,7 +107,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     routeObserver.unsubscribe(this);
     _name.dispose();
     _bio.dispose();
-    _phone.dispose();
     super.dispose();
   }
 
@@ -122,7 +119,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _bindControllers(UserProfile profile) {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
-    _phone = TextEditingController(text: profile.phone ?? '');
     _sharePhone = profile.sharePhone;
     _shareEmail = profile.shareEmail;
   }
@@ -130,7 +126,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _applyProfile(UserProfile profile) {
     _name.text = profile.name;
     _bio.text = profile.bio ?? '';
-    _phone.text = profile.phone ?? '';
     _sharePhone = profile.sharePhone;
     _shareEmail = profile.shareEmail;
   }
@@ -150,7 +145,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final profile = widget.profile;
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
-        _phone.text.trim() != (profile.phone ?? '').trim() ||
         _sharePhone != profile.sharePhone ||
         _shareEmail != profile.shareEmail;
   }
@@ -192,140 +186,69 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final memberSince = profile.createdAt != null
         ? DateFormat('MMMM yyyy').format(profile.createdAt!)
         : null;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          ProfileHeader(
-            name: profile.name,
-            photoUrl: edit.displayPhotoUrl(profile),
-            localFile: edit.localPhoto,
-            svg: edit.avatarSvg,
-            heading: AppConstant.firstNamefumble(profile.firstName),
-            editingName: _active == 'name',
-            nameController: _name,
-            onNameTap: () => _openField('name'),
-            onNameChanged: (_) => setState(() {}),
-            onNameTapOutside: () => _closeIfStill('name'),
-            onPhotoTap: () => actions.showPhotoSheet(context),
-          ),
-          18.height,
-          _field(
-            keyName: 'bio',
-            title: AppConstant.bioLabel,
-            controller: _bio,
-            placeholder: AppConstant.addBio,
-            maxLine: 3,
-          ),
-          12.height,
-          _field(
-            keyName: 'phone',
-            title: AppConstant.phoneLabel,
-            controller: _phone,
-            placeholder: AppConstant.addPhone,
-            keyboardType: TextInputType.phone,
-            shareValue: _sharePhone,
-            onShareChanged: (value) => setState(() => _sharePhone = value),
-          ),
-          12.height,
-          ProfileInfoCard(
-            title: AppConstant.emailLabel,
-            body: profile.email.trim().isNotEmpty
-                ? profile.email.trim()
-                : AppConstant.emailHint,
-            placeholder: profile.email.trim().isEmpty,
-            shareValue: _shareEmail,
-            onShareChanged: (value) => setState(() => _shareEmail = value),
-          ),
-          if (showSave) ...[
-            16.height,
-            PrimaryButton(
-              buttonName: AppConstant.save,
-              isLoading: edit.isSaving,
-              onPressed: () => actions.save(
-                name: _name.text,
-                bio: _bio.text,
-                phone: _phone.text,
-                sharePhone: _sharePhone,
-                shareEmail: _shareEmail,
-              ),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                ProfileHeader(
+                  name: profile.name,
+                  photoUrl: edit.displayPhotoUrl(profile),
+                  localFile: edit.localPhoto,
+                  svg: edit.avatarSvg,
+                  bio: _bio.text,
+                  phone: profile.phone,
+                  email: profile.email,
+                  sharePhone: _sharePhone,
+                  shareEmail: _shareEmail,
+                  editingName: _active == 'name',
+                  editingBio: _active == 'bio',
+                  nameController: _name,
+                  bioController: _bio,
+                  onNameTap: () => _openField('name'),
+                  onNameChanged: (_) => setState(() {}),
+                  onNameTapOutside: () => _closeIfStill('name'),
+                  onBioTap: () => _openField('bio'),
+                  onBioChanged: (_) => setState(() {}),
+                  onBioTapOutside: () => _closeIfStill('bio'),
+                  onPhotoTap: () => actions.showPhotoSheet(context),
+                  onSharePhoneChanged: (value) =>
+                      setState(() => _sharePhone = value),
+                  onShareEmailChanged: (value) =>
+                      setState(() => _shareEmail = value),
+                ),
+                if (showSave) ...[
+                  16.height,
+                  PrimaryButton(
+                    buttonName: AppConstant.save,
+                    isLoading: edit.isSaving,
+                    onPressed: () => actions.save(
+                      name: _name.text,
+                      bio: _bio.text,
+                      phone: profile.phone ?? '',
+                      sharePhone: _sharePhone,
+                      shareEmail: _shareEmail,
+                    ),
+                  ),
+                ],
+                24.height,
+              ],
             ),
-          ],
-          if (memberSince != null) ...[
-            28.height,
-            AppConstant.memberSinceLabel(memberSince).toText(
+          ),
+        ),
+        if (memberSince != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            child: AppConstant.memberSinceLabel(memberSince).toText(
               fontSize: 12,
               fontWeight: AppStyle.w500,
-              color: AppColors.softGray,
+              color: AppColors.tertiaryText,
+              textAlign: TextAlign.center,
             ),
-          ],
-          40.height,
-        ],
-      ),
-    );
-  }
-
-  Widget _field({
-    required String keyName,
-    required String title,
-    required TextEditingController controller,
-    required String placeholder,
-    int maxLine = 1,
-    TextInputType? keyboardType,
-    bool? shareValue,
-    ValueChanged<bool>? onShareChanged,
-  }) {
-    final text = controller.text.trim();
-    final editing = _active == keyName;
-    return ProfileInfoCard(
-      title: title,
-      body: text.isNotEmpty ? text : placeholder,
-      placeholder: text.isEmpty,
-      onTap: editing ? null : () => _openField(keyName),
-      shareValue: shareValue,
-      onShareChanged: onShareChanged,
-      editor: editing
-          ? _inlineField(
-              fieldKey: keyName,
-              controller: controller,
-              hint: placeholder,
-              maxLine: maxLine,
-              keyboardType: keyboardType,
-            )
-          : null,
-    );
-  }
-
-  Widget _inlineField({
-    required String fieldKey,
-    required TextEditingController controller,
-    required String hint,
-    int maxLine = 1,
-    TextInputType? keyboardType,
-  }) {
-    return TextField(
-      controller: controller,
-      autofocus: true,
-      maxLines: maxLine,
-      keyboardType: keyboardType,
-      cursorColor: AppColors.gold,
-      style: TextStyle(
-        fontSize: 16,
-        color: AppColors.secondaryText,
-        fontFamilyFallback: AppStyle.fontFamilyFallback,
-      ),
-      onChanged: (_) => setState(() {}),
-      onTapOutside: (_) => _closeIfStill(fieldKey),
-      decoration: InputDecoration(
-        isDense: true,
-        filled: false,
-        hintText: hint,
-        contentPadding: EdgeInsets.zero,
-        border: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
-      ),
+          ),
+      ],
     );
   }
 }

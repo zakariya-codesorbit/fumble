@@ -48,6 +48,10 @@ class AppIcons {
   static const IconData peopleOutline = Icons.people_outline_rounded;
   static const IconData refresh = Icons.refresh_rounded;
   static const IconData add = Icons.add;
+  static const IconData toggleOff = Icons.toggle_off_outlined;
+  static const IconData toggleOn = Icons.toggle_on_outlined;
+  static const IconData eyeClosed = Icons.visibility_off_sharp;
+  static const IconData eyeOpened = Icons.visibility_sharp;
 }
 
 class AppImages {

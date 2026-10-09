@@ -289,7 +289,8 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: AppStyle.w400,
-                  color: AppColors.white,
+                  color: AppColors.tertiaryText,
+                  fontFamily: AppStyle.fontFamily,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
                 inputFormatters: [

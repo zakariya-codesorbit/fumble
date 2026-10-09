@@ -105,7 +105,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: AppStyle.w400,
-            color: AppColors.white,
+            color: AppColors.tertiaryText,
+            fontFamily: AppStyle.fontFamily,
             fontFamilyFallback: AppStyle.fontFamilyFallback,
           ),
           inputFormatters: [
@@ -137,7 +138,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           _obscure
                               ? AppIcons.visibilityOn
                               : AppIcons.visibilityOff,
-                          color: AppColors.softGray,
+                          color: AppColors.tertiaryText,
                         ),
                       )
                     : null),
