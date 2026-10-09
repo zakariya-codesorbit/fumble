@@ -13,7 +13,6 @@ import '../../data/repositories/fumble_code_repository.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/fumble/fumble_service.dart';
-import '../../services/notifications/notification_service.dart';
 import '../../services/offline/connection_sync.dart';
 import '../../services/offline/offline_fumble_queue.dart';
 import '../../services/storage/profile_photo_service.dart';
@@ -46,13 +45,6 @@ final connectionRepositoryProvider = Provider<ConnectionRepository>((ref) {
 
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(userRepository: ref.read(userRepositoryProvider));
-});
-
-final notificationServiceProvider = Provider<NotificationService>((ref) {
-  return NotificationService(
-    users: ref.read(userRepositoryProvider),
-    auth: ref.read(authServiceProvider),
-  );
 });
 
 final profilePhotoServiceProvider = Provider<ProfilePhotoService>((ref) {
@@ -89,10 +81,9 @@ final connectionSyncProvider = Provider<ConnectionSync>((ref) {
   return sync;
 });
 
-/// Registers FCM and starts offline sync once the provider graph exists.
+/// Starts offline sync once the provider graph exists.
 /// The queue object is stable, so this does not need to rebuild [FumbleService].
 final appStartupProvider = Provider<void>((ref) {
-  ref.read(notificationServiceProvider).initialize();
   ref.read(offlineQueueProvider).start();
   ref.read(connectionSyncProvider).start();
   ref.listen(currentUserProfileProvider, (_, next) {

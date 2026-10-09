@@ -9,7 +9,6 @@ import 'package:fumble/data/models/fumble_preview.dart';
 import 'package:fumble/services/analytics/analytics_service.dart';
 import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/services/network/connection_manager.dart';
-import 'package:fumble/services/notifications/notification_service.dart';
 import 'package:fumble/state/notifiers/bottom_navigation_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/constant.dart';
@@ -55,9 +54,6 @@ class FumbleState {
 }
 
 class FumbleNotifier extends Notifier<FumbleState> {
-  NotificationService get _notifications =>
-      ref.read(notificationServiceProvider);
-
   @override
   FumbleState build() => const FumbleState();
 
@@ -211,7 +207,6 @@ class FumbleNotifier extends Notifier<FumbleState> {
       }
       unawaited(AnalyticsService.instance.logFumbleConfirmed());
       unawaited(AnalyticsService.instance.logConnectionCreated());
-      unawaited(_notifications.requestPermissionIfNeeded());
       state = state.copyWith(isConnecting: false, connectionSaved: true);
     } catch (_) {
       if (state.preview?.peerUid == preview.peerUid) {

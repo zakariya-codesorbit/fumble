@@ -117,14 +117,6 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    final uid = currentUser?.uid;
-    if (uid != null) {
-      try {
-        await _users
-            .updateUserFcmToken(uid, null)
-            .timeout(const Duration(seconds: 2));
-      } catch (_) {/* best effort — never block sign-out */}
-    }
     await _auth.signOut();
     try {
       await LocalPrefs.clearUserProfile();

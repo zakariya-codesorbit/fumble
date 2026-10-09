@@ -23,7 +23,7 @@ Firebase project: `fumble-d3387`.
 - Connections list (local-first + Firebase sync)
 - Settings: share phone/email, account actions
 - Offline scan/save + online enrich/sync
-- Firebase Auth, Firestore, Analytics, Crashlytics, FCM, App Check
+- Firebase Auth, Firestore, Analytics, Crashlytics, App Check
 - Dark theme only (true black + gold)
 
 ## Intentionally not used (for now)
@@ -53,7 +53,7 @@ firebase deploy --only firestore:rules
 ```
 UI (view/screens + view/widgets)
   → Riverpod providers / notifiers
-  → Services (auth, fumble, notifications, analytics)
+  → Services (auth, fumble, analytics)
   → Repositories / local SQLite queue
   → Firebase (Auth, Firestore)
 ```

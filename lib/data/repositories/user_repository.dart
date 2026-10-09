@@ -138,13 +138,6 @@ class UserRepository {
     );
   }
 
-  Future<void> updateUserFcmToken(String uid, String? token) async {
-    await _userRef(uid).set({
-      'fcmToken': token,
-      'lastActiveAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
-
   Future<void> updateUserLastActive(String uid) async {
     await _userRef(uid).set({
       'lastActiveAt': FieldValue.serverTimestamp(),

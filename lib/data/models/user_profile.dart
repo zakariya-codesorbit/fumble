@@ -15,7 +15,6 @@ class UserProfile {
     this.shareEmail = true,
     this.createdAt,
     this.lastActiveAt,
-    this.fcmToken,
   });
 
   final String uid;
@@ -31,7 +30,6 @@ class UserProfile {
   final bool shareEmail;
   final DateTime? createdAt;
   final DateTime? lastActiveAt;
-  final String? fcmToken;
 
   String get firstName {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -73,7 +71,6 @@ class UserProfile {
       shareEmail: data['shareEmail'] as bool? ?? true,
       createdAt: _asDateTime(data['createdAt']),
       lastActiveAt: _asDateTime(data['lastActiveAt']),
-      fcmToken: data['fcmToken'] as String?,
     );
   }
 
@@ -107,7 +104,6 @@ class UserProfile {
     bool? shareEmail,
     DateTime? createdAt,
     DateTime? lastActiveAt,
-    String? fcmToken,
   }) {
     return UserProfile(
       uid: uid,
@@ -123,7 +119,6 @@ class UserProfile {
       shareEmail: shareEmail ?? this.shareEmail,
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
-      fcmToken: fcmToken ?? this.fcmToken,
     );
   }
 

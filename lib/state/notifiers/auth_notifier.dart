@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/services/auth/auth_service.dart';
-import 'package:fumble/services/notifications/notification_service.dart';
 import 'package:fumble/state/notifiers/bottom_navigation_notifier.dart';
 import 'package:fumble/state/notifiers/onboarding_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
@@ -54,9 +53,6 @@ class AuthUiState {
 class AuthNotifier extends Notifier<AuthUiState> {
   AuthService get _auth => ref.read(authServiceProvider);
 
-  NotificationService get _notifications =>
-      ref.read(notificationServiceProvider);
-
   int _eventId = 0;
 
   @override
@@ -99,11 +95,6 @@ class AuthNotifier extends Notifier<AuthUiState> {
     if (state.isLoading) return;
     state = state.copyWith(isLoading: true);
     try {
-      try {
-        await _notifications
-            .clearTokenOnLogout()
-            .timeout(const Duration(seconds: 2));
-      } catch (_) {/* ignore */}
       try {
         await _auth.logout();
       } catch (_) {
