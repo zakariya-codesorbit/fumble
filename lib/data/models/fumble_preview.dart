@@ -1,8 +1,8 @@
 class FumblePreview {
   const FumblePreview({
-    required this.fumbleCode,
     required this.name,
     this.peerUid = '',
+    this.fumbleCode = '',
     this.email,
     this.photoUrl,
     this.bio,
@@ -10,12 +10,14 @@ class FumblePreview {
     this.location,
     this.phone,
     this.createdAt,
+    this.enriched = false,
   });
 
-  final String fumbleCode;
   final String name;
-  /// Empty until Firebase enrich resolves the public card.
+  /// Peer Firebase uid from QR (available offline).
   final String peerUid;
+  /// Optional public code (filled when online card is loaded).
+  final String fumbleCode;
   final String? email;
   final String? photoUrl;
   final String? bio;
@@ -23,6 +25,8 @@ class FumblePreview {
   final String? location;
   final String? phone;
   final DateTime? createdAt;
+  /// True after online public-card fields were merged in.
+  final bool enriched;
 
   bool get isResolved => peerUid.trim().isNotEmpty;
 
@@ -42,9 +46,9 @@ class FumblePreview {
       } catch (_) {}
     }
     return FumblePreview(
-      fumbleCode: (data['fumbleCode'] as String?)?.trim().toUpperCase() ?? '',
       name: (data['name'] as String?)?.trim() ?? '',
       peerUid: (data['uid'] as String?)?.trim() ?? '',
+      fumbleCode: (data['fumbleCode'] as String?)?.trim().toUpperCase() ?? '',
       email: shareEmail && email != null && email.isNotEmpty ? email : null,
       photoUrl: data['photoUrl'] as String?,
       bio: _blankToNull(data['bio'] as String?),
@@ -52,6 +56,7 @@ class FumblePreview {
       location: _blankToNull(data['location'] as String?),
       phone: sharePhone && phone != null && phone.isNotEmpty ? phone : null,
       createdAt: createdAt,
+      enriched: true,
     );
   }
 
@@ -80,9 +85,9 @@ class FumblePreview {
       value != null && value.trim().isNotEmpty;
 
   FumblePreview copyWith({
-    String? fumbleCode,
     String? name,
     String? peerUid,
+    String? fumbleCode,
     String? email,
     String? photoUrl,
     String? bio,
@@ -90,6 +95,7 @@ class FumblePreview {
     String? location,
     String? phone,
     DateTime? createdAt,
+    bool? enriched,
     bool clearEmail = false,
     bool clearPhotoUrl = false,
     bool clearBio = false,
@@ -99,9 +105,9 @@ class FumblePreview {
     bool clearCreatedAt = false,
   }) {
     return FumblePreview(
-      fumbleCode: fumbleCode ?? this.fumbleCode,
       name: name ?? this.name,
       peerUid: peerUid ?? this.peerUid,
+      fumbleCode: fumbleCode ?? this.fumbleCode,
       email: clearEmail ? null : (email ?? this.email),
       photoUrl: clearPhotoUrl ? null : (photoUrl ?? this.photoUrl),
       bio: clearBio ? null : (bio ?? this.bio),
@@ -109,6 +115,7 @@ class FumblePreview {
       location: clearLocation ? null : (location ?? this.location),
       phone: clearPhone ? null : (phone ?? this.phone),
       createdAt: clearCreatedAt ? null : (createdAt ?? this.createdAt),
+      enriched: enriched ?? this.enriched,
     );
   }
 }

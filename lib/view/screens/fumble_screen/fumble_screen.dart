@@ -117,7 +117,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
     final payload = _payloadFor(profile);
     final qrKey = profile == null
         ? null
-        : ValueKey('qr_${profile.fumbleCode}_${profile.name}');
+        : ValueKey('qr_${profile.uid}_${profile.name}');
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -198,8 +198,8 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
   String? _payloadFor(UserProfile? profile) {
     if (profile == null) return null;
     final name = profile.name.trim();
-    final code = profile.fumbleCode.trim();
-    if (code.isEmpty || name.isEmpty) return null;
-    return FumbleQr.build(fumbleCode: code, name: name);
+    final uid = profile.uid.trim();
+    if (uid.isEmpty || name.isEmpty) return null;
+    return FumbleQr.build(userId: uid, name: name);
   }
 }

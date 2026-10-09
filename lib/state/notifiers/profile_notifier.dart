@@ -225,7 +225,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
   }
 
   String qrPayload(UserProfile profile) => FumbleQr.build(
-    fumbleCode: profile.fumbleCode,
+    userId: profile.uid,
     name: profile.name,
   );
 

@@ -140,6 +140,59 @@ class ConnectionRepository {
     return true;
   }
 
+  /// Updates the private note on an existing local connection and syncs.
+  Future<void> updateConnectionNote({
+    required String ownerUid,
+    required String peerUid,
+    required String note,
+  }) async {
+    final existing = await _local.loadSingleConnection(
+      ownerUid: ownerUid,
+      peerUid: peerUid,
+    );
+    if (existing == null) return;
+
+    final trimmed = note.trim();
+    final updated = existing.copyWith(
+      note: trimmed.isEmpty ? null : trimmed,
+      clearNote: trimmed.isEmpty,
+      updatedAt: DateTime.now(),
+      syncStatus: SyncStatus.pending,
+    );
+    await _local.saveConnection(ownerUid, updated);
+    _changes.add(ownerUid);
+    unawaited(syncConnections(ownerUid));
+  }
+
+  /// Merges public-card fields into a locally saved offline connection.
+  Future<void> enrichLocalConnection({
+    required String ownerUid,
+    required FumblePreview preview,
+  }) async {
+    if (ownerUid.isEmpty || !preview.isResolved) return;
+    final existing = await _local.loadSingleConnection(
+      ownerUid: ownerUid,
+      peerUid: preview.peerUid,
+    );
+    if (existing == null) return;
+
+    final updated = existing.copyWith(
+      name: preview.name.trim().isNotEmpty ? preview.name.trim() : existing.name,
+      email: preview.email?.trim() ?? existing.email,
+      photoUrl: preview.photoUrl ?? existing.photoUrl,
+      bio: RepoUtils.blankToNull(preview.bio) ?? existing.bio,
+      location: RepoUtils.blankToNull(preview.location) ?? existing.location,
+      phone: RepoUtils.blankToNull(preview.phone) ?? existing.phone,
+      sharePhone: RepoUtils.filled(preview.phone) || existing.sharePhone,
+      shareEmail: RepoUtils.filled(preview.email) || existing.shareEmail,
+      updatedAt: DateTime.now(),
+      syncStatus: SyncStatus.pending,
+    );
+    await _local.saveConnection(ownerUid, updated);
+    _changes.add(ownerUid);
+    unawaited(syncConnections(ownerUid));
+  }
+
   /// Pushes pending local rows to Firestore, then pulls remote updates.
   Future<void> syncConnections(String ownerUid) async {
     if (ownerUid.isEmpty) return;

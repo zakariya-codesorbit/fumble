@@ -104,8 +104,9 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
       );
     }
 
-    final showDetails = _online && preview.isResolved;
-    final showShimmer = _online && fumble.isLoadingPreview && !preview.isResolved;
+    final showDetails = _online && preview.enriched;
+    final showShimmer =
+        _online && fumble.isLoadingPreview && !preview.enriched;
     final phoneText = showDetails ? (preview.phone?.trim() ?? '') : '';
     final emailText = showDetails ? (preview.email?.trim() ?? '') : '';
     final bioText = showDetails ? (preview.bio?.trim() ?? '') : '';
@@ -121,7 +122,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
           title: AppConstant.brand,
           brandTitle: true,
           showBack: true,
-          onBack: fumble.isConfirming ? null : actions.cancel,
+          onBack: fumble.isSavingNote ? null : actions.cancel,
         ),
         body: Column(
           children: [
@@ -182,7 +183,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                       placeholder: true,
                       editor: TextField(
                         controller: _note,
-                        enabled: !fumble.isConfirming,
+                        enabled: !fumble.isSavingNote,
                         maxLines: 4,
                         cursorColor: AppColors.gold,
                         style: TextStyle(
@@ -229,9 +230,9 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                 padding: EdgeInsets.fromLTRB(24, 8, 24, 24.h),
                 child: PrimaryButton(
                   buttonName: AppConstant.done,
-                  onPressed: fumble.isConfirming
+                  onPressed: fumble.isSavingNote
                       ? null
-                      : () => actions.confirm(note: _note.text),
+                      : () => actions.saveNoteAndFinish(note: _note.text),
                 ),
               ),
           ],

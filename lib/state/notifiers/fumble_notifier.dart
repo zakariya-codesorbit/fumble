@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
-import 'package:fumble/data/db/local_prefs.dart';
 import 'package:fumble/data/models/fumble_preview.dart';
 import 'package:fumble/services/analytics/analytics_service.dart';
 import 'package:fumble/services/location/fumble_location_service.dart';
@@ -21,28 +20,36 @@ import '../../services/fumble/fumble_qr.dart';
 class FumbleState {
   const FumbleState({
     this.preview,
-    this.isConfirming = false,
     this.isHandlingScan = false,
     this.isLoadingPreview = false,
+    this.isConnecting = false,
+    this.isSavingNote = false,
+    this.connectionSaved = false,
   });
 
   final FumblePreview? preview;
-  final bool isConfirming;
   final bool isHandlingScan;
   final bool isLoadingPreview;
+  final bool isConnecting;
+  final bool isSavingNote;
+  final bool connectionSaved;
 
   FumbleState copyWith({
     FumblePreview? preview,
     bool clearPreview = false,
-    bool? isConfirming,
     bool? isHandlingScan,
     bool? isLoadingPreview,
+    bool? isConnecting,
+    bool? isSavingNote,
+    bool? connectionSaved,
   }) {
     return FumbleState(
       preview: clearPreview ? null : (preview ?? this.preview),
-      isConfirming: isConfirming ?? this.isConfirming,
       isHandlingScan: isHandlingScan ?? this.isHandlingScan,
       isLoadingPreview: isLoadingPreview ?? this.isLoadingPreview,
+      isConnecting: isConnecting ?? this.isConnecting,
+      isSavingNote: isSavingNote ?? this.isSavingNote,
+      connectionSaved: connectionSaved ?? this.connectionSaved,
     );
   }
 }
@@ -59,7 +66,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
     push(AppRoutes.fumbleScanner);
   }
 
-  /// Local-only QR decode for a fast scan. Firebase runs on the preview screen.
+  /// Local-only QR decode. Connects offline via peer uid; Firebase enriches online.
   Future<bool> resolveScan(String raw) async {
     if (state.isHandlingScan) return false;
 
@@ -78,23 +85,30 @@ class FumbleNotifier extends Notifier<FumbleState> {
 
     state = state.copyWith(isHandlingScan: true);
     try {
-      final mine = ref.read(currentUserProfileProvider).valueOrNull ??
-          await LocalPrefs.loadUserProfile();
-      final myCode = mine?.fumbleCode.trim().toUpperCase() ?? '';
-      if (myCode.isNotEmpty && myCode == payload.fumbleCode) {
+      if (payload.userId == uid) {
         showAppToast(AppConstant.cannotFumbleSelf, isError: true);
         return false;
       }
 
-      // Instant preview: name (+ code) only. Details load on the preview screen.
+      final already = await ref
+          .read(connectionRepositoryProvider)
+          .hasLocalConnection(ownerUid: uid, peerUid: payload.userId);
+      if (already) {
+        showAppToast(AppConstant.alreadyConnected, isError: true);
+        return false;
+      }
+
       state = state.copyWith(
         preview: FumblePreview(
-          fumbleCode: payload.fumbleCode,
           name: payload.name,
+          peerUid: payload.userId,
         ),
+        connectionSaved: false,
       );
       unawaited(AnalyticsService.instance.logQrScanned());
       unawaited(AnalyticsService.instance.logFumblePreviewViewed());
+      // Local save immediately (works offline). Cloud sync when online.
+      unawaited(autoConnect());
       return true;
     } catch (e) {
       showAppToast(AppConstant.invalidQr, isError: true);
@@ -104,22 +118,26 @@ class FumbleNotifier extends Notifier<FumbleState> {
     }
   }
 
-  /// Loads full public card after preview opens (online only).
+  /// Loads full public card when online (by peer uid). Connect is separate.
   Future<void> loadPreviewDetails() async {
     final preview = state.preview;
-    if (preview == null || preview.fumbleCode.isEmpty) return;
+    if (preview == null || !preview.isResolved) return;
     if (!ConnectionManager().isConnected) return;
     if (state.isLoadingPreview) return;
+    if (preview.enriched) {
+      if (!state.connectionSaved) await autoConnect();
+      return;
+    }
 
     state = state.copyWith(isLoadingPreview: true);
     try {
       final card = await ref
           .read(fumbleCodeRepositoryProvider)
-          .loadPublicCardByCode(preview.fumbleCode)
+          .loadPublicProfile(preview.peerUid)
           .timeout(const Duration(seconds: 8));
-      if (state.preview?.fumbleCode != preview.fumbleCode) return;
+      if (state.preview?.peerUid != preview.peerUid) return;
       if (card == null) {
-        showAppToast(AppConstant.fumbleCodeNotFound, isError: true);
+        if (!state.connectionSaved) await autoConnect();
         return;
       }
 
@@ -129,74 +147,54 @@ class FumbleNotifier extends Notifier<FumbleState> {
         cancel();
         return;
       }
-      if (uid != null) {
-        final already = await ref
-            .read(connectionRepositoryProvider)
-            .hasLocalConnection(ownerUid: uid, peerUid: card.uid);
-        if (already) {
-          showAppToast(AppConstant.alreadyConnected, isError: true);
-          cancel();
-          return;
-        }
-      }
 
-      state = state.copyWith(
-        preview: FumblePreview(
-          fumbleCode: preview.fumbleCode,
-          name: card.name.isNotEmpty ? card.name : preview.name,
-          peerUid: card.uid,
-          email: card.shareEmail ? card.email : null,
-          photoUrl: card.photoUrl,
-          bio: card.bio,
-          aboutMe: card.aboutMe,
-          location: card.location,
-          phone: card.sharePhone ? card.phone : null,
-          createdAt: card.createdAt,
-        ),
+      final enriched = FumblePreview(
+        name: card.name.isNotEmpty ? card.name : preview.name,
+        peerUid: card.uid.isNotEmpty ? card.uid : preview.peerUid,
+        email: card.shareEmail ? card.email : null,
+        photoUrl: card.photoUrl,
+        bio: card.bio,
+        aboutMe: card.aboutMe,
+        location: card.location,
+        phone: card.sharePhone ? card.phone : null,
+        createdAt: card.createdAt,
+        enriched: true,
       );
+      state = state.copyWith(preview: enriched);
+      if (uid != null && state.connectionSaved) {
+        unawaited(
+          ref.read(connectionRepositoryProvider).enrichLocalConnection(
+                ownerUid: uid,
+                preview: enriched,
+              ),
+        );
+      }
+      if (!state.connectionSaved) await autoConnect();
     } catch (_) {
-      // Stay on name-only preview if Firebase fails.
+      if (!state.connectionSaved) await autoConnect();
     } finally {
-      if (state.preview?.fumbleCode == preview.fumbleCode) {
+      if (state.preview?.peerUid == preview.peerUid) {
         state = state.copyWith(isLoadingPreview: false);
       }
     }
   }
 
-  /// Saves the preview locally first. Firebase sync continues in the background.
-  Future<void> confirm({String? note}) async {
-    var preview = state.preview;
-    if (preview == null) {
-      pop();
-      return;
-    }
-    if (state.isConfirming) return;
+  /// Saves locally first (offline OK). Firebase sync runs via ConnectionSync.
+  Future<void> autoConnect() async {
+    final preview = state.preview;
+    if (preview == null || !preview.isResolved) return;
+    if (state.connectionSaved || state.isConnecting) return;
 
     final uid = ref.read(authServiceProvider).currentUser?.uid;
-    if (uid == null) {
-      showAppToast(AppConstant.authPleaseLogIn, isError: true);
+    if (uid == null) return;
+    if (preview.peerUid == uid) {
+      showAppToast(AppConstant.cannotFumbleSelf, isError: true);
+      cancel();
       return;
     }
 
-    if (!preview.isResolved && !ConnectionManager().isConnected) {
-      showAppToast(AppConstant.previewNeedsNetwork, isError: true);
-      return;
-    }
-
-    showLoadingDialog(message: AppConstant.loading);
-    state = state.copyWith(isConfirming: true);
+    state = state.copyWith(isConnecting: true);
     try {
-      if (!preview.isResolved) {
-        await loadPreviewDetails();
-        preview = state.preview;
-        if (preview == null || !preview.isResolved) {
-          hideLoadingDialog();
-          state = state.copyWith(isConfirming: false);
-          showAppToast(AppConstant.fumbleCodeNotFound, isError: true);
-          return;
-        }
-      }
-
       final place = await FumbleLocationService.currentLocation();
       final created = await ref
           .read(connectionRepositoryProvider)
@@ -204,23 +202,73 @@ class FumbleNotifier extends Notifier<FumbleState> {
             ownerUid: uid,
             preview: preview,
             fumbleLocation: place,
-            note: note,
           );
+      if (state.preview?.peerUid != preview.peerUid) return;
       if (!created) {
-        hideLoadingDialog();
-        state = state.copyWith(isConfirming: false);
         showAppToast(AppConstant.alreadyConnected, isError: true);
+        cancel();
         return;
       }
       unawaited(AnalyticsService.instance.logFumbleConfirmed());
       unawaited(AnalyticsService.instance.logConnectionCreated());
       unawaited(_notifications.requestPermissionIfNeeded());
-      hideLoadingDialog();
-      state = state.copyWith(isConfirming: false);
+      state = state.copyWith(isConnecting: false, connectionSaved: true);
+    } catch (_) {
+      if (state.preview?.peerUid == preview.peerUid) {
+        state = state.copyWith(isConnecting: false);
+      }
+      showAppToast(AppConstant.somethingWrong, isError: true);
+    }
+  }
+
+  /// Done is only for attaching a note, then leaving.
+  Future<void> saveNoteAndFinish({required String note}) async {
+    final trimmed = note.trim();
+    if (trimmed.isEmpty) {
       finish(openConnections: true);
-    } catch (e) {
+      return;
+    }
+    if (state.isSavingNote) return;
+
+    var preview = state.preview;
+    if (preview == null) {
+      finish(openConnections: true);
+      return;
+    }
+
+    final uid = ref.read(authServiceProvider).currentUser?.uid;
+    if (uid == null) {
+      showAppToast(AppConstant.authPleaseLogIn, isError: true);
+      return;
+    }
+
+    showLoadingDialog(message: AppConstant.loading);
+    state = state.copyWith(isSavingNote: true);
+    try {
+      if (!state.connectionSaved) {
+        await autoConnect();
+        preview = state.preview;
+        if (preview == null ||
+            !preview.isResolved ||
+            !state.connectionSaved) {
+          hideLoadingDialog();
+          state = state.copyWith(isSavingNote: false);
+          showAppToast(AppConstant.somethingWrong, isError: true);
+          return;
+        }
+      }
+
+      await ref.read(connectionRepositoryProvider).updateConnectionNote(
+            ownerUid: uid,
+            peerUid: preview.peerUid,
+            note: trimmed,
+          );
       hideLoadingDialog();
-      state = state.copyWith(isConfirming: false);
+      state = state.copyWith(isSavingNote: false);
+      finish(openConnections: true);
+    } catch (_) {
+      hideLoadingDialog();
+      state = state.copyWith(isSavingNote: false);
       showAppToast(AppConstant.somethingWrong, isError: true);
     }
   }
@@ -242,7 +290,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
     return switch (error) {
       QrDecodeError.malformed => AppConstant.malformedQr,
       QrDecodeError.unsupportedVersion => AppConstant.unsupportedQrVersion,
-      QrDecodeError.missingFumbleCode => AppConstant.qrMissingFumbleCode,
+      QrDecodeError.missingUserId => AppConstant.qrMissingUserId,
       QrDecodeError.missingName => AppConstant.qrMissingName,
       QrDecodeError.invalid || null => AppConstant.invalidQr,
     };

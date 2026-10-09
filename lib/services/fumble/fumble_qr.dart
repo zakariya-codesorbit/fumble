@@ -7,13 +7,13 @@ import 'package:fumble/core/config/app_config.dart';
 
 /// Versioned QR payload. Generation and validation do not touch Firebase.
 ///
-/// Payload is intentionally tiny for fast scans: fumble code + name only.
-/// The Fumble app decrypts with the shared app key before reading fields.
+/// Tiny payload for fast scans: user id + name.
+/// Offline connect and online enrich both use [userId].
 abstract final class FumbleQr {
-  /// v2 = fumbleCode + name only (current).
-  static const int version = 2;
+  /// v4 = userId + name.
+  static const int version = 4;
 
-  /// Wire prefix for encrypted payloads: `fumble:2.<payload>`.
+  /// Wire prefix for encrypted payloads: `fumble:4.<payload>`.
   static const String _wirePrefix = '${AppConfig.qrPrefix}$version.';
 
   static final enc.Key _key = enc.Key.fromUtf8(AppConfig.qrSecret);
@@ -22,74 +22,72 @@ abstract final class FumbleQr {
   );
 
   static String build({
-    required String fumbleCode,
+    required String userId,
     required String name,
   }) {
-    final code = fumbleCode.trim().toUpperCase();
-    final trimmedName = name.trim();
     final payload = <String, dynamic>{
       'version': version,
-      'fumbleCode': code,
-      'name': trimmedName,
+      'userId': userId.trim(),
+      'name': name.trim(),
     };
     return _encrypt(jsonEncode(payload));
   }
 
-  static fumbleQrDecodeResult decode(String raw) {
+  static FumbleQrDecodeResult decode(String raw) {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.invalid);
+      return const FumbleQrDecodeResult.error(QrDecodeError.invalid);
     }
 
     final plain = _decryptIfNeeded(trimmed);
     if (plain == null) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.invalid);
+      return const FumbleQrDecodeResult.error(QrDecodeError.invalid);
     }
 
     final Object? decoded;
     try {
       decoded = jsonDecode(plain);
     } catch (_) {
-      return fumbleQrDecodeResult.error(
+      return FumbleQrDecodeResult.error(
         plain.startsWith('{')
             ? QrDecodeError.malformed
             : QrDecodeError.invalid,
       );
     }
     if (decoded is! Map) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
+      return const FumbleQrDecodeResult.error(QrDecodeError.malformed);
     }
 
     final map = <String, dynamic>{};
     for (final entry in decoded.entries) {
       if (entry.key is! String) {
-        return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
+        return const FumbleQrDecodeResult.error(QrDecodeError.malformed);
       }
       map[entry.key as String] = entry.value;
     }
 
     if (!map.containsKey('version') || map['version'] is! int) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
+      return const FumbleQrDecodeResult.error(QrDecodeError.malformed);
     }
     final versionValue = map['version'] as int;
     if (versionValue != version) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.unsupportedVersion);
+      return const FumbleQrDecodeResult.error(QrDecodeError.unsupportedVersion);
     }
 
-    final code = _requiredString(map, 'fumbleCode');
-    if (code == null || code.isEmpty) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.missingFumbleCode);
+    final userId = _requiredString(map, 'userId');
+    if (userId == null || userId.isEmpty) {
+      return const FumbleQrDecodeResult.error(QrDecodeError.missingUserId);
     }
 
     final name = _requiredString(map, 'name');
     if (name == null || name.isEmpty) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.missingName);
+      return const FumbleQrDecodeResult.error(QrDecodeError.missingName);
     }
 
-    return fumbleQrDecodeResult.success(
-      fumbleQrPayload(
+    return FumbleQrDecodeResult.success(
+      FumbleQrPayload(
         version: versionValue,
-        fumbleCode: code.toUpperCase(),
+        userId: userId,
         name: name,
       ),
     );
@@ -102,7 +100,7 @@ abstract final class FumbleQr {
     return '$_wirePrefix${base64UrlEncode(bytes)}';
   }
 
-  /// Decrypts `fumble:2.…` (and legacy `fumble:1.…`) payloads.
+  /// Decrypts `fumble:4.…` (and legacy `fumble:1.`–`fumble:3.` wire).
   static String? _decryptIfNeeded(String raw) {
     if (raw.startsWith(AppConfig.qrPrefix)) {
       final dot = raw.indexOf('.', AppConfig.qrPrefix.length);
@@ -132,15 +130,15 @@ abstract final class FumbleQr {
   }
 }
 
-class fumbleQrPayload {
-  const fumbleQrPayload({
+class FumbleQrPayload {
+  const FumbleQrPayload({
     required this.version,
-    required this.fumbleCode,
+    required this.userId,
     required this.name,
   });
 
   final int version;
-  final String fumbleCode;
+  final String userId;
   final String name;
 }
 
@@ -148,15 +146,15 @@ enum QrDecodeError {
   invalid,
   malformed,
   unsupportedVersion,
-  missingFumbleCode,
+  missingUserId,
   missingName,
 }
 
-class fumbleQrDecodeResult {
-  const fumbleQrDecodeResult.success(this.payload) : error = null;
+class FumbleQrDecodeResult {
+  const FumbleQrDecodeResult.success(this.payload) : error = null;
 
-  const fumbleQrDecodeResult.error(this.error) : payload = null;
+  const FumbleQrDecodeResult.error(this.error) : payload = null;
 
-  final fumbleQrPayload? payload;
+  final FumbleQrPayload? payload;
   final QrDecodeError? error;
 }

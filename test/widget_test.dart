@@ -38,26 +38,26 @@ void main() {
 
   test('QR payload is encrypted and round-trips through Fumble', () {
     final raw = FumbleQr.build(
-      fumbleCode: 'ABC123',
+      userId: 'uid_abc',
       name: 'Muhammad Zakariya',
     );
 
-    expect(raw.startsWith('fumble:2.'), isTrue);
-    expect(raw.contains('ABC123'), isFalse);
+    expect(raw.startsWith('fumble:4.'), isTrue);
+    expect(raw.contains('uid_abc'), isFalse);
     expect(raw.contains('Muhammad'), isFalse);
 
     final decoded = FumbleQr.decode(raw);
     expect(decoded.error, isNull);
-    expect(decoded.payload?.version, 2);
-    expect(decoded.payload?.fumbleCode, 'ABC123');
+    expect(decoded.payload?.version, 4);
+    expect(decoded.payload?.userId, 'uid_abc');
     expect(decoded.payload?.name, 'Muhammad Zakariya');
   });
 
-  test('QR payload requires fumble code and name', () {
-    final raw = FumbleQr.build(fumbleCode: 'XYZ999', name: 'Ada');
+  test('QR payload requires user id and name', () {
+    final raw = FumbleQr.build(userId: 'uid_1', name: 'Ada');
     final decoded = FumbleQr.decode(raw);
 
-    expect(decoded.payload?.fumbleCode, 'XYZ999');
+    expect(decoded.payload?.userId, 'uid_1');
     expect(decoded.payload?.name, 'Ada');
   });
 
@@ -65,19 +65,19 @@ void main() {
     expect(FumbleQr.decode('not-a-code').error, QrDecodeError.invalid);
     expect(FumbleQr.decode('{').error, QrDecodeError.malformed);
     expect(
-      FumbleQr.decode('{"version":1,"fumbleCode":"A","name":"Ada"}').error,
+      FumbleQr.decode('{"version":3,"userId":"u","name":"Ada"}').error,
       QrDecodeError.unsupportedVersion,
     );
     expect(
-      FumbleQr.decode('{"version":2,"name":"Ada"}').error,
-      QrDecodeError.missingFumbleCode,
+      FumbleQr.decode('{"version":4,"name":"Ada"}').error,
+      QrDecodeError.missingUserId,
     );
     expect(
-      FumbleQr.decode('{"version":2,"fumbleCode":"ABC"}').error,
+      FumbleQr.decode('{"version":4,"userId":"u"}').error,
       QrDecodeError.missingName,
     );
     expect(
-      FumbleQr.decode('fumble:2.not-valid-cipher').error,
+      FumbleQr.decode('fumble:4.not-valid-cipher').error,
       QrDecodeError.invalid,
     );
   });
