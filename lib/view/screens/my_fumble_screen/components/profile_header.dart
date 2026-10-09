@@ -11,6 +11,7 @@ import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/widgets/inputs/custom_text_field.dart';
+import 'package:fumble/view/widgets/inputs/custom_toggle.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -185,17 +186,9 @@ class _ContactVisibilityRow extends StatelessWidget {
         ),
         if (hasValue && onVisibilityChanged != null) ...[
           10.width,
-          GestureDetector(
-            onTap: () => onVisibilityChanged!(!visible),
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                visible ? AppIcons.toggleOff : AppIcons.toggleOn,
-                size: 22,
-                color: AppColors.gold,
-              ),
-            ),
+          CustomToggle(
+            value: visible,
+            onChanged: onVisibilityChanged!,
           ),
         ],
       ],
