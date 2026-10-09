@@ -10,7 +10,6 @@ import 'package:fumble/view/screens/connections_screen/connections_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_scanner_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_preview_screen.dart';
-import 'package:fumble/view/screens/fumble_screen/fumble_success_screen.dart';
 import 'package:fumble/view/screens/main_screen/main_screen.dart';
 import 'package:fumble/view/screens/my_fumble_screen/my_fumble_screen.dart';
 import 'package:fumble/view/screens/setting_screen/legal_webview_screen.dart';
@@ -31,7 +30,6 @@ abstract final class AppRoutes {
   static const String connections = '/connections';
   static const String fumbleScanner = '/fumble-scanner';
   static const String fumblePreview = '/fumble-preview';
-  static const String fumbleSuccess = '/fumble-success';
   static const String settings = '/settings';
   static const String privacyPolicy = '/privacy-policy';
   static const String terms = '/terms';
@@ -51,7 +49,6 @@ abstract final class AppRoutes {
     connections: (_) => const ConnectionsScreen(),
     fumbleScanner: (_) => const FumbleScannerScreen(),
     fumblePreview: (_) => const FumblePreviewScreen(),
-    fumbleSuccess: (_) => const FumbleSuccessScreen(),
     settings: (_) => const SettingScreen(),
     privacyPolicy: (_) => const LegalWebViewScreen(
       title: AppConstant.privacyPolicy,

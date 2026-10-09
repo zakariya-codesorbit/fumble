@@ -55,12 +55,14 @@ class LocalDatabase {
         email TEXT NOT NULL DEFAULT '',
         photo_url TEXT,
         bio TEXT,
+        location TEXT,
         phone TEXT,
         share_phone INTEGER NOT NULL DEFAULT 1,
         share_email INTEGER NOT NULL DEFAULT 1,
         fumble_lat REAL,
         fumble_lng REAL,
         fumble_place TEXT,
+        note TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         sync_status TEXT NOT NULL,
@@ -81,6 +83,12 @@ class LocalDatabase {
     }
     if (!names.contains('fumble_place')) {
       await db.execute('ALTER TABLE connections ADD COLUMN fumble_place TEXT');
+    }
+    if (!names.contains('note')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN note TEXT');
+    }
+    if (!names.contains('location')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN location TEXT');
     }
   }
 

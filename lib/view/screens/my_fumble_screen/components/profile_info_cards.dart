@@ -110,10 +110,11 @@ class ProfileLocationCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(AppIcons.location, size: 18, color: AppColors.gold),
+            Icon(AppIcons.location, size: 18, color: AppColors.tertiaryText),
             10.width,
             Expanded(
-              child: editor ??
+              child:
+                  editor ??
                   body.toText(
                     color: placeholder
                         ? AppColors.softGrayDim

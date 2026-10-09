@@ -83,11 +83,15 @@ abstract final class AppConstant {
   static String firstNamefumble(String firstName) =>
       '${firstName.toUpperCase()} FUMBLE';
 
+  static String youFumbled(String name) => 'You Fumbled $name';
+
   static const String connectionsTitle = 'CONNECTIONS';
   static const String connectionsEmptyTitle = 'No connections yet';
   static const String connectionsEmptyBody =
       'Tap your QR on the home tab to scan someone\'s code.';
   static const String fumbledOn = 'Fumbled';
+  static const String metAtPrefix = 'Met at';
+  static String metAt(String place) => '$metAtPrefix $place';
   static const String dataNotFound = 'No connections yet';
 
   static const String scannerHint = 'Point your camera at their Fumble code.';
@@ -119,6 +123,8 @@ abstract final class AppConstant {
       'You\'ve exchanged contact cards with $name.';
   static const String viewConnections = 'View connections';
   static const String done = 'Done';
+  static const String noteLabel = 'NOTE';
+  static const String addNote = 'Add Note';
 
   static String connectWith(String name) => 'Connect with $name';
 

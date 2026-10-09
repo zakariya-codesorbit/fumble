@@ -230,6 +230,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     bio: profile.bio,
     phone: profile.publicPhone,
     email: profile.shareEmail ? profile.email : null,
+    createdAt: profile.createdAt,
   );
 
   Future<void> call(String phone) async {

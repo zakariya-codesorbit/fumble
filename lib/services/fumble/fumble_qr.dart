@@ -26,6 +26,7 @@ abstract final class FumbleQr {
     String? bio,
     String? phone,
     String? email,
+    DateTime? createdAt,
   }) {
     final payload = <String, dynamic>{
       'version': version,
@@ -43,6 +44,9 @@ abstract final class FumbleQr {
     final trimmedEmail = email?.trim();
     if (trimmedEmail != null && trimmedEmail.isNotEmpty) {
       payload['email'] = trimmedEmail;
+    }
+    if (createdAt != null) {
+      payload['createdAt'] = createdAt.millisecondsSinceEpoch;
     }
     return _encrypt(jsonEncode(payload));
   }
@@ -125,6 +129,10 @@ abstract final class FumbleQr {
     if (email.invalid) {
       return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
     }
+    final createdAt = _optionalDateTime(map, 'createdAt');
+    if (createdAt.invalid) {
+      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
+    }
 
     return fumbleQrDecodeResult.success(
       fumbleQrPayload(
@@ -134,6 +142,7 @@ abstract final class FumbleQr {
         bio: bio.value,
         phone: phone.value,
         email: email.value,
+        createdAt: createdAt.value,
       ),
     );
   }
@@ -176,6 +185,29 @@ abstract final class FumbleQr {
     final trimmed = value.trim();
     return (value: trimmed.isEmpty ? null : trimmed, invalid: false);
   }
+
+  static ({DateTime? value, bool invalid}) _optionalDateTime(
+    Map<String, dynamic> map,
+    String key,
+  ) {
+    if (!map.containsKey(key) || map[key] == null) {
+      return (value: null, invalid: false);
+    }
+    final value = map[key];
+    if (value is int) {
+      return (
+        value: DateTime.fromMillisecondsSinceEpoch(value),
+        invalid: false,
+      );
+    }
+    if (value is num) {
+      return (
+        value: DateTime.fromMillisecondsSinceEpoch(value.toInt()),
+        invalid: false,
+      );
+    }
+    return (value: null, invalid: true);
+  }
 }
 
 class fumbleQrPayload {
@@ -186,6 +218,7 @@ class fumbleQrPayload {
     this.bio,
     this.phone,
     this.email,
+    this.createdAt,
   });
 
   final int version;
@@ -194,6 +227,7 @@ class fumbleQrPayload {
   final String? bio;
   final String? phone;
   final String? email;
+  final DateTime? createdAt;
 }
 
 enum QrDecodeError {

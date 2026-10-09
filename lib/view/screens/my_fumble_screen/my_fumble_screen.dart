@@ -250,7 +250,9 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 24.height,
                 ProfileInfoCard(
                   title: AppConstant.aboutMeLabel,
-                  body: aboutText.isNotEmpty ? aboutText : AppConstant.addAboutMe,
+                  body: aboutText.isNotEmpty
+                      ? aboutText
+                      : AppConstant.addAboutMe,
                   placeholder: aboutText.isEmpty,
                   showEditIcon: !editingAbout,
                   onTap: editingAbout ? null : () => _openField('aboutMe'),

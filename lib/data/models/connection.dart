@@ -12,7 +12,9 @@ class Connection {
     required this.email,
     this.photoUrl,
     this.bio,
+    this.location,
     this.phone,
+    this.note,
     this.sharePhone = true,
     this.shareEmail = true,
     this.fumbleLocation,
@@ -28,7 +30,11 @@ class Connection {
   final String email;
   final String? photoUrl;
   final String? bio;
+  /// Peer's profile location (city / place text).
+  final String? location;
   final String? phone;
+  /// Private note for the owner about this connection.
+  final String? note;
   final bool sharePhone;
   final bool shareEmail;
   final FumbleLocation? fumbleLocation;
@@ -62,7 +68,9 @@ class Connection {
       email: (data['email'] as String?)?.trim() ?? '',
       photoUrl: data['photoUrl'] as String?,
       bio: _blankToNull(data['bio'] as String?),
+      location: _blankToNull(data['location'] as String?),
       phone: _blankToNull(data['phone'] as String?),
+      note: _blankToNull(data['note'] as String?),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
@@ -86,7 +94,9 @@ class Connection {
       email: (row['email'] as String?)?.trim() ?? '',
       photoUrl: row['photo_url'] as String?,
       bio: _blankToNull(row['bio'] as String?),
+      location: _blankToNull(row['location'] as String?),
       phone: _blankToNull(row['phone'] as String?),
+      note: _blankToNull(row['note'] as String?),
       sharePhone: _boolFromSql(row['share_phone']),
       shareEmail: _boolFromSql(row['share_email']),
       fumbleLocation: lat is num && lng is num
@@ -113,7 +123,9 @@ class Connection {
       'email': email,
       'photo_url': photoUrl,
       'bio': bio,
+      'location': location,
       'phone': phone,
+      'note': note,
       'share_phone': sharePhone ? 1 : 0,
       'share_email': shareEmail ? 1 : 0,
       'fumble_lat': fumbleLocation?.latitude,
@@ -130,8 +142,12 @@ class Connection {
     String? email,
     String? photoUrl,
     String? bio,
+    String? location,
+    bool clearLocation = false,
     String? phone,
     bool clearPhone = false,
+    String? note,
+    bool clearNote = false,
     bool? sharePhone,
     bool? shareEmail,
     FumbleLocation? fumbleLocation,
@@ -149,7 +165,9 @@ class Connection {
       email: email ?? this.email,
       photoUrl: photoUrl ?? this.photoUrl,
       bio: bio ?? this.bio,
+      location: clearLocation ? null : (location ?? this.location),
       phone: clearPhone ? null : (phone ?? this.phone),
+      note: clearNote ? null : (note ?? this.note),
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
       fumbleLocation: clearFumbleLocation
@@ -170,7 +188,9 @@ class Connection {
         email == other.email &&
         photoUrl == other.photoUrl &&
         bio == other.bio &&
+        location == other.location &&
         phone == other.phone &&
+        note == other.note &&
         sharePhone == other.sharePhone &&
         shareEmail == other.shareEmail &&
         fumbleLocation?.latitude == other.fumbleLocation?.latitude &&

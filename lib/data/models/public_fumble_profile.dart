@@ -8,11 +8,14 @@ class PublicFumbleProfile {
     required this.email,
     this.photoUrl,
     this.bio,
+    this.aboutMe,
+    this.location,
     this.phone,
     this.sharePhone = true,
     this.shareEmail = true,
     this.fumbleLocation,
     this.fumblePlace,
+    this.createdAt,
   });
 
   final String uid;
@@ -20,9 +23,12 @@ class PublicFumbleProfile {
   final String email;
   final String? photoUrl;
   final String? bio;
+  final String? aboutMe;
+  final String? location;
   final String? phone;
   final bool sharePhone;
   final bool shareEmail;
   final FumbleLocation? fumbleLocation;
   final String? fumblePlace;
+  final DateTime? createdAt;
 }

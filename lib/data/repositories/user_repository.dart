@@ -134,6 +134,7 @@ class UserRepository {
       phone: publicPhone,
       sharePhone: nextSharePhone,
       shareEmail: nextShareEmail,
+      createdAt: current.createdAt,
     );
   }
 

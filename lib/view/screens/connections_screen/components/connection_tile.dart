@@ -72,13 +72,19 @@ class _ConnectionTileState extends State<ConnectionTile> {
     setState(() => _offset = 0);
   }
 
-  String _locationText(Connection connection) {
+  String _metAtText(Connection connection) {
     final saved = connection.fumblePlace?.trim();
-    if (saved != null && saved.isNotEmpty) return saved;
-    if (_placeLabel != null) return _placeLabel!;
+    if (saved != null && saved.isNotEmpty) {
+      return AppConstant.metAt(saved);
+    }
+    if (_placeLabel != null && _placeLabel!.trim().isNotEmpty) {
+      return AppConstant.metAt(_placeLabel!.trim());
+    }
     final loc = connection.fumbleLocation;
-    if (loc == null) return '__ __';
-    return '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°';
+    if (loc == null) return AppConstant.metAt('__ __');
+    return AppConstant.metAt(
+      '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°',
+    );
   }
 
   @override
@@ -86,10 +92,10 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final connection = widget.connection;
     final date = DateFormat('MMM d, yyyy').format(connection.fumbledAt);
     final time = DateFormat('h:mm a').format(connection.fumbledAt);
-    final phone = connection.visiblePhone;
-    final email = connection.visibleEmail;
-    final locationText = _locationText(connection);
-    final bio = connection.hasBio ? connection.bio!.trim() : '';
+    final userLocation = connection.location?.trim().isNotEmpty == true
+        ? connection.location!.trim()
+        : '__ __';
+    final note = connection.note?.trim() ?? '';
     final badge = _syncBadge(connection.syncStatus);
     final canDelete = widget.onDeleteTap != null;
 
@@ -184,19 +190,15 @@ class _ConnectionTileState extends State<ConnectionTile> {
                                   ],
                                 ],
                               ),
-                              2.height,
+                              4.height,
                               _DetailRow(
-                                leading: email.isNotEmpty ? email : '__ __',
+                                leading: _metAtText(connection),
                                 trailing: date,
                               ),
                               4.height,
-                              // _DetailRow(
-                              //   leading: phone ?? '__ __',
-                              //   trailing: time,
-                              // ),
                               _DetailRow(
                                 isLocation: true,
-                                leading: locationText,
+                                leading: userLocation,
                                 trailing: time,
                               ),
                             ],
@@ -204,41 +206,17 @@ class _ConnectionTileState extends State<ConnectionTile> {
                         ),
                       ],
                     ),
-                    // if (locationText.isNotEmpty) ...[
-                    //   4.height,
-                    //   Row(
-                    //     mainAxisAlignment: MainAxisAlignment.start,
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: [
-                    //       Icon(
-                    //         AppIcons.location,
-                    //         size: 14,
-                    //         color: AppColors.tertiaryText,
-                    //       ),
-                    //       4.width,
-                    //       Expanded(
-                    //         child: locationText.toText(
-                    //           fontSize: 12.0,
-                    //           fontWeight: AppStyle.w500,
-                    //           color: AppColors.tertiaryText,
-                    //           maxLine: 2,
-                    //           overflow: TextOverflow.ellipsis,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ],
-                    // if (bio.isNotEmpty) ...[
-                    //   12.height,
-                    //   bio.toText(
-                    //     fontSize: 12.0,
-                    //     fontWeight: AppStyle.w400,
-                    //     color: AppColors.softGray,
-                    //     maxLine: 3,
-                    //     overflow: TextOverflow.ellipsis,
-                    //     lineHeight: 1.35,
-                    //   ),
-                    // ],
+                    if (note.isNotEmpty) ...[
+                      10.height,
+                      note.toText(
+                        fontSize: 12,
+                        fontWeight: AppStyle.w400,
+                        color: AppColors.tertiaryText,
+                        maxLine: 3,
+                        overflow: TextOverflow.ellipsis,
+                        lineHeight: 1.35,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -272,13 +250,12 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        isLocation == true
-            ? Icon(
-                AppIcons.location,
-                size: 14,
-                color: AppColors.tertiaryText,
-              ).paddingOnly(right: 2.w)
-            : const SizedBox(width: 0, height: 0),
+        if (isLocation == true)
+          Icon(
+            AppIcons.location,
+            size: 14,
+            color: AppColors.tertiaryText,
+          ).paddingOnly(right: 2.w),
         Expanded(
           child: leading.toText(
             fontSize: _style.fontSize,

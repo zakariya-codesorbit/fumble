@@ -43,11 +43,14 @@ class FumbleCodeRepository {
       email: (data['email'] as String?)?.trim() ?? '',
       photoUrl: data['photoUrl'] as String?,
       bio: RepoUtils.blankToNull(data['bio'] as String?),
+      aboutMe: RepoUtils.blankToNull(data['aboutMe'] as String?),
+      location: RepoUtils.blankToNull(data['location'] as String?),
       phone: RepoUtils.blankToNull(data['phone'] as String?),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
       fumblePlace: RepoUtils.blankToNull(data['fumblePlace'] as String?),
+      createdAt: _asDateTime(data['createdAt']),
     );
   }
 
@@ -64,6 +67,7 @@ class FumbleCodeRepository {
       'phone': profile.publicPhone,
       'sharePhone': profile.sharePhone,
       'shareEmail': profile.shareEmail,
+      'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
@@ -81,8 +85,9 @@ class FumbleCodeRepository {
     String? phone,
     required bool sharePhone,
     required bool shareEmail,
+    DateTime? createdAt,
   }) async {
-    await _codeRef(code).set({
+    final data = <String, dynamic>{
       'uid': uid,
       'name': name,
       'email': email,
@@ -94,12 +99,41 @@ class FumbleCodeRepository {
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
       'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    };
+    if (createdAt != null) {
+      data['createdAt'] = Timestamp.fromDate(createdAt);
+    }
+    await _codeRef(code).set(data, SetOptions(merge: true));
+    if (createdAt == null) {
+      await ensurePublicCreatedAt(code: code);
+    }
+  }
+
+  static DateTime? _asDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return null;
   }
 
   Future<void> deletePublicProfile(String code) async {
     if (code.isEmpty) return;
     await _codeRef(code).delete();
+  }
+
+  /// Writes `createdAt` on the public card if it is missing (backfill).
+  Future<void> ensurePublicCreatedAt({
+    required String code,
+    DateTime? createdAt,
+  }) async {
+    if (code.isEmpty) return;
+    final snap = await _codeRef(code).get();
+    if (!snap.exists) return;
+    if (snap.data()?['createdAt'] != null) return;
+    await _codeRef(code).set({
+      'createdAt': createdAt != null
+          ? Timestamp.fromDate(createdAt)
+          : FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   /// Publishes (or clears) meeting coordinates + place label on user + card.
@@ -157,6 +191,9 @@ class FumbleCodeRepository {
       'phone': current.publicPhone,
       'sharePhone': current.sharePhone,
       'shareEmail': current.shareEmail,
+      'createdAt': current.createdAt == null
+          ? FieldValue.serverTimestamp()
+          : Timestamp.fromDate(current.createdAt!),
       'updatedAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();

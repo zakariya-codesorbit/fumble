@@ -91,6 +91,7 @@ class ConnectionRepository {
     required String ownerUid,
     required FumblePreview preview,
     FumbleLocation? fumbleLocation,
+    String? note,
   }) async {
     if (await hasLocalConnection(
       ownerUid: ownerUid,
@@ -120,7 +121,9 @@ class ConnectionRepository {
       email: preview.email?.trim() ?? '',
       photoUrl: preview.photoUrl,
       bio: RepoUtils.blankToNull(preview.bio),
+      location: RepoUtils.blankToNull(preview.location),
       phone: RepoUtils.blankToNull(preview.phone),
+      note: RepoUtils.blankToNull(note),
       sharePhone: RepoUtils.filled(preview.phone),
       shareEmail: RepoUtils.filled(preview.email),
       fumbleLocation: coords,
@@ -233,6 +236,7 @@ class ConnectionRepository {
           fumbledAt: row.fumbledAt,
           fumbleLocation: coords,
           fumblePlace: placeLabel,
+          note: row.note,
         );
         await _markSyncStatus(ownerUid, row.peerUid, SyncStatus.synced);
       } catch (e, st) {
@@ -261,6 +265,8 @@ class ConnectionRepository {
         photoUrl:
             RepoUtils.filled(card.photoUrl) ? card.photoUrl : row.photoUrl,
         bio: RepoUtils.filled(card.bio) ? card.bio : row.bio,
+        aboutMe: card.aboutMe,
+        location: card.location,
         phone: card.sharePhone ? card.phone : null,
         sharePhone: card.sharePhone,
         shareEmail: card.shareEmail,
@@ -290,6 +296,7 @@ class ConnectionRepository {
     );
   }
 
+
   Connection _mergeLocalWithPeerProfile(
     Connection row,
     PublicFumbleProfile card,
@@ -299,6 +306,8 @@ class ConnectionRepository {
       email: card.shareEmail ? card.email : '',
       photoUrl: card.photoUrl,
       bio: card.bio,
+      location: card.location,
+      clearLocation: !RepoUtils.filled(card.location),
       phone: card.sharePhone ? card.phone : null,
       clearPhone: !card.sharePhone || !RepoUtils.filled(card.phone),
       sharePhone: card.sharePhone,
@@ -320,6 +329,7 @@ class ConnectionRepository {
         a.email == b.email &&
         a.photoUrl == b.photoUrl &&
         a.bio == b.bio &&
+        a.location == b.location &&
         a.phone == b.phone &&
         a.sharePhone == b.sharePhone &&
         a.shareEmail == b.shareEmail &&
@@ -355,8 +365,12 @@ class ConnectionRepository {
         email: remote.shareEmail ? remote.email : '',
         photoUrl: remote.photoUrl ?? local.photoUrl,
         bio: remote.bio ?? local.bio,
+        location: remote.location ?? local.location,
+        clearLocation: !RepoUtils.filled(remote.location) &&
+            !RepoUtils.filled(local.location),
         phone: remote.sharePhone ? remote.phone : null,
         clearPhone: !remote.sharePhone || !RepoUtils.filled(remote.phone),
+        note: RepoUtils.filled(local.note) ? local.note : remote.note,
         sharePhone: remote.sharePhone,
         shareEmail: remote.shareEmail,
         fumbleLocation: remote.fumbleLocation ?? local.fumbleLocation,
@@ -463,6 +477,7 @@ class ConnectionRepository {
     DateTime? fumbledAt,
     FumbleLocation? fumbleLocation,
     String? fumblePlace,
+    String? note,
   }) async {
     final at = fumbledAt == null
         ? FieldValue.serverTimestamp()
@@ -481,7 +496,9 @@ class ConnectionRepository {
       'email': peer.shareEmail ? peer.email : '',
       'photoUrl': peer.photoUrl,
       'bio': peer.bio,
+      'location': peer.location,
       'phone': peer.sharePhone ? peer.phone : null,
+      'note': RepoUtils.blankToNull(note),
       'sharePhone': peer.sharePhone,
       'shareEmail': peer.shareEmail,
       'fumbleLocation': placeValue,
@@ -495,6 +512,7 @@ class ConnectionRepository {
       'email': scanner.publicEmail,
       'photoUrl': scanner.photoUrl,
       'bio': scanner.bio,
+      'location': scanner.location,
       'phone': scanner.publicPhone,
       'sharePhone': scanner.sharePhone,
       'shareEmail': scanner.shareEmail,

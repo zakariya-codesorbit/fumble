@@ -97,6 +97,14 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
           profile.shareEmail == override.shareEmail) {
         ref.read(shareVisibilityProvider.notifier).state = null;
       }
+      if (profile.fumbleCode.isNotEmpty) {
+        unawaited(
+          ref.read(fumbleCodeRepositoryProvider).ensurePublicCreatedAt(
+                code: profile.fumbleCode,
+                createdAt: profile.createdAt,
+              ),
+        );
+      }
     });
 
     var profile = live ?? _cached;
@@ -111,7 +119,8 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
         ? null
         : ValueKey(
             'qr_${profile.sharePhone}_${profile.shareEmail}_'
-            '${profile.publicPhone ?? ''}_${profile.publicEmail}',
+            '${profile.publicPhone ?? ''}_${profile.publicEmail}_'
+            '${profile.createdAt?.millisecondsSinceEpoch ?? 0}',
           );
 
     return BaseScreenWidget(
@@ -200,6 +209,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
       bio: profile.bio,
       phone: profile.publicPhone,
       email: profile.shareEmail ? profile.email : null,
+      createdAt: profile.createdAt,
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/fumble_preview.dart';
 import 'package:fumble/services/analytics/analytics_service.dart';
 import 'package:fumble/services/location/fumble_location_service.dart';
+import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/services/notifications/notification_service.dart';
 import 'package:fumble/state/notifiers/bottom_navigation_notifier.dart';
 import 'package:fumble/state/providers/service_providers.dart';
@@ -79,33 +80,62 @@ class FumbleNotifier extends Notifier<FumbleState> {
           .read(connectionRepositoryProvider)
           .hasLocalConnection(ownerUid: uid, peerUid: payload.userId);
       if (already) {
-        state = state.copyWith(isHandlingScan: false);
         showAppToast(AppConstant.alreadyConnected, isError: true);
         return false;
       }
 
-      state = state.copyWith(
-        preview: FumblePreview(
-          peerUid: payload.userId,
-          name: payload.name,
-          bio: payload.bio,
-          phone: payload.phone,
-          email: payload.email,
-        ),
-        isHandlingScan: false,
+      // Start from QR fields only. Enrich from Firebase when online, with a
+      // short timeout so a slow network cannot block the scanner.
+      final online = ConnectionManager().isConnected;
+      var preview = FumblePreview(
+        peerUid: payload.userId,
+        name: payload.name,
+        phone: payload.phone,
+        email: payload.email,
+        bio: online ? payload.bio : null,
+        createdAt: online ? payload.createdAt : null,
       );
+
+      if (online) {
+        try {
+          final card = await ref
+              .read(fumbleCodeRepositoryProvider)
+              .loadPublicProfile(payload.userId)
+              .timeout(const Duration(seconds: 4));
+          if (card != null) {
+            preview = FumblePreview(
+              peerUid: payload.userId,
+              name: card.name.isNotEmpty ? card.name : payload.name,
+              email: card.shareEmail
+                  ? (card.email.isNotEmpty ? card.email : payload.email)
+                  : null,
+              photoUrl: card.photoUrl,
+              bio: card.bio ?? payload.bio,
+              aboutMe: card.aboutMe,
+              location: card.location,
+              phone: card.sharePhone ? (card.phone ?? payload.phone) : null,
+              createdAt: card.createdAt ?? payload.createdAt,
+            );
+          }
+        } catch (_) {
+          // Keep QR-only preview if Firebase is slow or unavailable.
+        }
+      }
+
+      state = state.copyWith(preview: preview);
       unawaited(AnalyticsService.instance.logQrScanned());
       unawaited(AnalyticsService.instance.logFumblePreviewViewed());
       return true;
     } catch (e) {
-      state = state.copyWith(isHandlingScan: false);
       showAppToast(AppConstant.invalidQr, isError: true);
       return false;
+    } finally {
+      state = state.copyWith(isHandlingScan: false);
     }
   }
 
   /// Saves the preview locally first. Firebase sync continues in the background.
-  Future<void> confirm() async {
+  Future<void> confirm({String? note}) async {
     final preview = state.preview;
     if (preview == null) {
       pop();
@@ -130,6 +160,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
             ownerUid: uid,
             preview: preview,
             fumbleLocation: place,
+            note: note,
           );
       if (!created) {
         state = state.copyWith(isConfirming: false);
@@ -140,7 +171,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
       unawaited(AnalyticsService.instance.logConnectionCreated());
       unawaited(_notifications.requestPermissionIfNeeded());
       state = state.copyWith(isConfirming: false);
-      replace(AppRoutes.fumbleSuccess);
+      finish(openConnections: true);
     } catch (e) {
       state = state.copyWith(isConfirming: false);
       showAppToast(AppConstant.somethingWrong, isError: true);
