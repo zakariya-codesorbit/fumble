@@ -93,7 +93,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final canDelete = widget.onDeleteTap != null;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(15),
       child: Stack(
         children: [
           if (canDelete)
@@ -142,10 +142,13 @@ class _ConnectionTileState extends State<ConnectionTile> {
               offset: Offset(_offset, 0),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
@@ -157,9 +160,9 @@ class _ConnectionTileState extends State<ConnectionTile> {
                         ProfileAvatar(
                           photoUrl: connection.photoUrl,
                           name: connection.name,
-                          size: 52,
+                          size: 42.w,
                         ),
-                        12.width,
+                        10.width,
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,9 +170,9 @@ class _ConnectionTileState extends State<ConnectionTile> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: connection.name.toText(
-                                      fontSize: 17,
-                                      fontWeight: AppStyle.w700,
+                                    child: "Sarah johnson".toText(
+                                      fontSize: 14,
+                                      fontWeight: AppStyle.w600,
                                       maxLine: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -180,9 +183,10 @@ class _ConnectionTileState extends State<ConnectionTile> {
                                   ],
                                 ],
                               ),
-                              6.height,
+                              2.height,
                               _DetailRow(
-                                leading: email.isNotEmpty ? email : '__ __',
+                                leading: "Meet at the coffee bar",
+                                //email.isNotEmpty ? email : '__ __',
                                 trailing: date,
                               ),
                               4.height,
@@ -190,44 +194,46 @@ class _ConnectionTileState extends State<ConnectionTile> {
                                 leading: phone ?? '__ __',
                                 trailing: time,
                               ),
-                              if (locationText.isNotEmpty) ...[
-                                4.height,
-                                Row(
-                                  children: [
-                                    Icon(
-                                      AppIcons.location,
-                                      size: 14,
-                                      color: AppColors.softGray,
-                                    ),
-                                    4.width,
-                                    Expanded(
-                                      child: locationText.toText(
-                                        fontSize: 13,
-                                        fontWeight: AppStyle.w500,
-                                        color: AppColors.softGray,
-                                        maxLine: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
                             ],
                           ),
                         ),
                       ],
                     ),
-                    if (bio.isNotEmpty) ...[
-                      12.height,
-                      bio.toText(
-                        fontSize: 14,
-                        fontWeight: AppStyle.w400,
-                        color: AppColors.white.withValues(alpha: 0.88),
-                        maxLine: 3,
-                        overflow: TextOverflow.ellipsis,
-                        lineHeight: 1.35,
+                    if (locationText.isNotEmpty) ...[
+                      4.height,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            AppIcons.location,
+                            size: 14,
+                            color: AppColors.softGray,
+                          ),
+                          4.width,
+                          Expanded(
+                            child: locationText.toText(
+                              fontSize: 12.0,
+                              fontWeight: AppStyle.w500,
+                              color: AppColors.softGray,
+                              maxLine: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
+                    // if (bio.isNotEmpty) ...[
+                    //   12.height,
+                    //   bio.toText(
+                    //     fontSize: 12.0,
+                    //     fontWeight: AppStyle.w400,
+                    //     color: AppColors.softGray,
+                    //     maxLine: 3,
+                    //     overflow: TextOverflow.ellipsis,
+                    //     lineHeight: 1.35,
+                    //   ),
+                    // ],
                   ],
                 ),
               ),
@@ -246,7 +252,7 @@ class _DetailRow extends StatelessWidget {
   final String trailing;
 
   static const _style = (
-    fontSize: 13.0,
+    fontSize: 12.0,
     fontWeight: AppStyle.w500,
     color: AppColors.softGray,
   );

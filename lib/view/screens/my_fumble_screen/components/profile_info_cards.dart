@@ -37,7 +37,7 @@ class ProfileInfoCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.navBar,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.goldMuted.withAlpha(30)),
+          border: Border.all(color: AppColors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

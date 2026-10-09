@@ -1,5 +1,10 @@
 export '../notifiers/auth_notifier.dart'
-    show authNotifierProvider, AuthNotifier, AuthUiState, AuthToast, AuthNavigation;
+    show
+        authNotifierProvider,
+        AuthNotifier,
+        AuthUiState,
+        AuthToast,
+        AuthNavigation;
 export '../notifiers/onboarding_notifier.dart'
     show onboardingNotifierProvider, OnboardingNotifier, OnboardingState;
 export '../notifiers/fumble_notifier.dart'

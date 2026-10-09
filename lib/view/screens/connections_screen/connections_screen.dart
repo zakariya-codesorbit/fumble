@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/state/providers/app_providers.dart';
+import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_tile.dart';
@@ -17,6 +18,8 @@ import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/feedback/no_data_found.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
+import '../../../core/theme/colors.dart';
+
 class ConnectionsScreen extends ConsumerWidget {
   const ConnectionsScreen({super.key});
 
@@ -26,20 +29,35 @@ class ConnectionsScreen extends ConsumerWidget {
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
-        appBar: const AppAppBar(
-          title: AppConstant.brand,
-          brandTitle: true,
-        ),
+        appBar: const AppAppBar(title: AppConstant.brand, brandTitle: true),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppConstant.connectionsTitle
-                .toText(
-                  fontSize: 26,
-                  fontWeight: AppStyle.w700,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AppConstant.connectionsTitle.toText(
+                  fontSize: 22,
+                  fontWeight: AppStyle.w600,
                   lineHeight: 1.15,
-                )
-                .paddingOnly(left: 28.w, right: 28.w, top: 8.h, bottom: 16.h),
+                ),
+
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.gold,
+                  ),
+                  child: Icon(
+                    AppIcons.add,
+                    color: AppColors.background,
+                    size: 25.w,
+                  ),
+                ).onPress(() {
+                  ref.read(bottomNavProvider.notifier).setIndex(0);
+                }),
+              ],
+            ).paddingOnly(left: 28.w, right: 28.w, top: 4.h, bottom: 16.h),
             Expanded(
               child: connectionsAsync.when(
                 loading: () => const AppLoader(),
@@ -61,11 +79,8 @@ class ConnectionsScreen extends ConsumerWidget {
                       final connection = connections[index];
                       return ConnectionTile(
                         connection: connection,
-                        onDeleteTap: () => _confirmRemove(
-                          context,
-                          ref,
-                          connection,
-                        ),
+                        onDeleteTap: () =>
+                            _confirmRemove(context, ref, connection),
                       );
                     },
                   );
@@ -97,10 +112,9 @@ class ConnectionsScreen extends ConsumerWidget {
     final uid = ref.read(authServiceProvider).currentUser?.uid;
     if (uid == null) return;
     try {
-      await ref.read(connectionRepositoryProvider).removeConnectionForBoth(
-            ownerUid: uid,
-            peerUid: connection.peerUid,
-          );
+      await ref
+          .read(connectionRepositoryProvider)
+          .removeConnectionForBoth(ownerUid: uid, peerUid: connection.peerUid);
       showAppToast(AppConstant.connectionRemoved);
     } catch (e) {
       final message = e is StateError && e.message == AppConstant.offline

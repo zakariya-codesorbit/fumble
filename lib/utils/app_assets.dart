@@ -47,6 +47,7 @@ class AppIcons {
   static const IconData check = Icons.check_rounded;
   static const IconData peopleOutline = Icons.people_outline_rounded;
   static const IconData refresh = Icons.refresh_rounded;
+  static const IconData add = Icons.add;
 }
 
 class AppImages {

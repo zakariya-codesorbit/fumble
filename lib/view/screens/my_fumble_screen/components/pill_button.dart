@@ -23,9 +23,7 @@ class PillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onTap != null;
     final bg = filled
-        ? (enabled
-              ? AppColors.gold
-              : AppColors.goldMuted.withValues(alpha: 0.4))
+        ? (enabled ? AppColors.gold : AppColors.border)
         : AppColors.surfaceElevated;
     final fg = filled
         ? AppColors.background

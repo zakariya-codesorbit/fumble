@@ -39,7 +39,11 @@ class BottomNavigation extends ConsumerWidget {
       color: AppColors.navBar,
       child: SafeArea(
         top: false,
-        child: SizedBox(
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          ),
           height: AppStyle.bottomNavHeight,
           child: Row(
             children: List.generate(tabs.length, (index) {

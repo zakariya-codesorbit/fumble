@@ -39,6 +39,7 @@ class ProfileAvatar extends StatelessWidget {
         : '?';
 
     Widget child;
+
     if (localFile != null) {
       child = Image.file(localFile!, fit: BoxFit.cover);
     } else if (svg != null && svg!.trim().isNotEmpty) {
@@ -79,11 +80,10 @@ class ProfileAvatar extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: AppColors.surfaceElevated,
-          //border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
         ),
         clipBehavior: Clip.antiAlias,
-        child: child,
-      ).paddingAll(1),
+        child: Image.asset("assets/images/profile.png", fit: BoxFit.cover),
+      ).paddingAll(0),
     );
 
     if (onTap == null) return avatar;
