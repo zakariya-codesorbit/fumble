@@ -225,12 +225,8 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
   }
 
   String qrPayload(UserProfile profile) => FumbleQr.build(
-    userId: profile.uid,
+    fumbleCode: profile.fumbleCode,
     name: profile.name,
-    bio: profile.bio,
-    phone: profile.publicPhone,
-    email: profile.shareEmail ? profile.email : null,
-    createdAt: profile.createdAt,
   );
 
   Future<void> call(String phone) async {

@@ -7,12 +7,13 @@ import 'package:fumble/core/config/app_config.dart';
 
 /// Versioned QR payload. Generation and validation do not touch Firebase.
 ///
-/// Built codes are AES-encrypted so a generic scanner only sees ciphertext.
+/// Payload is intentionally tiny for fast scans: fumble code + name only.
 /// The Fumble app decrypts with the shared app key before reading fields.
 abstract final class FumbleQr {
-  static const int version = 1;
+  /// v2 = fumbleCode + name only (current).
+  static const int version = 2;
 
-  /// Wire prefix for encrypted payloads: `fumble:1.<payload>`.
+  /// Wire prefix for encrypted payloads: `fumble:2.<payload>`.
   static const String _wirePrefix = '${AppConfig.qrPrefix}$version.';
 
   static final enc.Key _key = enc.Key.fromUtf8(AppConfig.qrSecret);
@@ -21,33 +22,16 @@ abstract final class FumbleQr {
   );
 
   static String build({
-    required String userId,
+    required String fumbleCode,
     required String name,
-    String? bio,
-    String? phone,
-    String? email,
-    DateTime? createdAt,
   }) {
+    final code = fumbleCode.trim().toUpperCase();
+    final trimmedName = name.trim();
     final payload = <String, dynamic>{
       'version': version,
-      'userId': userId.trim(),
-      'name': name.trim(),
+      'fumbleCode': code,
+      'name': trimmedName,
     };
-    final trimmedBio = bio?.trim();
-    if (trimmedBio != null && trimmedBio.isNotEmpty) {
-      payload['bio'] = trimmedBio;
-    }
-    final trimmedPhone = phone?.trim();
-    if (trimmedPhone != null && trimmedPhone.isNotEmpty) {
-      payload['phone'] = trimmedPhone;
-    }
-    final trimmedEmail = email?.trim();
-    if (trimmedEmail != null && trimmedEmail.isNotEmpty) {
-      payload['email'] = trimmedEmail;
-    }
-    if (createdAt != null) {
-      payload['createdAt'] = createdAt.millisecondsSinceEpoch;
-    }
     return _encrypt(jsonEncode(payload));
   }
 
@@ -84,65 +68,29 @@ abstract final class FumbleQr {
       map[entry.key as String] = entry.value;
     }
 
-    if (!map.containsKey('version')) {
+    if (!map.containsKey('version') || map['version'] is! int) {
       return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
     }
-    final versionValue = map['version'];
-    if (versionValue is! int) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
-    }
+    final versionValue = map['version'] as int;
     if (versionValue != version) {
       return const fumbleQrDecodeResult.error(QrDecodeError.unsupportedVersion);
     }
 
-    if (!map.containsKey('userId') || map['userId'] == null) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.missingUserId);
-    }
-    if (map['userId'] is! String) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
-    }
-    final userId = (map['userId'] as String).trim();
-    if (userId.isEmpty) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.missingUserId);
+    final code = _requiredString(map, 'fumbleCode');
+    if (code == null || code.isEmpty) {
+      return const fumbleQrDecodeResult.error(QrDecodeError.missingFumbleCode);
     }
 
-    if (!map.containsKey('name') || map['name'] == null) {
+    final name = _requiredString(map, 'name');
+    if (name == null || name.isEmpty) {
       return const fumbleQrDecodeResult.error(QrDecodeError.missingName);
-    }
-    if (map['name'] is! String) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
-    }
-    final name = (map['name'] as String).trim();
-    if (name.isEmpty) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.missingName);
-    }
-
-    final bio = _optionalString(map, 'bio');
-    if (bio.invalid) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
-    }
-    final phone = _optionalString(map, 'phone');
-    if (phone.invalid) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
-    }
-    final email = _optionalString(map, 'email');
-    if (email.invalid) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
-    }
-    final createdAt = _optionalDateTime(map, 'createdAt');
-    if (createdAt.invalid) {
-      return const fumbleQrDecodeResult.error(QrDecodeError.malformed);
     }
 
     return fumbleQrDecodeResult.success(
       fumbleQrPayload(
         version: versionValue,
-        userId: userId,
+        fumbleCode: code.toUpperCase(),
         name: name,
-        bio: bio.value,
-        phone: phone.value,
-        email: email.value,
-        createdAt: createdAt.value,
       ),
     );
   }
@@ -154,11 +102,13 @@ abstract final class FumbleQr {
     return '$_wirePrefix${base64UrlEncode(bytes)}';
   }
 
-  /// Decrypts `fumble:1.…` payloads. Plain JSON is kept for older codes.
+  /// Decrypts `fumble:2.…` (and legacy `fumble:1.…`) payloads.
   static String? _decryptIfNeeded(String raw) {
-    if (raw.startsWith(_wirePrefix)) {
+    if (raw.startsWith(AppConfig.qrPrefix)) {
+      final dot = raw.indexOf('.', AppConfig.qrPrefix.length);
+      if (dot <= AppConfig.qrPrefix.length) return null;
       try {
-        final packed = base64Url.decode(raw.substring(_wirePrefix.length));
+        final packed = base64Url.decode(raw.substring(dot + 1));
         if (packed.length <= 16) return null;
         final iv = enc.IV(Uint8List.fromList(packed.sublist(0, 16)));
         final cipher = enc.Encrypted(
@@ -173,68 +123,32 @@ abstract final class FumbleQr {
     return null;
   }
 
-  static ({String? value, bool invalid}) _optionalString(
-    Map<String, dynamic> map,
-    String key,
-  ) {
-    if (!map.containsKey(key) || map[key] == null) {
-      return (value: null, invalid: false);
-    }
+  static String? _requiredString(Map<String, dynamic> map, String key) {
+    if (!map.containsKey(key) || map[key] == null) return null;
     final value = map[key];
-    if (value is! String) return (value: null, invalid: true);
+    if (value is! String) return null;
     final trimmed = value.trim();
-    return (value: trimmed.isEmpty ? null : trimmed, invalid: false);
-  }
-
-  static ({DateTime? value, bool invalid}) _optionalDateTime(
-    Map<String, dynamic> map,
-    String key,
-  ) {
-    if (!map.containsKey(key) || map[key] == null) {
-      return (value: null, invalid: false);
-    }
-    final value = map[key];
-    if (value is int) {
-      return (
-        value: DateTime.fromMillisecondsSinceEpoch(value),
-        invalid: false,
-      );
-    }
-    if (value is num) {
-      return (
-        value: DateTime.fromMillisecondsSinceEpoch(value.toInt()),
-        invalid: false,
-      );
-    }
-    return (value: null, invalid: true);
+    return trimmed.isEmpty ? null : trimmed;
   }
 }
 
 class fumbleQrPayload {
   const fumbleQrPayload({
     required this.version,
-    required this.userId,
+    required this.fumbleCode,
     required this.name,
-    this.bio,
-    this.phone,
-    this.email,
-    this.createdAt,
   });
 
   final int version;
-  final String userId;
+  final String fumbleCode;
   final String name;
-  final String? bio;
-  final String? phone;
-  final String? email;
-  final DateTime? createdAt;
 }
 
 enum QrDecodeError {
   invalid,
   malformed,
   unsupportedVersion,
-  missingUserId,
+  missingFumbleCode,
   missingName,
 }
 

@@ -38,59 +38,46 @@ void main() {
 
   test('QR payload is encrypted and round-trips through Fumble', () {
     final raw = FumbleQr.build(
-      userId: 'abc123',
+      fumbleCode: 'ABC123',
       name: 'Muhammad Zakariya',
-      bio: 'Flutter Developer',
-      phone: '+923001234567',
-      email: 'ada@example.com',
     );
 
-    expect(raw.startsWith('fumble:1.'), isTrue);
-    expect(raw.contains('abc123'), isFalse);
+    expect(raw.startsWith('fumble:2.'), isTrue);
+    expect(raw.contains('ABC123'), isFalse);
     expect(raw.contains('Muhammad'), isFalse);
-    expect(raw.contains('Flutter Developer'), isFalse);
 
     final decoded = FumbleQr.decode(raw);
     expect(decoded.error, isNull);
-    expect(decoded.payload?.version, 1);
-    expect(decoded.payload?.userId, 'abc123');
+    expect(decoded.payload?.version, 2);
+    expect(decoded.payload?.fumbleCode, 'ABC123');
     expect(decoded.payload?.name, 'Muhammad Zakariya');
-    expect(decoded.payload?.bio, 'Flutter Developer');
-    expect(decoded.payload?.phone, '+923001234567');
-    expect(decoded.payload?.email, 'ada@example.com');
   });
 
-  test('QR payload omits empty optional fields', () {
-    final raw = FumbleQr.build(
-      userId: 'abc123',
-      name: 'Ada',
-      bio: '  ',
-      phone: '',
-    );
+  test('QR payload requires fumble code and name', () {
+    final raw = FumbleQr.build(fumbleCode: 'XYZ999', name: 'Ada');
     final decoded = FumbleQr.decode(raw);
 
-    expect(decoded.payload?.bio, isNull);
-    expect(decoded.payload?.phone, isNull);
-    expect(decoded.payload?.email, isNull);
+    expect(decoded.payload?.fumbleCode, 'XYZ999');
+    expect(decoded.payload?.name, 'Ada');
   });
 
   test('QR validation reports payload errors', () {
     expect(FumbleQr.decode('not-a-code').error, QrDecodeError.invalid);
     expect(FumbleQr.decode('{').error, QrDecodeError.malformed);
     expect(
-      FumbleQr.decode('{"version":2,"userId":"a","name":"Ada"}').error,
+      FumbleQr.decode('{"version":1,"fumbleCode":"A","name":"Ada"}').error,
       QrDecodeError.unsupportedVersion,
     );
     expect(
-      FumbleQr.decode('{"version":1,"name":"Ada"}').error,
-      QrDecodeError.missingUserId,
+      FumbleQr.decode('{"version":2,"name":"Ada"}').error,
+      QrDecodeError.missingFumbleCode,
     );
     expect(
-      FumbleQr.decode('{"version":1,"userId":"abc"}').error,
+      FumbleQr.decode('{"version":2,"fumbleCode":"ABC"}').error,
       QrDecodeError.missingName,
     );
     expect(
-      FumbleQr.decode('fumble:1.not-valid-cipher').error,
+      FumbleQr.decode('fumble:2.not-valid-cipher').error,
       QrDecodeError.invalid,
     );
   });

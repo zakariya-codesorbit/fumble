@@ -1,7 +1,8 @@
 class FumblePreview {
   const FumblePreview({
-    required this.peerUid,
+    required this.fumbleCode,
     required this.name,
+    this.peerUid = '',
     this.email,
     this.photoUrl,
     this.bio,
@@ -11,8 +12,10 @@ class FumblePreview {
     this.createdAt,
   });
 
-  final String peerUid;
+  final String fumbleCode;
   final String name;
+  /// Empty until Firebase enrich resolves the public card.
+  final String peerUid;
   final String? email;
   final String? photoUrl;
   final String? bio;
@@ -20,6 +23,43 @@ class FumblePreview {
   final String? location;
   final String? phone;
   final DateTime? createdAt;
+
+  bool get isResolved => peerUid.trim().isNotEmpty;
+
+  /// Builds a preview from a `fumbleCodes` Firestore document map.
+  factory FumblePreview.fromMap(Map<String, dynamic> data) {
+    final sharePhone = data['sharePhone'] as bool? ?? true;
+    final shareEmail = data['shareEmail'] as bool? ?? true;
+    final phone = (data['phone'] as String?)?.trim();
+    final email = (data['email'] as String?)?.trim();
+    final rawCreated = data['createdAt'];
+    DateTime? createdAt;
+    if (rawCreated is DateTime) {
+      createdAt = rawCreated;
+    } else if (rawCreated != null) {
+      try {
+        createdAt = (rawCreated as dynamic).toDate() as DateTime?;
+      } catch (_) {}
+    }
+    return FumblePreview(
+      fumbleCode: (data['fumbleCode'] as String?)?.trim().toUpperCase() ?? '',
+      name: (data['name'] as String?)?.trim() ?? '',
+      peerUid: (data['uid'] as String?)?.trim() ?? '',
+      email: shareEmail && email != null && email.isNotEmpty ? email : null,
+      photoUrl: data['photoUrl'] as String?,
+      bio: _blankToNull(data['bio'] as String?),
+      aboutMe: _blankToNull(data['aboutMe'] as String?),
+      location: _blankToNull(data['location'] as String?),
+      phone: sharePhone && phone != null && phone.isNotEmpty ? phone : null,
+      createdAt: createdAt,
+    );
+  }
+
+  static String? _blankToNull(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
+  }
 
   String get firstName {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -39,18 +79,36 @@ class FumblePreview {
   static bool _filled(String? value) =>
       value != null && value.trim().isNotEmpty;
 
-  factory FumblePreview.fromMap(Map<String, dynamic> data) {
+  FumblePreview copyWith({
+    String? fumbleCode,
+    String? name,
+    String? peerUid,
+    String? email,
+    String? photoUrl,
+    String? bio,
+    String? aboutMe,
+    String? location,
+    String? phone,
+    DateTime? createdAt,
+    bool clearEmail = false,
+    bool clearPhotoUrl = false,
+    bool clearBio = false,
+    bool clearAboutMe = false,
+    bool clearLocation = false,
+    bool clearPhone = false,
+    bool clearCreatedAt = false,
+  }) {
     return FumblePreview(
-      peerUid: (data['uid'] as String?) ??
-          (data['peerUid'] as String?) ??
-          '',
-      name: (data['name'] as String?)?.trim() ?? '',
-      email: (data['email'] as String?)?.trim(),
-      photoUrl: data['photoUrl'] as String?,
-      bio: (data['bio'] as String?)?.trim(),
-      aboutMe: (data['aboutMe'] as String?)?.trim(),
-      location: (data['location'] as String?)?.trim(),
-      phone: (data['phone'] as String?)?.trim(),
+      fumbleCode: fumbleCode ?? this.fumbleCode,
+      name: name ?? this.name,
+      peerUid: peerUid ?? this.peerUid,
+      email: clearEmail ? null : (email ?? this.email),
+      photoUrl: clearPhotoUrl ? null : (photoUrl ?? this.photoUrl),
+      bio: clearBio ? null : (bio ?? this.bio),
+      aboutMe: clearAboutMe ? null : (aboutMe ?? this.aboutMe),
+      location: clearLocation ? null : (location ?? this.location),
+      phone: clearPhone ? null : (phone ?? this.phone),
+      createdAt: clearCreatedAt ? null : (createdAt ?? this.createdAt),
     );
   }
 }

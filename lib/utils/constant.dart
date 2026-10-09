@@ -111,7 +111,11 @@ abstract final class AppConstant {
   static const String unsupportedQrVersion =
       'This Fumble code isn\'t supported.';
   static const String qrMissingUserId = 'This Fumble code is missing a user.';
+  static const String qrMissingFumbleCode =
+      'This Fumble code is missing a code.';
   static const String qrMissingName = 'This Fumble code is missing a name.';
+  static const String previewNeedsNetwork =
+      'Connect to the internet to finish this Fumble.';
 
   static const String previewTitle = 'Connect?';
   static const String previewSubtitle = 'Confirm to exchange contact cards.';

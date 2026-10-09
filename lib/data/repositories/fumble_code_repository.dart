@@ -28,6 +28,29 @@ class FumbleCodeRepository {
     return snap.data();
   }
 
+  /// Loads a typed public card by fumble code (used after a quick QR scan).
+  Future<PublicFumbleProfile?> loadPublicCardByCode(String code) async {
+    final data = await loadPublicProfileByCode(code);
+    if (data == null) return null;
+    final uid = (data['uid'] as String?)?.trim() ?? '';
+    if (uid.isEmpty) return null;
+    return PublicFumbleProfile(
+      uid: uid,
+      name: (data['name'] as String?)?.trim() ?? '',
+      email: (data['email'] as String?)?.trim() ?? '',
+      photoUrl: data['photoUrl'] as String?,
+      bio: RepoUtils.blankToNull(data['bio'] as String?),
+      aboutMe: RepoUtils.blankToNull(data['aboutMe'] as String?),
+      location: RepoUtils.blankToNull(data['location'] as String?),
+      phone: RepoUtils.blankToNull(data['phone'] as String?),
+      sharePhone: data['sharePhone'] as bool? ?? true,
+      shareEmail: data['shareEmail'] as bool? ?? true,
+      fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
+      fumblePlace: RepoUtils.blankToNull(data['fumblePlace'] as String?),
+      createdAt: _asDateTime(data['createdAt']),
+    );
+  }
+
   /// Loads the latest public fumble profile for a user id.
   Future<PublicFumbleProfile?> loadPublicProfile(String uid) async {
     final query = await _db

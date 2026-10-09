@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fumble/core/theme/colors.dart';
@@ -40,8 +41,19 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
     super.initState();
     _note.addListener(_onNoteChanged);
     _connectivitySub = ConnectionManager().connectionStream.listen((online) {
-      if (!mounted || _online == online) return;
+      if (!mounted) return;
       setState(() => _online = online);
+      if (online) {
+        unawaited(
+          ref.read(fumbleNotifierProvider.notifier).loadPreviewDetails(),
+        );
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        ref.read(fumbleNotifierProvider.notifier).loadPreviewDetails(),
+      );
     });
   }
 
@@ -92,12 +104,14 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
       );
     }
 
-    final phoneText = preview.phone?.trim() ?? '';
-    final emailText = preview.email?.trim() ?? '';
-    final bioText = _online ? (preview.bio?.trim() ?? '') : '';
-    final aboutText = _online ? (preview.aboutMe?.trim() ?? '') : '';
-    final locationText = _online ? (preview.location?.trim() ?? '') : '';
-    final memberSince = _online && preview.createdAt != null
+    final showDetails = _online && preview.isResolved;
+    final showShimmer = _online && fumble.isLoadingPreview && !preview.isResolved;
+    final phoneText = showDetails ? (preview.phone?.trim() ?? '') : '';
+    final emailText = showDetails ? (preview.email?.trim() ?? '') : '';
+    final bioText = showDetails ? (preview.bio?.trim() ?? '') : '';
+    final aboutText = showDetails ? (preview.aboutMe?.trim() ?? '') : '';
+    final locationText = showDetails ? (preview.location?.trim() ?? '') : '';
+    final memberSince = showDetails && preview.createdAt != null
         ? DateFormat('MMMM yyyy').format(preview.createdAt!)
         : null;
 
@@ -107,7 +121,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
           title: AppConstant.brand,
           brandTitle: true,
           showBack: true,
-          onBack: actions.cancel,
+          onBack: fumble.isConfirming ? null : actions.cancel,
         ),
         body: Column(
           children: [
@@ -118,14 +132,25 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                   children: [
                     _PreviewHeader(
                       preview: preview,
-                      online: _online,
+                      showDetails: showDetails,
+                      showShimmer: showShimmer,
                       bioText: bioText,
                       phoneText: phoneText,
                       emailText: emailText,
                       onCall: () => _call(preview.phone),
                       onText: () => _text(preview.phone),
                     ),
-                    if (_online) ...[
+                    if (showShimmer) ...[
+                      24.height,
+                      const Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.border,
+                      ),
+                      24.height,
+                      const _PreviewShimmerCards(),
+                      12.height,
+                    ] else if (showDetails) ...[
                       24.height,
                       const Divider(
                         height: 1,
@@ -157,6 +182,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                       placeholder: true,
                       editor: TextField(
                         controller: _note,
+                        enabled: !fumble.isConfirming,
                         maxLines: 4,
                         cursorColor: AppColors.gold,
                         style: TextStyle(
@@ -203,8 +229,9 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                 padding: EdgeInsets.fromLTRB(24, 8, 24, 24.h),
                 child: PrimaryButton(
                   buttonName: AppConstant.done,
-                  isLoading: fumble.isConfirming,
-                  onPressed: () => actions.confirm(note: _note.text),
+                  onPressed: fumble.isConfirming
+                      ? null
+                      : () => actions.confirm(note: _note.text),
                 ),
               ),
           ],
@@ -217,7 +244,8 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
 class _PreviewHeader extends StatelessWidget {
   const _PreviewHeader({
     required this.preview,
-    required this.online,
+    required this.showDetails,
+    required this.showShimmer,
     required this.bioText,
     required this.phoneText,
     required this.emailText,
@@ -226,7 +254,8 @@ class _PreviewHeader extends StatelessWidget {
   });
 
   final FumblePreview preview;
-  final bool online;
+  final bool showDetails;
+  final bool showShimmer;
   final String bioText;
   final String phoneText;
   final String emailText;
@@ -250,62 +279,169 @@ class _PreviewHeader extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         16.height,
-        ProfileAvatar(
-          photoUrl: online ? preview.photoUrl : null,
-          name: preview.name,
-          size: 120,
-        ),
+        if (showShimmer)
+          const _ShimmerBox(width: 120, height: 120, radius: 60)
+        else
+          ProfileAvatar(
+            photoUrl: showDetails ? preview.photoUrl : null,
+            name: preview.name,
+            size: 120,
+          ),
         16.height,
         preview.name.toText(
           fontSize: 28,
           fontWeight: AppStyle.w700,
           textAlign: TextAlign.center,
         ),
-        if (online && bioText.isNotEmpty) ...[
-          6.height,
-          bioText.toText(
-            fontSize: 14,
-            fontWeight: AppStyle.w500,
-            color: AppColors.tertiaryText,
-            textAlign: TextAlign.center,
-            maxLine: 3,
-            overflow: TextOverflow.ellipsis,
+        if (showShimmer) ...[
+          10.height,
+          const _ShimmerBox(width: 180, height: 14, radius: 8),
+          18.height,
+          const _ShimmerBox(width: 140, height: 16, radius: 8),
+          10.height,
+          const _ShimmerBox(width: 200, height: 16, radius: 8),
+          20.height,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const _ShimmerBox(width: 85, height: 38, radius: 99),
+              12.width,
+              const _ShimmerBox(width: 85, height: 38, radius: 99),
+            ],
           ),
-        ],
-        18.height,
-        (phoneText.isNotEmpty ? phoneText : 'No phone number').toText(
-          fontSize: 16,
-          fontWeight: phoneText.isNotEmpty ? AppStyle.w600 : AppStyle.w500,
-          color: phoneText.isNotEmpty ? AppColors.white : AppColors.softGrayDim,
-          textAlign: TextAlign.center,
-        ),
-        10.height,
-        (emailText.isNotEmpty ? emailText : 'No email').toText(
-          fontSize: 16,
-          fontWeight: emailText.isNotEmpty ? AppStyle.w600 : AppStyle.w500,
-          color: emailText.isNotEmpty ? AppColors.white : AppColors.softGrayDim,
-          textAlign: TextAlign.center,
-        ),
-        20.height,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            PillButton(
-              label: AppConstant.call,
-              icon: AppIcons.phone,
-              filled: true,
-              onTap: onCall,
-            ),
-            12.width,
-            PillButton(
-              label: AppConstant.text,
-              icon: AppIcons.chat,
-              filled: false,
-              onTap: onText,
+        ] else if (showDetails) ...[
+          if (bioText.isNotEmpty) ...[
+            6.height,
+            bioText.toText(
+              fontSize: 14,
+              fontWeight: AppStyle.w500,
+              color: AppColors.tertiaryText,
+              textAlign: TextAlign.center,
+              maxLine: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
-        ),
+          18.height,
+          (phoneText.isNotEmpty ? phoneText : 'No phone number').toText(
+            fontSize: 16,
+            fontWeight: phoneText.isNotEmpty ? AppStyle.w600 : AppStyle.w500,
+            color:
+                phoneText.isNotEmpty ? AppColors.white : AppColors.softGrayDim,
+            textAlign: TextAlign.center,
+          ),
+          10.height,
+          (emailText.isNotEmpty ? emailText : 'No email').toText(
+            fontSize: 16,
+            fontWeight: emailText.isNotEmpty ? AppStyle.w600 : AppStyle.w500,
+            color:
+                emailText.isNotEmpty ? AppColors.white : AppColors.softGrayDim,
+            textAlign: TextAlign.center,
+          ),
+          20.height,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              PillButton(
+                label: AppConstant.call,
+                icon: AppIcons.phone,
+                filled: true,
+                onTap: onCall,
+              ),
+              12.width,
+              PillButton(
+                label: AppConstant.text,
+                icon: AppIcons.chat,
+                filled: false,
+                onTap: onText,
+              ),
+            ],
+          ),
+        ],
       ],
+    );
+  }
+}
+
+class _PreviewShimmerCards extends StatelessWidget {
+  const _PreviewShimmerCards();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _ShimmerCard(titleWidth: 72, lines: const [1.0, 0.85, 0.55]),
+        12.height,
+        _ShimmerCard(titleWidth: 88, lines: const [0.7]),
+      ],
+    );
+  }
+}
+
+class _ShimmerCard extends StatelessWidget {
+  const _ShimmerCard({
+    required this.titleWidth,
+    required this.lines,
+  });
+
+  final double titleWidth;
+  final List<double> lines;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+      decoration: BoxDecoration(
+        color: AppColors.navBar,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ShimmerBox(width: titleWidth, height: 12, radius: 6),
+          12.height,
+          for (var i = 0; i < lines.length; i++) ...[
+            if (i > 0) 8.height,
+            FractionallySizedBox(
+              widthFactor: lines[i],
+              child: const _ShimmerBox(
+                width: double.infinity,
+                height: 14,
+                radius: 6,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ShimmerBox extends StatelessWidget {
+  const _ShimmerBox({
+    required this.width,
+    required this.height,
+    required this.radius,
+  });
+
+  final double width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.surfaceElevated,
+      highlightColor: AppColors.softGrayDim.withValues(alpha: 0.35),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceElevated,
+          borderRadius: BorderRadius.circular(radius),
+        ),
+      ),
     );
   }
 }
