@@ -200,7 +200,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                       ],
                     ),
                     if (note.isNotEmpty) ...[
-                      10.height,
+                      6.height,
                       note.toText(
                         fontSize: 12,
                         fontWeight: AppStyle.w400,
