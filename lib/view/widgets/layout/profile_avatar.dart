@@ -97,20 +97,35 @@ class ProfileAvatar extends StatelessWidget {
           Positioned(
             right: 8.w,
             bottom: 2.h,
-            child: Container(
-              width: size * 0.28,
-              height: size * 0.28,
-              decoration: BoxDecoration(
-                color: AppColors.gold,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.background, width: 2),
-              ),
-              child: Icon(
-                Icons.camera_alt,
-                size: size * 0.14,
-                color: AppColors.background,
-              ),
-            ),
+            child: photoUrl != null || localFile != null || svg != null
+                ? Container(
+                    width: size * 0.28,
+                    height: size * 0.28,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceElevated,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.background, width: 2),
+                    ),
+                    child: Icon(
+                      Icons.edit,
+                      size: size * 0.14,
+                      color: AppColors.gold,
+                    ),
+                  )
+                : Container(
+                    width: size * 0.28,
+                    height: size * 0.28,
+                    decoration: BoxDecoration(
+                      color: AppColors.gold,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.background, width: 2),
+                    ),
+                    child: Icon(
+                      Icons.camera_alt,
+                      size: size * 0.14,
+                      color: AppColors.background,
+                    ),
+                  ),
           ),
         ],
       ),

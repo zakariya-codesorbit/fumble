@@ -8,6 +8,8 @@ class UserProfile {
     this.photoUrl,
     required this.fumbleCode,
     this.bio,
+    this.aboutMe,
+    this.location,
     this.phone,
     this.sharePhone = true,
     this.shareEmail = true,
@@ -22,6 +24,8 @@ class UserProfile {
   final String? photoUrl;
   final String fumbleCode;
   final String? bio;
+  final String? aboutMe;
+  final String? location;
   final String? phone;
   final bool sharePhone;
   final bool shareEmail;
@@ -39,6 +43,10 @@ class UserProfile {
   bool get hasPhone => _filled(phone);
 
   bool get hasBio => _filled(bio);
+
+  bool get hasAboutMe => _filled(aboutMe);
+
+  bool get hasLocation => _filled(location);
 
   bool get isOnboardingComplete => hasPhoto && hasPhone;
 
@@ -58,6 +66,8 @@ class UserProfile {
       photoUrl: data['photoUrl'] as String?,
       fumbleCode: (data['fumbleCode'] as String?) ?? '',
       bio: (data['bio'] as String?)?.trim(),
+      aboutMe: (data['aboutMe'] as String?)?.trim(),
+      location: (data['location'] as String?)?.trim(),
       phone: (data['phone'] as String?)?.trim(),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
@@ -74,6 +84,8 @@ class UserProfile {
       'photoUrl': photoUrl,
       'fumbleCode': fumbleCode,
       'bio': bio,
+      'aboutMe': aboutMe,
+      'location': location,
       'phone': phone,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
@@ -88,6 +100,8 @@ class UserProfile {
     String? photoUrl,
     String? fumbleCode,
     String? bio,
+    String? aboutMe,
+    String? location,
     String? phone,
     bool? sharePhone,
     bool? shareEmail,
@@ -102,6 +116,8 @@ class UserProfile {
       photoUrl: photoUrl ?? this.photoUrl,
       fumbleCode: fumbleCode ?? this.fumbleCode,
       bio: bio ?? this.bio,
+      aboutMe: aboutMe ?? this.aboutMe,
+      location: location ?? this.location,
       phone: phone ?? this.phone,
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
@@ -119,6 +135,8 @@ class UserProfile {
       'photoUrl': photoUrl,
       'fumbleCode': fumbleCode,
       'bio': bio,
+      'aboutMe': aboutMe,
+      'location': location,
       'phone': phone,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
@@ -135,6 +153,8 @@ class UserProfile {
       photoUrl: json['photoUrl'] as String?,
       fumbleCode: (json['fumbleCode'] as String?) ?? '',
       bio: (json['bio'] as String?)?.trim(),
+      aboutMe: (json['aboutMe'] as String?)?.trim(),
+      location: (json['location'] as String?)?.trim(),
       phone: (json['phone'] as String?)?.trim(),
       sharePhone: json['sharePhone'] as bool? ?? true,
       shareEmail: json['shareEmail'] as bool? ?? true,

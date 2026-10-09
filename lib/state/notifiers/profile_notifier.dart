@@ -135,6 +135,8 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
   Future<void> save({
     required String name,
     required String bio,
+    required String aboutMe,
+    required String location,
     required String phone,
     required bool sharePhone,
     required bool shareEmail,
@@ -170,6 +172,8 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
           profile.copyWith(
             name: trimmedName,
             bio: bio.trim().isEmpty ? null : bio.trim(),
+            aboutMe: aboutMe.trim().isEmpty ? null : aboutMe.trim(),
+            location: location.trim().isEmpty ? null : location.trim(),
             phone: phone.trim().isEmpty ? null : phone.trim(),
             sharePhone: sharePhone,
             shareEmail: shareEmail,
@@ -185,6 +189,8 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         name: trimmedName,
         photoUrl: nextPhoto,
         bio: bio,
+        aboutMe: aboutMe,
+        location: location,
         phone: phone,
         sharePhone: sharePhone,
         shareEmail: shareEmail,

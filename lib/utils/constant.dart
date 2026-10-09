@@ -48,10 +48,13 @@ abstract final class AppConstant {
   static const String editProfile = 'Edit profile';
   static const String bioLabel = 'Bio';
   static const String aboutMeLabel = 'ABOUT ME';
+  static const String locationLabel = 'Location';
   static const String phoneLabel = 'Phone';
   static const String call = 'Call';
   static const String text = 'Text';
   static const String addBio = 'Add a short bio';
+  static const String addAboutMe = 'Add a few words about yourself';
+  static const String addLocation = 'Add your location';
   static const String addPhone = 'Add phone number';
   static const String sharefumble = 'Share Fumble';
   static const String changePhoto = 'Change photo';

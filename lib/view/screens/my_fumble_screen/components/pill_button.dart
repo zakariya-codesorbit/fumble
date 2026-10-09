@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/colors.dart';
-import '../../../../utils/style.dart';
-import '../../../widgets/extention/int_extension.dart';
-import '../../../widgets/extention/string_extension.dart';
+import 'package:fumble/core/theme/colors.dart';
+import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/widgets/extention/int_extension.dart';
+import 'package:fumble/view/widgets/extention/string_extension.dart';
 
 class PillButton extends StatelessWidget {
   const PillButton({
@@ -36,8 +36,8 @@ class PillButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppStyle.radiusPill),
         child: Container(
-          height: 42,
-          width: 90,
+          height: 38.h,
+          width: 85.w,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppStyle.radiusPill),
@@ -50,7 +50,7 @@ class PillButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: fg),
+              Icon(icon, size: 18.w, color: fg),
               8.width,
               label.toText(color: fg, fontSize: 16, fontWeight: AppStyle.w700),
             ],

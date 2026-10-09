@@ -60,6 +60,8 @@ class UserRepository {
     String? name,
     String? photoUrl,
     String? bio,
+    String? aboutMe,
+    String? location,
     String? phone,
     bool? sharePhone,
     bool? shareEmail,
@@ -76,17 +78,19 @@ class UserRepository {
       data['photoUrl'] = photoUrl.isEmpty ? null : photoUrl;
     }
     if (bio != null) data['bio'] = bio.trim();
+    if (aboutMe != null) data['aboutMe'] = aboutMe.trim();
+    if (location != null) data['location'] = location.trim();
     if (phone != null) data['phone'] = phone.trim();
     if (sharePhone != null) data['sharePhone'] = sharePhone;
     if (shareEmail != null) data['shareEmail'] = shareEmail;
-    data['aboutMe'] = FieldValue.delete();
-    data['location'] = FieldValue.delete();
 
     final nextName = name?.trim() ?? current.name;
     final nextPhoto = photoUrl != null
         ? (photoUrl.isEmpty ? null : photoUrl)
         : current.photoUrl;
     final nextBio = bio?.trim() ?? current.bio;
+    final nextAboutMe = aboutMe?.trim() ?? current.aboutMe;
+    final nextLocation = location?.trim() ?? current.location;
     final nextPhone = phone?.trim() ?? current.phone;
     final nextSharePhone = sharePhone ?? current.sharePhone;
     final nextShareEmail = shareEmail ?? current.shareEmail;
@@ -109,6 +113,8 @@ class UserRepository {
         'email': publicEmail,
         'photoUrl': nextPhoto,
         'bio': nextBio,
+        'aboutMe': nextAboutMe,
+        'location': nextLocation,
         'phone': publicPhone,
         'sharePhone': nextSharePhone,
         'shareEmail': nextShareEmail,
@@ -123,6 +129,8 @@ class UserRepository {
       email: publicEmail,
       photoUrl: nextPhoto,
       bio: nextBio,
+      aboutMe: nextAboutMe,
+      location: nextLocation,
       phone: publicPhone,
       sharePhone: nextSharePhone,
       shareEmail: nextShareEmail,

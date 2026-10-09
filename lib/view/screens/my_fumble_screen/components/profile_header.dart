@@ -10,6 +10,7 @@ import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/pill_button.dart';
 import 'package:fumble/view/widgets/inputs/custom_text_field.dart';
 import 'package:fumble/view/widgets/inputs/custom_toggle.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
@@ -39,6 +40,8 @@ class ProfileHeader extends StatelessWidget {
     this.onPhotoTap,
     this.onSharePhoneChanged,
     this.onShareEmailChanged,
+    this.onCall,
+    this.onText,
   });
 
   final String name;
@@ -63,6 +66,8 @@ class ProfileHeader extends StatelessWidget {
   final VoidCallback? onPhotoTap;
   final ValueChanged<bool>? onSharePhoneChanged;
   final ValueChanged<bool>? onShareEmailChanged;
+  final VoidCallback? onCall;
+  final VoidCallback? onText;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +115,7 @@ class ProfileHeader extends StatelessWidget {
               ),
             ],
           ).onPress(onNameTap ?? () {}),
-        10.height,
+        6.height,
         if (editingBio && bioController != null)
           CustomTextField(
             controller: bioController!,
@@ -133,7 +138,7 @@ class ProfileHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               )
               .onPress(onBioTap ?? () {}),
-        16.height,
+        18.height,
         _ContactVisibilityRow(
           value: phone,
           visible: sharePhone,
@@ -146,6 +151,25 @@ class ProfileHeader extends StatelessWidget {
           visible: shareEmail,
           emptyLabel: 'No email',
           onVisibilityChanged: onShareEmailChanged,
+        ),
+        20.height,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PillButton(
+              label: AppConstant.call,
+              icon: AppIcons.phone,
+              filled: true,
+              onTap: onCall,
+            ),
+            12.width,
+            PillButton(
+              label: AppConstant.text,
+              icon: AppIcons.chat,
+              filled: false,
+              onTap: onText,
+            ),
+          ],
         ),
       ],
     );
@@ -186,10 +210,7 @@ class _ContactVisibilityRow extends StatelessWidget {
         ),
         if (hasValue && onVisibilityChanged != null) ...[
           10.width,
-          CustomToggle(
-            value: visible,
-            onChanged: onVisibilityChanged!,
-          ),
+          CustomToggle(value: visible, onChanged: onVisibilityChanged!),
         ],
       ],
     );

@@ -79,3 +79,65 @@ class ProfileInfoCard extends StatelessWidget {
     );
   }
 }
+
+class ProfileLocationCard extends StatelessWidget {
+  const ProfileLocationCard({
+    super.key,
+    required this.body,
+    this.onTap,
+    this.placeholder = false,
+    this.editor,
+    this.showEditIcon = false,
+  });
+
+  final String body;
+  final VoidCallback? onTap;
+  final bool placeholder;
+  final Widget? editor;
+  final bool showEditIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+        decoration: BoxDecoration(
+          color: AppColors.navBar,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Icon(AppIcons.location, size: 18, color: AppColors.gold),
+            10.width,
+            Expanded(
+              child: editor ??
+                  body.toText(
+                    color: placeholder
+                        ? AppColors.softGrayDim
+                        : AppColors.secondaryText,
+                    fontSize: 14,
+                    maxLine: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+            ),
+            if (showEditIcon) ...[
+              8.width,
+              SvgPicture.asset(
+                AppIcons.iconEdit,
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.warmGray,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

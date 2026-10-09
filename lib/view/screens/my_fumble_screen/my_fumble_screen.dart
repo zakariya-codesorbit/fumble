@@ -6,17 +6,18 @@ import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/navigator_keys.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
-import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/profile_header.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/profile_info_cards.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
+import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
-import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
@@ -72,6 +73,8 @@ class _ProfileBody extends ConsumerStatefulWidget {
 class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _name;
   late final TextEditingController _bio;
+  late final TextEditingController _aboutMe;
+  late final TextEditingController _location;
   late bool _sharePhone;
   late bool _shareEmail;
   String? _active;
@@ -107,6 +110,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     routeObserver.unsubscribe(this);
     _name.dispose();
     _bio.dispose();
+    _aboutMe.dispose();
+    _location.dispose();
     super.dispose();
   }
 
@@ -119,6 +124,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _bindControllers(UserProfile profile) {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
+    _aboutMe = TextEditingController(text: profile.aboutMe ?? '');
+    _location = TextEditingController(text: profile.location ?? '');
     _sharePhone = profile.sharePhone;
     _shareEmail = profile.shareEmail;
   }
@@ -126,6 +133,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _applyProfile(UserProfile profile) {
     _name.text = profile.name;
     _bio.text = profile.bio ?? '';
+    _aboutMe.text = profile.aboutMe ?? '';
+    _location.text = profile.location ?? '';
     _sharePhone = profile.sharePhone;
     _shareEmail = profile.shareEmail;
   }
@@ -145,6 +154,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final profile = widget.profile;
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
+        _aboutMe.text.trim() != (profile.aboutMe ?? '').trim() ||
+        _location.text.trim() != (profile.location ?? '').trim() ||
         _sharePhone != profile.sharePhone ||
         _shareEmail != profile.shareEmail;
   }
@@ -186,6 +197,11 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final memberSince = profile.createdAt != null
         ? DateFormat('MMMM yyyy').format(profile.createdAt!)
         : null;
+    final aboutText = _aboutMe.text.trim();
+    final locationText = _location.text.trim();
+    final editingAbout = _active == 'aboutMe';
+    final editingLocation = _active == 'location';
+
     return Column(
       children: [
         Expanded(
@@ -218,7 +234,60 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                       setState(() => _sharePhone = value),
                   onShareEmailChanged: (value) =>
                       setState(() => _shareEmail = value),
+                  onCall: () {
+                    final phone = profile.phone?.trim();
+                    if (phone == null || phone.isEmpty) return;
+                    actions.call(phone);
+                  },
+                  onText: () {
+                    final phone = profile.phone?.trim();
+                    if (phone == null || phone.isEmpty) return;
+                    actions.text(phone);
+                  },
                 ),
+                24.height,
+                const Divider(height: 1, thickness: 1, color: AppColors.border),
+                24.height,
+                ProfileInfoCard(
+                  title: AppConstant.aboutMeLabel,
+                  body: aboutText.isNotEmpty ? aboutText : AppConstant.addAboutMe,
+                  placeholder: aboutText.isEmpty,
+                  showEditIcon: !editingAbout,
+                  onTap: editingAbout ? null : () => _openField('aboutMe'),
+                  editor: editingAbout
+                      ? _inlineField(
+                          fieldKey: 'aboutMe',
+                          controller: _aboutMe,
+                          hint: AppConstant.addAboutMe,
+                          maxLine: 4,
+                        )
+                      : null,
+                ),
+                12.height,
+                ProfileLocationCard(
+                  body: locationText.isNotEmpty
+                      ? locationText
+                      : AppConstant.addLocation,
+                  placeholder: locationText.isEmpty,
+                  showEditIcon: !editingLocation,
+                  onTap: editingLocation ? null : () => _openField('location'),
+                  editor: editingLocation
+                      ? _inlineField(
+                          fieldKey: 'location',
+                          controller: _location,
+                          hint: AppConstant.addLocation,
+                        )
+                      : null,
+                ),
+                if (memberSince != null) ...[
+                  20.height,
+                  AppConstant.memberSinceLabel(memberSince).toText(
+                    fontSize: 12,
+                    fontWeight: AppStyle.w500,
+                    color: AppColors.tertiaryText,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 if (showSave) ...[
                   16.height,
                   PrimaryButton(
@@ -227,28 +296,51 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                     onPressed: () => actions.save(
                       name: _name.text,
                       bio: _bio.text,
+                      aboutMe: _aboutMe.text,
+                      location: _location.text,
                       phone: profile.phone ?? '',
                       sharePhone: _sharePhone,
                       shareEmail: _shareEmail,
                     ),
                   ),
                 ],
-                24.height,
+                40.height,
               ],
             ),
           ),
         ),
-        if (memberSince != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: AppConstant.memberSinceLabel(memberSince).toText(
-              fontSize: 12,
-              fontWeight: AppStyle.w500,
-              color: AppColors.tertiaryText,
-              textAlign: TextAlign.center,
-            ),
-          ),
       ],
+    );
+  }
+
+  Widget _inlineField({
+    required String fieldKey,
+    required TextEditingController controller,
+    required String hint,
+    int maxLine = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      autofocus: true,
+      maxLines: maxLine,
+      cursorColor: AppColors.gold,
+      style: TextStyle(
+        fontSize: 16,
+        color: AppColors.tertiaryText,
+        fontFamily: AppStyle.fontFamily,
+        fontFamilyFallback: AppStyle.fontFamilyFallback,
+      ),
+      onChanged: (_) => setState(() {}),
+      onTapOutside: (_) => _closeIfStill(fieldKey),
+      decoration: InputDecoration(
+        isDense: true,
+        filled: false,
+        hintText: hint,
+        contentPadding: EdgeInsets.zero,
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+      ),
     );
   }
 }
