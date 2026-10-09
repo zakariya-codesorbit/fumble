@@ -19,6 +19,7 @@ class PhoneCountryField extends StatefulWidget {
     this.onSubmitted,
     this.onChanged,
     this.onCountryChanged,
+    this.onTapOutside,
   });
 
   final TextEditingController controller;
@@ -28,6 +29,7 @@ class PhoneCountryField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onCountryChanged;
+  final VoidCallback? onTapOutside;
 
   /// Country from the device region / current locale (e.g. PK, US).
   static ({String dialCode, String countryCode}) fromDeviceLocale() {
@@ -297,7 +299,11 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(15),
                 ],
-                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                onTapOutside: (_) {
+                  FocusScope.of(context).unfocus();
+                  // Prefer parent TapRegion for dismiss; keep as fallback.
+                  widget.onTapOutside?.call();
+                },
                 validator: (value) {
                   if (value == null || value.isBlank) return null;
                   if (!PhoneCountryField.isValidNational(value)) {

@@ -20,6 +20,8 @@ import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
+import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
+import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
 class MyFumbleScreen extends ConsumerWidget {
@@ -75,6 +77,10 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _bio;
   late final TextEditingController _aboutMe;
   late final TextEditingController _location;
+  late final TextEditingController _phone;
+  final _phoneFieldKey = GlobalKey<PhoneCountryFieldState>();
+  late String _phoneDialCode;
+  late String _phoneCountryCode;
   late bool _sharePhone;
   late bool _shareEmail;
   String? _active;
@@ -94,6 +100,9 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
       _sharePhone = widget.profile.sharePhone;
       _shareEmail = widget.profile.shareEmail;
     }
+    if (oldWidget.profile.phone != widget.profile.phone && _active != 'phone') {
+      _syncPhoneFromProfile(widget.profile);
+    }
   }
 
   @override
@@ -112,6 +121,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _bio.dispose();
     _aboutMe.dispose();
     _location.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -126,8 +136,31 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _bio = TextEditingController(text: profile.bio ?? '');
     _aboutMe = TextEditingController(text: profile.aboutMe ?? '');
     _location = TextEditingController(text: profile.location ?? '');
+    _phone = TextEditingController();
+    _syncPhoneFromProfile(profile);
     _sharePhone = profile.sharePhone;
     _shareEmail = profile.shareEmail;
+  }
+
+  void _syncPhoneFromProfile(UserProfile profile) {
+    final parsed = PhoneCountryField.parseStored(profile.phone);
+    _phoneDialCode = parsed.dialCode;
+    _phoneCountryCode = parsed.countryCode;
+    _phone.text = parsed.national;
+    _phoneFieldKey.currentState?.applyCountry(
+      countryCode: parsed.countryCode,
+      dialCode: parsed.dialCode,
+    );
+  }
+
+  String _fullPhone() {
+    final national = _phone.text.trim();
+    if (national.isEmpty) return '';
+    return _phoneFieldKey.currentState?.fullNumber ??
+        PhoneCountryField.formatFull(
+          dialCode: _phoneDialCode,
+          national: national,
+        );
   }
 
   void _applyProfile(UserProfile profile) {
@@ -135,6 +168,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _bio.text = profile.bio ?? '';
     _aboutMe.text = profile.aboutMe ?? '';
     _location.text = profile.location ?? '';
+    _syncPhoneFromProfile(profile);
     _sharePhone = profile.sharePhone;
     _shareEmail = profile.shareEmail;
   }
@@ -152,10 +186,12 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
 
   bool get _textChanged {
     final profile = widget.profile;
+    final savedPhone = (profile.phone ?? '').trim();
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
         _aboutMe.text.trim() != (profile.aboutMe ?? '').trim() ||
         _location.text.trim() != (profile.location ?? '').trim() ||
+        _fullPhone() != savedPhone ||
         _sharePhone != profile.sharePhone ||
         _shareEmail != profile.shareEmail;
   }
@@ -172,7 +208,17 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   }
 
   void _closeIfStill(String key) {
-    if (!_readyToClose || _active != key) return;
+    if (_active != key) return;
+    // Phone uses TapRegion; close immediately on outside tap.
+    if (key == 'phone') {
+      FocusManager.instance.primaryFocus?.unfocus();
+      setState(() {
+        _active = null;
+        _readyToClose = false;
+      });
+      return;
+    }
+    if (!_readyToClose) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _active != key) return;
       FocusManager.instance.primaryFocus?.unfocus();
@@ -215,32 +261,51 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                   localFile: edit.localPhoto,
                   svg: edit.avatarSvg,
                   bio: _bio.text,
-                  phone: profile.phone,
+                  phone: _fullPhone().isNotEmpty ? _fullPhone() : profile.phone,
                   email: profile.email,
                   sharePhone: _sharePhone,
                   shareEmail: _shareEmail,
                   editingName: _active == 'name',
                   editingBio: _active == 'bio',
+                  editingPhone: _active == 'phone',
                   nameController: _name,
                   bioController: _bio,
+                  phoneController: _phone,
+                  phoneFieldKey: _phoneFieldKey,
+                  phoneDialCode: _phoneDialCode,
+                  phoneCountryCode: _phoneCountryCode,
                   onNameTap: () => _openField('name'),
                   onNameChanged: (_) => setState(() {}),
                   onNameTapOutside: () => _closeIfStill('name'),
                   onBioTap: () => _openField('bio'),
                   onBioChanged: (_) => setState(() {}),
                   onBioTapOutside: () => _closeIfStill('bio'),
+                  onPhoneTap: () => _openField('phone'),
+                  onPhoneChanged: (_) => setState(() {}),
+                  onPhoneCountryChanged: () {
+                    final state = _phoneFieldKey.currentState;
+                    if (state != null) {
+                      _phoneDialCode = state.dialCode;
+                    }
+                    setState(() {});
+                  },
+                  onPhoneTapOutside: () => _closeIfStill('phone'),
                   onPhotoTap: () => actions.showPhotoSheet(context),
                   onSharePhoneChanged: (value) =>
                       setState(() => _sharePhone = value),
                   onShareEmailChanged: (value) =>
                       setState(() => _shareEmail = value),
                   onCall: () {
-                    final phone = profile.phone?.trim();
+                    final phone = _fullPhone().isNotEmpty
+                        ? _fullPhone()
+                        : profile.phone?.trim();
                     if (phone == null || phone.isEmpty) return;
                     actions.call(phone);
                   },
                   onText: () {
-                    final phone = profile.phone?.trim();
+                    final phone = _fullPhone().isNotEmpty
+                        ? _fullPhone()
+                        : profile.phone?.trim();
                     if (phone == null || phone.isEmpty) return;
                     actions.text(phone);
                   },
@@ -295,15 +360,25 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                   PrimaryButton(
                     buttonName: AppConstant.save,
                     isLoading: edit.isSaving,
-                    onPressed: () => actions.save(
-                      name: _name.text,
-                      bio: _bio.text,
-                      aboutMe: _aboutMe.text,
-                      location: _location.text,
-                      phone: profile.phone ?? '',
-                      sharePhone: _sharePhone,
-                      shareEmail: _shareEmail,
-                    ),
+                    onPressed: () async {
+                      final phone = _fullPhone();
+                      if (_phone.text.trim().isNotEmpty &&
+                          !PhoneCountryField.isValidNational(_phone.text)) {
+                        showAppToast(AppConstant.phoneInvalid, isError: true);
+                        return;
+                      }
+                      await actions.save(
+                        name: _name.text,
+                        bio: _bio.text,
+                        aboutMe: _aboutMe.text,
+                        location: _location.text,
+                        phone: phone,
+                        sharePhone: _sharePhone,
+                        shareEmail: _shareEmail,
+                      );
+                      if (!mounted) return;
+                      setState(() => _active = null);
+                    },
                   ),
                 ],
                 40.height,

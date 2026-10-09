@@ -13,6 +13,7 @@ import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/pill_button.dart';
 import 'package:fumble/view/widgets/inputs/custom_text_field.dart';
 import 'package:fumble/view/widgets/inputs/custom_toggle.dart';
+import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -29,14 +30,23 @@ class ProfileHeader extends StatelessWidget {
     this.shareEmail = true,
     this.editingName = false,
     this.editingBio = false,
+    this.editingPhone = false,
     this.nameController,
     this.bioController,
+    this.phoneController,
+    this.phoneFieldKey,
+    this.phoneDialCode,
+    this.phoneCountryCode,
     this.onNameTap,
     this.onNameChanged,
     this.onNameTapOutside,
     this.onBioTap,
     this.onBioChanged,
     this.onBioTapOutside,
+    this.onPhoneTap,
+    this.onPhoneChanged,
+    this.onPhoneCountryChanged,
+    this.onPhoneTapOutside,
     this.onPhotoTap,
     this.onSharePhoneChanged,
     this.onShareEmailChanged,
@@ -55,14 +65,23 @@ class ProfileHeader extends StatelessWidget {
   final bool shareEmail;
   final bool editingName;
   final bool editingBio;
+  final bool editingPhone;
   final TextEditingController? nameController;
   final TextEditingController? bioController;
+  final TextEditingController? phoneController;
+  final GlobalKey<PhoneCountryFieldState>? phoneFieldKey;
+  final String? phoneDialCode;
+  final String? phoneCountryCode;
   final VoidCallback? onNameTap;
   final ValueChanged<String>? onNameChanged;
   final VoidCallback? onNameTapOutside;
   final VoidCallback? onBioTap;
   final ValueChanged<String>? onBioChanged;
   final VoidCallback? onBioTapOutside;
+  final VoidCallback? onPhoneTap;
+  final ValueChanged<String>? onPhoneChanged;
+  final VoidCallback? onPhoneCountryChanged;
+  final VoidCallback? onPhoneTapOutside;
   final VoidCallback? onPhotoTap;
   final ValueChanged<bool>? onSharePhoneChanged;
   final ValueChanged<bool>? onShareEmailChanged;
@@ -139,12 +158,36 @@ class ProfileHeader extends StatelessWidget {
               )
               .onPress(onBioTap ?? () {}),
         18.height,
-        _ContactVisibilityRow(
-          value: phone,
-          visible: sharePhone,
-          emptyLabel: 'No phone number',
-          onVisibilityChanged: onSharePhoneChanged,
-        ),
+        if (editingPhone &&
+            phoneController != null &&
+            phoneFieldKey != null)
+          TapRegion(
+            onTapOutside: (_) {
+              FocusManager.instance.primaryFocus?.unfocus();
+              onPhoneTapOutside?.call();
+            },
+            child: PhoneCountryField(
+              key: phoneFieldKey,
+              controller: phoneController!,
+              initialDialCode: phoneDialCode,
+              initialCountryCode: phoneCountryCode,
+              textInputAction: TextInputAction.done,
+              onChanged: onPhoneChanged,
+              onCountryChanged: onPhoneCountryChanged,
+              onSubmitted: (_) {
+                FocusManager.instance.primaryFocus?.unfocus();
+                onPhoneTapOutside?.call();
+              },
+            ),
+          )
+        else
+          _ContactVisibilityRow(
+            value: phone,
+            visible: sharePhone,
+            emptyLabel: AppConstant.addPhone,
+            onTap: onPhoneTap,
+            onVisibilityChanged: onSharePhoneChanged,
+          ),
         10.height,
         _ContactVisibilityRow(
           value: email,
@@ -181,12 +224,16 @@ class _ContactVisibilityRow extends StatelessWidget {
     required this.value,
     required this.visible,
     required this.emptyLabel,
+    this.showEditIcon = false,
+    this.onTap,
     this.onVisibilityChanged,
   });
 
   final String? value;
   final bool visible;
   final String emptyLabel;
+  final bool showEditIcon;
+  final VoidCallback? onTap;
   final ValueChanged<bool>? onVisibilityChanged;
 
   @override
@@ -195,8 +242,9 @@ class _ContactVisibilityRow extends StatelessWidget {
     final hasValue = raw.isNotEmpty;
     final display = !hasValue ? emptyLabel : raw;
 
-    return Row(
+    final text = Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(
           child: display.toText(
@@ -207,6 +255,27 @@ class _ContactVisibilityRow extends StatelessWidget {
             maxLine: 1,
             overflow: TextOverflow.ellipsis,
           ),
+        ),
+        if (showEditIcon) ...[
+          8.width,
+          SvgPicture.asset(
+            AppIcons.iconEdit,
+            width: 16,
+            height: 16,
+            colorFilter: const ColorFilter.mode(
+              AppColors.warmGray,
+              BlendMode.srcIn,
+            ),
+          ),
+        ],
+      ],
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          child: onTap != null ? text.onPress(onTap!) : text,
         ),
         if (hasValue && onVisibilityChanged != null) ...[
           10.width,
