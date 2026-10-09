@@ -92,6 +92,8 @@ abstract final class AppConstant {
   static const String fumbledOn = 'Fumbled';
   static const String metAtPrefix = 'Met at';
   static String metAt(String place) => '$metAtPrefix $place';
+  /// Placeholder subtitle on connection tiles until place copy is finalized.
+  static const String metAtCoffeeBar = 'Met at The Coffee Bar';
   static const String dataNotFound = 'No connections yet';
 
   static const String scannerHint = 'Point your camera at their Fumble code.';

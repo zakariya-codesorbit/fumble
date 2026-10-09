@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/data/models/connection.dart';
@@ -72,19 +71,15 @@ class _ConnectionTileState extends State<ConnectionTile> {
     setState(() => _offset = 0);
   }
 
-  String _metAtText(Connection connection) {
+  String _fumbleLocationText(Connection connection) {
     final saved = connection.fumblePlace?.trim();
-    if (saved != null && saved.isNotEmpty) {
-      return AppConstant.metAt(saved);
-    }
+    if (saved != null && saved.isNotEmpty) return saved;
     if (_placeLabel != null && _placeLabel!.trim().isNotEmpty) {
-      return AppConstant.metAt(_placeLabel!.trim());
+      return _placeLabel!.trim();
     }
     final loc = connection.fumbleLocation;
-    if (loc == null) return AppConstant.metAt('__ __');
-    return AppConstant.metAt(
-      '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°',
-    );
+    if (loc == null) return '—';
+    return '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°';
   }
 
   @override
@@ -92,12 +87,10 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final connection = widget.connection;
     final date = DateFormat('MMM d, yyyy').format(connection.fumbledAt);
     final time = DateFormat('h:mm a').format(connection.fumbledAt);
-    final userLocation = connection.location?.trim().isNotEmpty == true
-        ? connection.location!.trim()
-        : '__ __';
     final note = connection.note?.trim() ?? '';
     final badge = _syncBadge(connection.syncStatus);
     final canDelete = widget.onDeleteTap != null;
+    final place = _fumbleLocationText(connection);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
@@ -191,15 +184,15 @@ class _ConnectionTileState extends State<ConnectionTile> {
                                 ],
                               ),
                               4.height,
-                              _DetailRow(
-                                leading: _metAtText(connection),
+                              _MetaRow(
+                                leading: AppConstant.metAtCoffeeBar,
                                 trailing: date,
                               ),
                               4.height,
-                              _DetailRow(
-                                isLocation: true,
-                                leading: userLocation,
+                              _MetaRow(
+                                leading: place,
                                 trailing: time,
+                                showLocationIcon: true,
                               ),
                             ],
                           ),
@@ -228,48 +221,39 @@ class _ConnectionTileState extends State<ConnectionTile> {
   }
 }
 
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
+class _MetaRow extends StatelessWidget {
+  const _MetaRow({
     required this.leading,
     required this.trailing,
-    this.isLocation,
+    this.showLocationIcon = false,
   });
 
   final String leading;
   final String trailing;
-  final bool? isLocation;
-
-  static const _style = (
-    fontSize: 12.0,
-    fontWeight: AppStyle.w500,
-    color: AppColors.tertiaryText,
-  );
+  final bool showLocationIcon;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (isLocation == true)
-          Icon(
-            AppIcons.location,
-            size: 14,
-            color: AppColors.tertiaryText,
-          ).paddingOnly(right: 2.w),
+        if (showLocationIcon) ...[
+          Icon(AppIcons.location, size: 14, color: AppColors.tertiaryText),
+          4.width,
+        ],
         Expanded(
           child: leading.toText(
-            fontSize: _style.fontSize,
-            fontWeight: _style.fontWeight,
-            color: _style.color,
+            fontSize: 12,
+            fontWeight: AppStyle.w500,
+            color: AppColors.tertiaryText,
             maxLine: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         8.width,
         trailing.toText(
-          fontSize: _style.fontSize,
-          fontWeight: _style.fontWeight,
-          color: _style.color,
+          fontSize: 12,
+          fontWeight: AppStyle.w500,
+          color: AppColors.tertiaryText,
         ),
       ],
     );
