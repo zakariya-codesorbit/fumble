@@ -12,7 +12,6 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/pill_button.dart';
 import 'package:fumble/view/widgets/inputs/custom_text_field.dart';
-import 'package:fumble/view/widgets/inputs/custom_toggle.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
 
@@ -26,8 +25,6 @@ class ProfileHeader extends StatelessWidget {
     this.bio,
     this.phone,
     this.email,
-    this.sharePhone = true,
-    this.shareEmail = true,
     this.editingName = false,
     this.editingBio = false,
     this.editingPhone = false,
@@ -48,8 +45,6 @@ class ProfileHeader extends StatelessWidget {
     this.onPhoneCountryChanged,
     this.onPhoneTapOutside,
     this.onPhotoTap,
-    this.onSharePhoneChanged,
-    this.onShareEmailChanged,
     this.onCall,
     this.onText,
   });
@@ -61,8 +56,6 @@ class ProfileHeader extends StatelessWidget {
   final String? bio;
   final String? phone;
   final String? email;
-  final bool sharePhone;
-  final bool shareEmail;
   final bool editingName;
   final bool editingBio;
   final bool editingPhone;
@@ -83,8 +76,6 @@ class ProfileHeader extends StatelessWidget {
   final VoidCallback? onPhoneCountryChanged;
   final VoidCallback? onPhoneTapOutside;
   final VoidCallback? onPhotoTap;
-  final ValueChanged<bool>? onSharePhoneChanged;
-  final ValueChanged<bool>? onShareEmailChanged;
   final VoidCallback? onCall;
   final VoidCallback? onText;
 
@@ -157,10 +148,8 @@ class ProfileHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               )
               .onPress(onBioTap ?? () {}),
-        18.height,
-        if (editingPhone &&
-            phoneController != null &&
-            phoneFieldKey != null)
+        14.height,
+        if (editingPhone && phoneController != null && phoneFieldKey != null)
           TapRegion(
             onTapOutside: (_) {
               FocusManager.instance.primaryFocus?.unfocus();
@@ -181,20 +170,13 @@ class ProfileHeader extends StatelessWidget {
             ),
           )
         else
-          _ContactVisibilityRow(
+          _ContactLine(
             value: phone,
-            visible: sharePhone,
             emptyLabel: AppConstant.addPhone,
             onTap: onPhoneTap,
-            onVisibilityChanged: onSharePhoneChanged,
           ),
-        10.height,
-        _ContactVisibilityRow(
-          value: email,
-          visible: shareEmail,
-          emptyLabel: 'No email',
-          onVisibilityChanged: onShareEmailChanged,
-        ),
+        4.height,
+        _ContactLine(value: email, emptyLabel: 'No email'),
         20.height,
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -219,22 +201,16 @@ class ProfileHeader extends StatelessWidget {
   }
 }
 
-class _ContactVisibilityRow extends StatelessWidget {
-  const _ContactVisibilityRow({
+class _ContactLine extends StatelessWidget {
+  const _ContactLine({
     required this.value,
-    required this.visible,
     required this.emptyLabel,
-    this.showEditIcon = false,
     this.onTap,
-    this.onVisibilityChanged,
   });
 
   final String? value;
-  final bool visible;
   final String emptyLabel;
-  final bool showEditIcon;
   final VoidCallback? onTap;
-  final ValueChanged<bool>? onVisibilityChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -242,46 +218,15 @@ class _ContactVisibilityRow extends StatelessWidget {
     final hasValue = raw.isNotEmpty;
     final display = !hasValue ? emptyLabel : raw;
 
-    final text = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: display.toText(
-            fontSize: 16,
-            fontWeight: hasValue ? AppStyle.w600 : AppStyle.w500,
-            color: hasValue ? AppColors.white : AppColors.softGrayDim,
-            textAlign: TextAlign.center,
-            maxLine: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        if (showEditIcon) ...[
-          8.width,
-          SvgPicture.asset(
-            AppIcons.iconEdit,
-            width: 16,
-            height: 16,
-            colorFilter: const ColorFilter.mode(
-              AppColors.warmGray,
-              BlendMode.srcIn,
-            ),
-          ),
-        ],
-      ],
+    final text = display.toText(
+      fontSize: 16,
+      fontWeight: hasValue ? AppStyle.w600 : AppStyle.w500,
+      color: hasValue ? AppColors.white : AppColors.softGrayDim,
+      textAlign: TextAlign.center,
+      maxLine: 1,
+      overflow: TextOverflow.ellipsis,
     );
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Flexible(
-          child: onTap != null ? text.onPress(onTap!) : text,
-        ),
-        if (hasValue && onVisibilityChanged != null) ...[
-          10.width,
-          CustomToggle(value: visible, onChanged: onVisibilityChanged!),
-        ],
-      ],
-    );
+    return Center(child: onTap != null ? text.onPress(onTap!) : text);
   }
 }

@@ -132,6 +132,42 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     }
   }
 
+  Future<void> updateShareVisibility({
+    bool? sharePhone,
+    bool? shareEmail,
+  }) async {
+    final profile = _currentProfile;
+    if (profile == null) return;
+    if (sharePhone == null && shareEmail == null) return;
+
+    final nextPhone = sharePhone ?? profile.sharePhone;
+    final nextEmail = shareEmail ?? profile.shareEmail;
+    if (nextPhone == profile.sharePhone && nextEmail == profile.shareEmail) {
+      return;
+    }
+
+    ref.read(shareVisibilityProvider.notifier).state = (
+      sharePhone: nextPhone,
+      shareEmail: nextEmail,
+    );
+    unawaited(
+      LocalPrefs.saveUserProfile(
+        profile.copyWith(sharePhone: nextPhone, shareEmail: nextEmail),
+      ),
+    );
+
+    try {
+      await _users.updateUserProfile(
+        uid: profile.uid,
+        sharePhone: nextPhone,
+        shareEmail: nextEmail,
+      );
+    } catch (e) {
+      ref.read(shareVisibilityProvider.notifier).state = null;
+      showAppToast(e.toString(), isError: true);
+    }
+  }
+
   Future<void> save({
     required String name,
     required String bio,

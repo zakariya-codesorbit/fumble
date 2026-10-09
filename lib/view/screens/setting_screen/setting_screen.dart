@@ -5,7 +5,8 @@ import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
-import 'package:fumble/view/screens/setting_screen/components/setting_row_tile.dart';
+import 'package:fumble/view/screens/setting_screen/components/setting_action_group.dart';
+import 'package:fumble/view/screens/setting_screen/components/setting_toggle_group.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
@@ -16,6 +17,13 @@ class SettingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.read(settingNotifierProvider.notifier);
+    final profile = ref.watch(currentUserProfileProvider).valueOrNull;
+    final shareOverride = ref.watch(shareVisibilityProvider);
+    final sharePhone =
+        shareOverride?.sharePhone ?? profile?.sharePhone ?? true;
+    final shareEmail =
+        shareOverride?.shareEmail ?? profile?.shareEmail ?? true;
+    final profileActions = ref.read(profileNotifierProvider.notifier);
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -23,17 +31,43 @@ class SettingScreen extends ConsumerWidget {
         body: ListView(
           padding: EdgeInsets.all(28.w),
           children: [
-            SettingRowTile(
-              label: AppConstant.logout,
-              icon: AppIcons.logout,
-              onTap: () => settings.logout(context),
+            SettingToggleGroup(
+              title: AppConstant.shareContactGroup,
+              items: [
+                SettingToggleItem(
+                  label: AppConstant.sharePhoneSetting,
+                  icon: AppIcons.phone,
+                  value: sharePhone,
+                  onChanged: (value) => profileActions.updateShareVisibility(
+                    sharePhone: value,
+                  ),
+                ),
+                SettingToggleItem(
+                  label: AppConstant.shareEmailSetting,
+                  icon: AppIcons.email,
+                  value: shareEmail,
+                  onChanged: (value) => profileActions.updateShareVisibility(
+                    shareEmail: value,
+                  ),
+                ),
+              ],
             ),
-            12.height,
-            SettingRowTile(
-              label: AppConstant.deleteAccount,
-              icon: AppIcons.deleteOutline,
-              foreground: AppColors.error,
-              onTap: () => settings.deleteAccount(context),
+            24.height,
+            SettingActionGroup(
+              title: AppConstant.accountGroup,
+              items: [
+                SettingActionItem(
+                  label: AppConstant.logout,
+                  icon: AppIcons.logout,
+                  onTap: () => settings.logout(context),
+                ),
+                SettingActionItem(
+                  label: AppConstant.deleteAccount,
+                  icon: AppIcons.deleteOutline,
+                  foreground: AppColors.error,
+                  onTap: () => settings.deleteAccount(context),
+                ),
+              ],
             ),
           ],
         ),

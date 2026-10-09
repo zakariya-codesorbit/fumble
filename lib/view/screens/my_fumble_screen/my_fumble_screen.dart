@@ -81,8 +81,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   final _phoneFieldKey = GlobalKey<PhoneCountryFieldState>();
   late String _phoneDialCode;
   late String _phoneCountryCode;
-  late bool _sharePhone;
-  late bool _shareEmail;
   String? _active;
   bool _readyToClose = false;
 
@@ -95,11 +93,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   @override
   void didUpdateWidget(covariant _ProfileBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.profile.sharePhone != widget.profile.sharePhone ||
-        oldWidget.profile.shareEmail != widget.profile.shareEmail) {
-      _sharePhone = widget.profile.sharePhone;
-      _shareEmail = widget.profile.shareEmail;
-    }
     if (oldWidget.profile.phone != widget.profile.phone && _active != 'phone') {
       _syncPhoneFromProfile(widget.profile);
     }
@@ -138,8 +131,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _location = TextEditingController(text: profile.location ?? '');
     _phone = TextEditingController();
     _syncPhoneFromProfile(profile);
-    _sharePhone = profile.sharePhone;
-    _shareEmail = profile.shareEmail;
   }
 
   void _syncPhoneFromProfile(UserProfile profile) {
@@ -169,8 +160,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _aboutMe.text = profile.aboutMe ?? '';
     _location.text = profile.location ?? '';
     _syncPhoneFromProfile(profile);
-    _sharePhone = profile.sharePhone;
-    _shareEmail = profile.shareEmail;
   }
 
   void _discardDraft() {
@@ -191,9 +180,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
         _bio.text.trim() != (profile.bio ?? '').trim() ||
         _aboutMe.text.trim() != (profile.aboutMe ?? '').trim() ||
         _location.text.trim() != (profile.location ?? '').trim() ||
-        _fullPhone() != savedPhone ||
-        _sharePhone != profile.sharePhone ||
-        _shareEmail != profile.shareEmail;
+        _fullPhone() != savedPhone;
   }
 
   void _openField(String key) {
@@ -263,8 +250,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                   bio: _bio.text,
                   phone: _fullPhone().isNotEmpty ? _fullPhone() : profile.phone,
                   email: profile.email,
-                  sharePhone: _sharePhone,
-                  shareEmail: _shareEmail,
                   editingName: _active == 'name',
                   editingBio: _active == 'bio',
                   editingPhone: _active == 'phone',
@@ -291,10 +276,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                   },
                   onPhoneTapOutside: () => _closeIfStill('phone'),
                   onPhotoTap: () => actions.showPhotoSheet(context),
-                  onSharePhoneChanged: (value) =>
-                      setState(() => _sharePhone = value),
-                  onShareEmailChanged: (value) =>
-                      setState(() => _shareEmail = value),
                   onCall: () {
                     final phone = _fullPhone().isNotEmpty
                         ? _fullPhone()
@@ -373,8 +354,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                         aboutMe: _aboutMe.text,
                         location: _location.text,
                         phone: phone,
-                        sharePhone: _sharePhone,
-                        shareEmail: _shareEmail,
+                        sharePhone: profile.sharePhone,
+                        shareEmail: profile.shareEmail,
                       );
                       if (!mounted) return;
                       setState(() => _active = null);

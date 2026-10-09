@@ -72,6 +72,10 @@ abstract final class AppConstant {
   static const String privacyPolicy = 'Privacy Policy';
   static const String termsOfService = 'Terms of Service';
   static const String settings = 'Settings';
+  static const String shareContactGroup = 'SHARE ON FUMBLE';
+  static const String sharePhoneSetting = 'Phone number';
+  static const String shareEmailSetting = 'Email';
+  static const String accountGroup = 'ACCOUNT';
   static const String completeProfile =
       'Complete your profile to get a Fumble code.';
 
