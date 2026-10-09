@@ -74,7 +74,7 @@ class ProfileAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppColors.surfaceElevated,
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.35)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -82,8 +82,8 @@ class ProfileAvatar extends StatelessWidget {
           color: AppColors.surfaceElevated,
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.asset("assets/images/profile.png", fit: BoxFit.cover),
-      ).paddingAll(0),
+        child: child,
+      ).paddingAll(2),
     );
 
     if (onTap == null) return avatar;

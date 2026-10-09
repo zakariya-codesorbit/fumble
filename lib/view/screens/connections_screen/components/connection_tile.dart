@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/data/models/connection.dart';
@@ -76,7 +77,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
     if (saved != null && saved.isNotEmpty) return saved;
     if (_placeLabel != null) return _placeLabel!;
     final loc = connection.fumbleLocation;
-    if (loc == null) return '';
+    if (loc == null) return '__ __';
     return '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°';
   }
 
@@ -160,7 +161,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                         ProfileAvatar(
                           photoUrl: connection.photoUrl,
                           name: connection.name,
-                          size: 42.w,
+                          size: 45.w,
                         ),
                         10.width,
                         Expanded(
@@ -170,8 +171,8 @@ class _ConnectionTileState extends State<ConnectionTile> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: "Sarah johnson".toText(
-                                      fontSize: 14,
+                                    child: connection.name.toText(
+                                      fontSize: 16,
                                       fontWeight: AppStyle.w600,
                                       maxLine: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -185,13 +186,17 @@ class _ConnectionTileState extends State<ConnectionTile> {
                               ),
                               2.height,
                               _DetailRow(
-                                leading: "Meet at the coffee bar",
-                                //email.isNotEmpty ? email : '__ __',
+                                leading: email.isNotEmpty ? email : '__ __',
                                 trailing: date,
                               ),
                               4.height,
+                              // _DetailRow(
+                              //   leading: phone ?? '__ __',
+                              //   trailing: time,
+                              // ),
                               _DetailRow(
-                                leading: phone ?? '__ __',
+                                isLocation: true,
+                                leading: locationText,
                                 trailing: time,
                               ),
                             ],
@@ -199,30 +204,30 @@ class _ConnectionTileState extends State<ConnectionTile> {
                         ),
                       ],
                     ),
-                    if (locationText.isNotEmpty) ...[
-                      4.height,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            AppIcons.location,
-                            size: 14,
-                            color: AppColors.softGray,
-                          ),
-                          4.width,
-                          Expanded(
-                            child: locationText.toText(
-                              fontSize: 12.0,
-                              fontWeight: AppStyle.w500,
-                              color: AppColors.softGray,
-                              maxLine: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    // if (locationText.isNotEmpty) ...[
+                    //   4.height,
+                    //   Row(
+                    //     mainAxisAlignment: MainAxisAlignment.start,
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Icon(
+                    //         AppIcons.location,
+                    //         size: 14,
+                    //         color: AppColors.tertiaryText,
+                    //       ),
+                    //       4.width,
+                    //       Expanded(
+                    //         child: locationText.toText(
+                    //           fontSize: 12.0,
+                    //           fontWeight: AppStyle.w500,
+                    //           color: AppColors.tertiaryText,
+                    //           maxLine: 2,
+                    //           overflow: TextOverflow.ellipsis,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ],
                     // if (bio.isNotEmpty) ...[
                     //   12.height,
                     //   bio.toText(
@@ -246,15 +251,20 @@ class _ConnectionTileState extends State<ConnectionTile> {
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.leading, required this.trailing});
+  const _DetailRow({
+    required this.leading,
+    required this.trailing,
+    this.isLocation,
+  });
 
   final String leading;
   final String trailing;
+  final bool? isLocation;
 
   static const _style = (
     fontSize: 12.0,
     fontWeight: AppStyle.w500,
-    color: AppColors.softGray,
+    color: AppColors.tertiaryText,
   );
 
   @override
@@ -262,6 +272,13 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        isLocation == true
+            ? Icon(
+                AppIcons.location,
+                size: 14,
+                color: AppColors.tertiaryText,
+              ).paddingOnly(right: 2.w)
+            : const SizedBox(width: 0, height: 0),
         Expanded(
           child: leading.toText(
             fontSize: _style.fontSize,

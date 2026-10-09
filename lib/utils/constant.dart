@@ -13,8 +13,8 @@ abstract final class AppConstant {
 
   static const String readyTo = 'Ready to';
   static const String fumbleQuestion = 'Fumble?';
-  static const String tapTheQr = 'Show this code to connect,';
-  static const String readyToScan = 'or tap it to scan theirs.';
+  static const String tapTheQr = 'Tap the button when';
+  static const String readyToScan = 'you\'re ready to connect';
   static const String fumbleCta = 'FUMBLE';
 
   static const String loginTitle = 'Welcome back';
