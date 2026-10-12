@@ -33,7 +33,8 @@ void main() {
 
   test('App branding', () {
     expect(AppConfig.displayName, 'Fumble');
-    expect(AppConfig.androidApplicationId, 'com.fumble.app');
+    expect(AppConfig.androidApplicationId, 'com.codesorbit.fumble');
+    expect(AppConfig.iosBundleId, 'com.codesorbit.fumble');
     expect(AppConfig.appVersionName, '1.0.0');
     expect(AppConfig.appBuildNumber, 1);
     expect(AppConfig.databaseSchemaVersion, 1);

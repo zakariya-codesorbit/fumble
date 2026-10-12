@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for the fumble Firebase project `fumble-d3387`.
+/// Default [FirebaseOptions] for the fumble Firebase project `fumble-283d8`.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -25,19 +25,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDZ7CFJgFmNLFSeJg4NsD8zFVhOy4vWArc',
-    appId: '1:798280538819:android:2465f06afda359a0142076',
-    messagingSenderId: '798280538819',
-    projectId: 'fumble-d3387',
-    storageBucket: 'fumble-d3387.firebasestorage.app',
+    apiKey: 'AIzaSyCwK7C1eHEevNgLy7ZShB5qpmvpTEB7HmA',
+    appId: '1:804536695147:android:3e40bc656f91011964b42e',
+    messagingSenderId: '804536695147',
+    projectId: 'fumble-283d8',
+    storageBucket: 'fumble-283d8.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDJLhAuJvvC1wr1ihhUMsSzI8pSPLnJi8E',
-    appId: '1:798280538819:ios:48211ea0a7474fc9142076',
-    messagingSenderId: '798280538819',
-    projectId: 'fumble-d3387',
-    storageBucket: 'fumble-d3387.firebasestorage.app',
-    iosBundleId: 'com.fumble.app',
+    apiKey: 'AIzaSyCmu_gB63MjIbBhiLwJ4n9PVpqOKHTCb3w',
+    appId: '1:804536695147:ios:925b98a29347f7ca64b42e',
+    messagingSenderId: '804536695147',
+    projectId: 'fumble-283d8',
+    storageBucket: 'fumble-283d8.firebasestorage.app',
+    iosBundleId: 'com.codesorbit.fumble',
   );
 }

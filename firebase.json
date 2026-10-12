@@ -6,25 +6,25 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "fumble-d3387",
-          "appId": "1:798280538819:android:2465f06afda359a0142076",
+          "projectId": "fumble-283d8",
+          "appId": "1:804536695147:android:3e40bc656f91011964b42e",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "ios": {
         "default": {
-          "projectId": "fumble-d3387",
-          "appId": "1:798280538819:ios:48211ea0a7474fc9142076",
+          "projectId": "fumble-283d8",
+          "appId": "1:804536695147:ios:925b98a29347f7ca64b42e",
           "uploadDebugSymbols": true,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "fumble-d3387",
+          "projectId": "fumble-283d8",
           "configurations": {
-            "android": "1:798280538819:android:2465f06afda359a0142076",
-            "ios": "1:798280538819:ios:48211ea0a7474fc9142076"
+            "android": "1:804536695147:android:3e40bc656f91011964b42e",
+            "ios": "1:804536695147:ios:925b98a29347f7ca64b42e"
           }
         }
       }

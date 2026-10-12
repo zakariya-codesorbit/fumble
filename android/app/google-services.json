@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "798280538819",
-    "project_id": "fumble-d3387",
-    "storage_bucket": "fumble-d3387.firebasestorage.app"
+    "project_number": "804536695147",
+    "project_id": "fumble-283d8",
+    "storage_bucket": "fumble-283d8.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:798280538819:android:2465f06afda359a0142076",
+        "mobilesdk_app_id": "1:804536695147:android:3e40bc656f91011964b42e",
         "android_client_info": {
-          "package_name": "com.fumble.app"
+          "package_name": "com.codesorbit.fumble"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDZ7CFJgFmNLFSeJg4NsD8zFVhOy4vWArc"
+          "current_key": "AIzaSyCwK7C1eHEevNgLy7ZShB5qpmvpTEB7HmA"
         }
       ],
       "services": {

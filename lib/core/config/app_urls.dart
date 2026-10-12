@@ -6,7 +6,7 @@ abstract final class AppUrls {
   static const String termsOfServiceUrl = '';
   static const String supportEmail = '';
 
-  static const String playStorePackageId = 'com.fumble.app';
+  static const String playStorePackageId = 'com.codesorbit.fumble';
   static const String playStoreWebUrl =
       'https://play.google.com/store/apps/details?id=$playStorePackageId';
   static const String playStoreMarketUrl =

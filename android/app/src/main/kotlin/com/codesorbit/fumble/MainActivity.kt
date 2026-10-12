@@ -1,4 +1,4 @@
-package com.fumble.app
+package com.codesorbit.fumble
 
 import io.flutter.embedding.android.FlutterActivity
 

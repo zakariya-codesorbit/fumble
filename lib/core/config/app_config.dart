@@ -9,8 +9,8 @@ abstract final class AppConfig {
   static const String appVersionName = '1.0.0';
   static const int appBuildNumber = 1;
 
-  static const String androidApplicationId = 'com.fumble.app';
-  static const String iosBundleId = 'com.fumble.app';
+  static const String androidApplicationId = 'com.codesorbit.fumble';
+  static const String iosBundleId = 'com.codesorbit.fumble';
 
   static const String supportEmail = AppUrls.supportEmail;
   static const String privacyPolicyUrl = AppUrls.privacyPolicyUrl;
