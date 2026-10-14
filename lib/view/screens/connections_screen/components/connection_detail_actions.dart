@@ -41,12 +41,14 @@ abstract final class ConnectionDetailActions {
     final uid = peerUid.trim();
     if (uid.isEmpty) return null;
 
+    // Capture before any await — [ref] must not be used after dispose.
+    final codes = ref.read(fumbleCodeRepositoryProvider);
+
     try {
-      final PublicFumbleProfile? card =
-          await ref.read(fumbleCodeRepositoryProvider).loadPublicProfile(uid);
+      final PublicFumbleProfile? card = await codes.loadPublicProfile(uid);
       if (card == null) return null;
       final aboutMe = card.aboutMe?.trim();
-      final location = card.location?.trim();
+      final location = card.fumblePlace?.trim() ?? card.location?.trim();
       return ConnectionPublicExtras(
         aboutMe: (aboutMe != null && aboutMe.isNotEmpty) ? aboutMe : null,
         location: (location != null && location.isNotEmpty) ? location : null,

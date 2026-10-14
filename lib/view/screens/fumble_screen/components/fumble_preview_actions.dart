@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:fumble/data/repositories/fumble_code_repository.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
+import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
@@ -90,5 +93,32 @@ abstract final class FumblePreviewActions {
 
   static Future<void> stopVoiceMemory(WidgetRef ref) async {
     await ref.read(voiceMemoryServiceProvider).stop();
+  }
+
+  /// Meeting place for THE MOMENT: own GPS when allowed, else peer's published
+  /// place. Returns null when neither is available (show hint instead).
+  ///
+  /// Callers must pass [peerUid] / [codes] before any `await` so [WidgetRef]
+  /// is not used after the widget may have been disposed.
+  static Future<String?> resolveMeetingPlace({
+    required String peerUid,
+    required FumbleCodeRepository codes,
+  }) async {
+    final coords = await FumbleLocationService.currentLocation();
+    if (coords != null) {
+      final label = await FumbleLocationService.placeLabel(coords);
+      if (label != null && label.trim().isNotEmpty) return label.trim();
+    }
+
+    if (!ConnectionManager().isConnected) return null;
+    final uid = peerUid.trim();
+    if (uid.isEmpty) return null;
+
+    try {
+      final card = await codes.loadPublicProfile(uid);
+      final place = card?.fumblePlace?.trim();
+      if (place != null && place.isNotEmpty) return place;
+    } catch (_) {}
+    return null;
   }
 }

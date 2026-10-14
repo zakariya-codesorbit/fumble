@@ -8,6 +8,7 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/services/network/connection_manager.dart';
+import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
@@ -41,7 +42,8 @@ class _ConnectionDetailScreenState
   final _note = TextEditingController();
   final _location = TextEditingController();
   StreamSubscription<bool>? _connectivitySub;
-  late final _voice = ref.read(voiceMemoryServiceProvider);
+  VoiceMemoryService? _voice;
+  var _extrasRequestId = 0;
   var _initializedNote = false;
   var _locationSeeded = false;
   var _saving = false;
@@ -51,34 +53,43 @@ class _ConnectionDetailScreenState
   @override
   void initState() {
     super.initState();
+    _voice = ref.read(voiceMemoryServiceProvider);
     _note.addListener(_onNoteEdited);
     _connectivitySub = ConnectionManager().connectionStream.listen((online) {
-      if (online) unawaited(_loadPublicExtras());
+      if (!mounted || !online) return;
+      unawaited(_loadPublicExtras());
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       unawaited(_loadPublicExtras());
     });
   }
 
   @override
   void dispose() {
+    _extrasRequestId++;
     _connectivitySub?.cancel();
-    unawaited(_voice.stop());
     _note.removeListener(_onNoteEdited);
+    unawaited(_voice?.stop());
     _note.dispose();
     _location.dispose();
     super.dispose();
   }
 
-  void _onNoteEdited() => setState(() {});
+  void _onNoteEdited() {
+    if (!mounted) return;
+    setState(() {});
+  }
 
   Future<void> _toggleVoiceMemory() async {
+    final voice = _voice;
+    if (voice == null) return;
     final listening = await FumblePreviewActions.toggleVoiceMemory(
       ref: ref,
       noteController: _note,
       onChanged: () {
         if (!mounted) return;
-        setState(() => _listening = _voice.isListening);
+        setState(() => _listening = voice.isListening);
       },
     );
     if (!mounted) return;
@@ -86,12 +97,14 @@ class _ConnectionDetailScreenState
   }
 
   Future<void> _loadPublicExtras() async {
+    if (!mounted) return;
+    final requestId = ++_extrasRequestId;
     final extras = await ConnectionDetailActions.loadPublicExtras(
       ref: ref,
       peerUid: widget.peerUid,
     );
-    if (!mounted || extras == null) return;
-    if (_locationSeeded) return;
+    if (!mounted || requestId != _extrasRequestId) return;
+    if (extras == null || _locationSeeded) return;
     final place = extras.location?.trim() ?? '';
     if (place.isEmpty) return;
     setState(() {
@@ -219,8 +232,7 @@ class _ConnectionDetailScreenState
                           ),
                         16.height,
                         FumblePreviewRememberPrompt(
-                          message:
-                              AppConstant.youFumbledJustNow(displayName),
+                          message: AppConstant.youFumbled(displayName),
                         ),
                         16.height,
                         FumblePreviewRecordMemory(

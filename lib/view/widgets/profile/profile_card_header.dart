@@ -182,7 +182,7 @@ class ProfileCardHeader extends StatelessWidget {
           ),
         ] else ...[
           if (showBioRow) ...[
-            6.height,
+            2.height,
             _BioRow(
               bioText: bioText,
               placeholder: bioPlaceholder,
@@ -194,7 +194,7 @@ class ProfileCardHeader extends StatelessWidget {
             ),
           ],
           if (showContact) ...[
-            18.height,
+            16.height,
             if (editingPhone &&
                 phoneController != null &&
                 phoneFieldKey != null)

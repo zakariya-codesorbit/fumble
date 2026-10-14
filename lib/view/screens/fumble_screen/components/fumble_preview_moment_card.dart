@@ -16,12 +16,14 @@ class FumblePreviewMomentCard extends StatelessWidget {
     required this.dateLabel,
     required this.timeLabel,
     required this.locationLabel,
+    this.locationPlaceholder = false,
     this.onLocationTap,
   });
 
   final String dateLabel;
   final String timeLabel;
   final String locationLabel;
+  final bool locationPlaceholder;
   final VoidCallback? onLocationTap;
 
   @override
@@ -66,7 +68,9 @@ class FumblePreviewMomentCard extends StatelessWidget {
                 child: locationLabel.toText(
                   fontSize: 14,
                   fontWeight: AppStyle.w500,
-                  color: AppColors.softGray,
+                  color: locationPlaceholder
+                      ? AppColors.softGrayDim
+                      : AppColors.softGray,
                   maxLine: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

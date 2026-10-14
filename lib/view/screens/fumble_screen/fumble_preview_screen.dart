@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/services/network/connection_manager.dart';
+import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
@@ -33,7 +34,8 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
   final _location = TextEditingController();
   final _momentAt = DateTime.now();
   StreamSubscription<bool>? _connectivitySub;
-  late final _voice = ref.read(voiceMemoryServiceProvider);
+  VoiceMemoryService? _voice;
+  var _placeRequestId = 0;
   var _online = ConnectionManager().isConnected;
   var _hasNote = false;
   var _editingLocation = false;
@@ -43,6 +45,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
   @override
   void initState() {
     super.initState();
+    _voice = ref.read(voiceMemoryServiceProvider);
     _note.addListener(_onNoteChanged);
     _connectivitySub = ConnectionManager().connectionStream.listen((online) {
       if (!mounted) return;
@@ -52,20 +55,32 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(FumblePreviewActions.loadDetails(ref));
-      _seedLocationFromPreview();
+      unawaited(_resolveMeetingPlace());
     });
   }
 
-  void _seedLocationFromPreview() {
-    if (_locationSeeded) return;
-    final place =
-        ref.read(fumbleNotifierProvider).preview?.location?.trim() ?? '';
-    if (place.isEmpty) return;
-    _location.text = place;
-    _locationSeeded = true;
+  Future<void> _resolveMeetingPlace() async {
+    if (_locationSeeded || !mounted) return;
+    final requestId = ++_placeRequestId;
+    final peerUid =
+        ref.read(fumbleNotifierProvider).preview?.peerUid.trim() ?? '';
+    final codes = ref.read(fumbleCodeRepositoryProvider);
+
+    final place = await FumblePreviewActions.resolveMeetingPlace(
+      peerUid: peerUid,
+      codes: codes,
+    );
+
+    if (!mounted || requestId != _placeRequestId) return;
+    if (place == null || place.isEmpty) return;
+    setState(() {
+      _location.text = place;
+      _locationSeeded = true;
+    });
   }
 
   void _onNoteChanged() {
+    if (!mounted) return;
     final hasNote = _note.text.trim().isNotEmpty;
     if (hasNote == _hasNote) return;
     setState(() => _hasNote = hasNote);
@@ -73,22 +88,25 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
 
   @override
   void dispose() {
+    _placeRequestId++;
     _connectivitySub?.cancel();
-    unawaited(_voice.stop());
     _note.removeListener(_onNoteChanged);
+    unawaited(_voice?.stop());
     _note.dispose();
     _location.dispose();
     super.dispose();
   }
 
   Future<void> _toggleVoiceMemory() async {
+    final voice = _voice;
+    if (voice == null) return;
     final listening = await FumblePreviewActions.toggleVoiceMemory(
       ref: ref,
       noteController: _note,
       onChanged: () {
         if (!mounted) return;
         setState(() {
-          _listening = _voice.isListening;
+          _listening = voice.isListening;
           _hasNote = _note.text.trim().isNotEmpty;
         });
       },
@@ -116,10 +134,13 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
     }
 
     ref.listen(fumbleNotifierProvider, (previous, next) {
-      final place = next.preview?.location?.trim() ?? '';
-      if (_locationSeeded || place.isEmpty) return;
-      _location.text = place;
-      _locationSeeded = true;
+      if (_locationSeeded) return;
+      // Peer public card may arrive after QR-only preview — retry meeting place.
+      if (previous?.preview?.peerUid != next.preview?.peerUid ||
+          (!(previous?.preview?.enriched ?? false) &&
+              (next.preview?.enriched ?? false))) {
+        unawaited(_resolveMeetingPlace());
+      }
     });
 
     final showDetails = _online && preview.enriched;
@@ -129,7 +150,8 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
         : preview.name;
     final dateLabel = DateFormat('d MMMM yyyy').format(_momentAt);
     final timeLabel = DateFormat('HH:mm').format(_momentAt);
-    final locationLabel = _location.text.trim().isNotEmpty
+    final hasLocation = _location.text.trim().isNotEmpty;
+    final locationLabel = hasLocation
         ? _location.text.trim()
         : AppConstant.nearExchangeLocation;
 
@@ -181,6 +203,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                         dateLabel: dateLabel,
                         timeLabel: timeLabel,
                         locationLabel: locationLabel,
+                        locationPlaceholder: !hasLocation,
                         onLocationTap: fumble.isSavingNote
                             ? null
                             : () => setState(() => _editingLocation = true),
