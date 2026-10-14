@@ -17,11 +17,14 @@ class ConnectionTile extends StatefulWidget {
     required this.connection,
     this.onTap,
     this.onDeleteTap,
+    /// When true, subtitle is "You Fumbled X"; when false, "X Fumbled you".
+    this.youInitiated = true,
   });
 
   final Connection connection;
   final VoidCallback? onTap;
   final VoidCallback? onDeleteTap;
+  final bool youInitiated;
 
   @override
   State<ConnectionTile> createState() => _ConnectionTileState();
@@ -66,7 +69,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
       if (!mounted || label == null) return;
       setState(() => _placeLabel = label);
     } catch (_) {
-      // Keep coords fallback in UI.
+      // Keep placeholder in UI.
     } finally {
       _placeLoading = false;
     }
@@ -83,20 +86,29 @@ class _ConnectionTileState extends State<ConnectionTile> {
     if (_placeLabel != null && _placeLabel!.trim().isNotEmpty) {
       return _placeLabel!.trim();
     }
-    final loc = connection.fumbleLocation;
-    if (loc == null) return '—';
-    return '${loc.latitude.toStringAsFixed(2)}°, ${loc.longitude.toStringAsFixed(2)}°';
+    return AppConstant.nearExchangeLocation;
+  }
+
+  String _statusLabel(Connection connection) {
+    final displayName = connection.firstName.isNotEmpty
+        ? connection.firstName
+        : connection.name;
+    final raw = widget.youInitiated
+        ? AppConstant.youFumbled(displayName)
+        : AppConstant.fumbledYou(displayName);
+    return raw.toUpperCase();
   }
 
   @override
   Widget build(BuildContext context) {
     final connection = widget.connection;
-    final date = DateFormat('MMM d, yyyy').format(connection.fumbledAt);
-    final time = DateFormat('h:mm a').format(connection.fumbledAt);
+    final date = DateFormat('d MMMM yyyy').format(connection.fumbledAt);
+    final time = DateFormat('HH:mm').format(connection.fumbledAt);
     final note = connection.note?.trim() ?? '';
     final badge = _syncBadge(connection.syncStatus);
     final canDelete = widget.onDeleteTap != null;
     final place = _fumbleLocationText(connection);
+    final status = _statusLabel(connection);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
@@ -143,9 +155,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                     setState(() => _offset = open ? -_actionWidth : 0);
                   }
                 : null,
-            onTap: _offset < 0
-                ? _close
-                : widget.onTap,
+            onTap: _offset < 0 ? _close : widget.onTap,
             child: Transform.translate(
               offset: Offset(_offset, 0),
               child: Container(
@@ -192,25 +202,66 @@ class _ConnectionTileState extends State<ConnectionTile> {
                                 ],
                               ),
                               4.height,
-                              _MetaRow(
-                                leading: AppConstant.metAtCoffeeBar,
-                                trailing: date,
-                              ),
-                              4.height,
-                              _MetaRow(
-                                leading: place,
-                                trailing: time,
-                                showLocationIcon: true,
+                              status.toText(
+                                fontSize: 11,
+                                fontWeight: AppStyle.w600,
+                                color: AppColors.gold,
+                                letterSpacing: 0.8,
+                                maxLine: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
+                          ),
+                        ),
+                        8.width,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            date.toText(
+                              fontSize: 12,
+                              fontWeight: AppStyle.w500,
+                              color: AppColors.softGray,
+                            ),
+                            2.height,
+                            time.toText(
+                              fontSize: 12,
+                              fontWeight: AppStyle.w500,
+                              color: AppColors.softGray,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    10.height,
+                    Row(
+                      children: [
+                        Icon(
+                          AppIcons.location,
+                          size: 14,
+                          color: AppColors.gold,
+                        ),
+                        6.width,
+                        Expanded(
+                          child: place.toText(
+                            fontSize: 12,
+                            fontWeight: AppStyle.w500,
+                            color: AppColors.softGray,
+                            maxLine: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                     if (note.isNotEmpty) ...[
-                      6.height,
+                      12.height,
+                      const Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.border,
+                      ),
+                      10.height,
                       note.toText(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: AppStyle.w400,
                         color: AppColors.tertiaryText,
                         maxLine: 3,
@@ -225,45 +276,6 @@ class _ConnectionTileState extends State<ConnectionTile> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _MetaRow extends StatelessWidget {
-  const _MetaRow({
-    required this.leading,
-    required this.trailing,
-    this.showLocationIcon = false,
-  });
-
-  final String leading;
-  final String trailing;
-  final bool showLocationIcon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        if (showLocationIcon) ...[
-          Icon(AppIcons.location, size: 14, color: AppColors.tertiaryText),
-          4.width,
-        ],
-        Expanded(
-          child: leading.toText(
-            fontSize: 12,
-            fontWeight: AppStyle.w500,
-            color: AppColors.tertiaryText,
-            maxLine: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        8.width,
-        trailing.toText(
-          fontSize: 12,
-          fontWeight: AppStyle.w500,
-          color: AppColors.tertiaryText,
-        ),
-      ],
     );
   }
 }

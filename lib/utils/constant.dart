@@ -89,6 +89,8 @@ abstract final class AppConstant {
 
   static String youFumbled(String name) => 'You Fumbled $name';
 
+  static String fumbledYou(String name) => '$name Fumbled you';
+
   static String youFumbledJustNow(String name) =>
       'You Fumbled $name just now. Want to remember the moment?';
 
