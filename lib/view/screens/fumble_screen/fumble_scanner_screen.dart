@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/screens/fumble_screen/components/fumble_scanner_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
-import 'package:fumble/view/widgets/buttons/primary_button.dart';
-import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/navigation/back_icon_button.dart';
-
 import 'components/scan_circular_overly.dart';
 import 'components/scan_denied_view.dart';
 

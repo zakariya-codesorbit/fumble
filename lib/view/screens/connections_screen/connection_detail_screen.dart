@@ -10,7 +10,13 @@ import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_detail_actions.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_actions.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_memory_note.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_moment_card.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_record_memory.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_remember_prompt.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -33,11 +39,12 @@ class ConnectionDetailScreen extends ConsumerStatefulWidget {
 class _ConnectionDetailScreenState
     extends ConsumerState<ConnectionDetailScreen> {
   final _note = TextEditingController();
+  final _location = TextEditingController();
   StreamSubscription<bool>? _connectivitySub;
   var _initializedNote = false;
+  var _locationSeeded = false;
   var _saving = false;
-  String? _aboutMe;
-  String? _locationOverride;
+  var _editingLocation = false;
 
   @override
   void initState() {
@@ -56,6 +63,7 @@ class _ConnectionDetailScreenState
     _connectivitySub?.cancel();
     _note.removeListener(_onNoteEdited);
     _note.dispose();
+    _location.dispose();
     super.dispose();
   }
 
@@ -67,16 +75,27 @@ class _ConnectionDetailScreenState
       peerUid: widget.peerUid,
     );
     if (!mounted || extras == null) return;
+    if (_locationSeeded) return;
+    final place = extras.location?.trim() ?? '';
+    if (place.isEmpty) return;
     setState(() {
-      if (extras.aboutMe != null) _aboutMe = extras.aboutMe;
-      if (extras.location != null) _locationOverride = extras.location;
+      _location.text = place;
+      _locationSeeded = true;
     });
   }
 
-  void _ensureNoteSeeded(Connection connection) {
-    if (_initializedNote) return;
-    _note.text = connection.note?.trim() ?? '';
-    _initializedNote = true;
+  void _ensureSeeded(Connection connection) {
+    if (!_initializedNote) {
+      _note.text = connection.note?.trim() ?? '';
+      _initializedNote = true;
+    }
+    if (_locationSeeded) return;
+    final place = connection.fumblePlace?.trim().isNotEmpty == true
+        ? connection.fumblePlace!.trim()
+        : (connection.location?.trim() ?? '');
+    if (place.isEmpty) return;
+    _location.text = place;
+    _locationSeeded = true;
   }
 
   Future<void> _onSaveNote(Connection connection) async {
@@ -125,16 +144,19 @@ class _ConnectionDetailScreenState
               );
             }
             final connection = match;
-            _ensureNoteSeeded(connection);
+            _ensureSeeded(connection);
+
             final dirty =
                 _note.text.trim() != (connection.note?.trim() ?? '');
             final displayName = connection.firstName.isNotEmpty
                 ? connection.firstName
                 : connection.name;
-            final locationText =
-                (_locationOverride ?? connection.location)?.trim() ?? '';
-            final fumbledLabel =
-                '${AppConstant.fumbledOn} ${DateFormat('MMMM d, yyyy').format(connection.fumbledAt)}';
+            final dateLabel =
+                DateFormat('d MMMM yyyy').format(connection.fumbledAt);
+            final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
+            final locationLabel = _location.text.trim().isNotEmpty
+                ? _location.text.trim()
+                : AppConstant.nearExchangeLocation;
 
             return Column(
               children: [
@@ -145,14 +167,15 @@ class _ConnectionDetailScreenState
                       children: [
                         ProfileCardHeader(
                           name: connection.name,
-                          eyebrow: AppConstant.youFumbled(displayName),
+                          eyebrow: AppConstant.youFumbled(displayName)
+                              .toUpperCase(),
                           photoUrl: connection.photoUrl,
                           bio: connection.bio,
                           phone: connection.visiblePhone,
-                          email: connection.visibleEmail,
                           hideBioWhenEmpty: true,
+                          showEmail: false,
                           emptyPhoneLabel: 'No phone number',
-                          topSpacing: 16,
+                          topSpacing: 8,
                           onCall: () => ConnectionDetailActions.call(
                             connection.visiblePhone,
                           ),
@@ -160,19 +183,41 @@ class _ConnectionDetailScreenState
                             connection.visiblePhone,
                           ),
                         ),
-                        ProfileCardSections(
-                          aboutMe: ProfileCardSection(
-                            body: _aboutMe?.trim() ?? '',
-                            emptyBody: AppConstant.addAboutMe,
+                        24.height,
+                        if (_editingLocation)
+                          _LocationEditor(
+                            controller: _location,
+                            enabled: !_saving,
+                            onDone: () =>
+                                setState(() => _editingLocation = false),
+                          )
+                        else
+                          FumblePreviewMomentCard(
+                            dateLabel: dateLabel,
+                            timeLabel: timeLabel,
+                            locationLabel: locationLabel,
+                            onLocationTap: _saving
+                                ? null
+                                : () =>
+                                    setState(() => _editingLocation = true),
                           ),
-                          location: ProfileCardSection(
-                            body: locationText,
-                            emptyBody: AppConstant.addLocation,
-                          ),
-                          noteController: _note,
-                          noteEnabled: !_saving,
-                          footerLabel: fumbledLabel,
+                        16.height,
+                        FumblePreviewRememberPrompt(
+                          message:
+                              AppConstant.youFumbledJustNow(displayName),
                         ),
+                        16.height,
+                        FumblePreviewRecordMemory(
+                          onTap: _saving
+                              ? null
+                              : FumblePreviewActions.recordMemory,
+                        ),
+                        16.height,
+                        FumblePreviewMemoryNote(
+                          controller: _note,
+                          enabled: !_saving,
+                        ),
+                        40.height,
                       ],
                     ),
                   ),
@@ -189,6 +234,60 @@ class _ConnectionDetailScreenState
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _LocationEditor extends StatelessWidget {
+  const _LocationEditor({
+    required this.controller,
+    required this.enabled,
+    required this.onDone,
+  });
+
+  final TextEditingController controller;
+  final bool enabled;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
+      decoration: BoxDecoration(
+        color: AppColors.navBar,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        autofocus: true,
+        cursorColor: AppColors.gold,
+        onSubmitted: (_) => onDone(),
+        onTapOutside: (_) => onDone(),
+        style: TextStyle(
+          fontSize: 14,
+          color: AppColors.softGray,
+          fontFamily: AppStyle.fontFamily,
+          fontFamilyFallback: AppStyle.fontFamilyFallback,
+        ),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: false,
+          hintText: AppConstant.nearExchangeLocation,
+          hintStyle: TextStyle(
+            fontSize: 14,
+            color: AppColors.softGrayDim,
+            fontFamily: AppStyle.fontFamily,
+            fontFamilyFallback: AppStyle.fontFamilyFallback,
+          ),
+          contentPadding: EdgeInsets.zero,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
         ),
       ),
     );

@@ -89,6 +89,15 @@ abstract final class AppConstant {
 
   static String youFumbled(String name) => 'You Fumbled $name';
 
+  static String youFumbledJustNow(String name) =>
+      'You Fumbled $name just now. Want to remember the moment?';
+
+  static const String theMomentLabel = 'THE MOMENT';
+  static const String nearExchangeLocation = 'Near exchange location';
+  static const String recordMemory = 'Record Memory';
+  static const String typeMemoryHint = 'Or type a memory about how you met...';
+  static const String memoryRecordingSoon = 'Voice memory coming soon';
+
   static const String connectionsTitle = 'CONNECTIONS';
   static const String connectionsEmptyTitle = 'No connections yet';
   static const String connectionsEmptyBody =
@@ -135,6 +144,7 @@ abstract final class AppConstant {
   static const String done = 'Done';
   static const String noteLabel = 'NOTE';
   static const String addNote = 'Add Note';
+  static const String addMemoryNote = typeMemoryHint;
 
   static String connectWith(String name) => 'Connect with $name';
 

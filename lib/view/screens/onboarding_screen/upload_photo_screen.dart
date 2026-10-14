@@ -34,11 +34,9 @@ class UploadPhotoScreen extends ConsumerWidget {
             localFile: onboarding.localPhoto,
             svg: onboarding.avatarSvg,
             name: profile?.name,
-            size: 140,
-            onTap: () => OnboardingActions.showPhotoSheet(
-              context: context,
-              ref: ref,
-            ),
+            size: 130.w,
+            onTap: () =>
+                OnboardingActions.showPhotoSheet(context: context, ref: ref),
           ).center,
           25.height,
           AppConstant.onboardingPhotoHint

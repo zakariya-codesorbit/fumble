@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppIcons {
   static const String iconEdit = 'assets/icons/ic_edit.svg';
+  static const String iconUser = 'assets/icons/ic_user.png';
 
   static const IconData tabfumble = Icons.circle_outlined;
   static const IconData tabMyfumble = Icons.person;
@@ -24,6 +25,8 @@ class AppIcons {
   static const IconData camera = Icons.camera_alt_outlined;
   static const IconData check = Icons.check_rounded;
   static const IconData peopleOutline = Icons.people_outline_rounded;
+  static const IconData person = Icons.person_outline;
   static const IconData refresh = Icons.refresh_rounded;
   static const IconData add = Icons.add;
+  static const IconData mic = Icons.mic_none_rounded;
 }

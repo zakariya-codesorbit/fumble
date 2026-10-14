@@ -10,27 +10,23 @@ class PillButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.icon,
-    required this.filled,
     required this.onTap,
+    this.backgroundColor = AppColors.clear,
+    this.foregroundColor = AppColors.white,
+    this.borderColor = AppColors.border,
   });
 
   final String label;
   final IconData icon;
-  final bool filled;
   final VoidCallback? onTap;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final Color borderColor;
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onTap != null;
-    final bg = filled
-        ? (enabled ? AppColors.gold : AppColors.border)
-        : AppColors.surfaceElevated;
-    final fg = filled
-        ? AppColors.background
-        : (enabled ? AppColors.white : AppColors.softGrayDim);
-
     return Material(
-      color: bg,
+      color: backgroundColor,
       borderRadius: BorderRadius.circular(AppStyle.radiusPill),
       child: InkWell(
         onTap: onTap,
@@ -41,18 +37,18 @@ class PillButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppStyle.radiusPill),
-            border: filled
-                ? null
-                : Border.all(
-                    color: enabled ? AppColors.border : AppColors.softGrayDim,
-                  ),
+            border: Border.all(color: borderColor, width: 0.5),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18.w, color: fg),
+              Icon(icon, size: 18.w, color: foregroundColor),
               8.width,
-              label.toText(color: fg, fontSize: 16, fontWeight: AppStyle.w700),
+              label.toText(
+                color: foregroundColor,
+                fontSize: 16,
+                fontWeight: AppStyle.w700,
+              ),
             ],
           ),
         ),

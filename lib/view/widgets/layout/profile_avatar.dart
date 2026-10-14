@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fumble/utils/app_assets.dart';
 
 import 'package:fumble/utils/app_avatars.dart';
 import 'package:fumble/utils/avatar_svg.dart';
@@ -20,7 +21,7 @@ class ProfileAvatar extends StatelessWidget {
     this.localFile,
     this.svg,
     this.name,
-    this.size = 64,
+    this.size = 50,
     this.onTap,
   });
 
@@ -38,6 +39,8 @@ class ProfileAvatar extends StatelessWidget {
         ? name!.trim().characters.first.toUpperCase()
         : '?';
 
+    double iconSize = size / 2.6;
+
     Widget child;
 
     if (localFile != null) {
@@ -51,9 +54,10 @@ class ProfileAvatar extends StatelessWidget {
       child = CachedNetworkImage(
         imageUrl: photoUrl!,
         fit: BoxFit.cover,
-        placeholder: (context, url) => _Initial(initial: initial, size: size),
+        placeholder: (context, url) =>
+            _Initial(initial: initial, size: iconSize),
         errorWidget: (context, url, error) =>
-            _Initial(initial: initial, size: size),
+            _Initial(initial: initial, size: iconSize),
       );
     } else {
       final bytes = ProfilePhotoService.decodeBase64(photoUrl);
@@ -64,7 +68,7 @@ class ProfileAvatar extends StatelessWidget {
           gaplessPlayback: true,
         );
       } else {
-        child = _Initial(initial: initial, size: size);
+        child = _Initial(initial: initial, size: iconSize);
       }
     }
 
@@ -79,7 +83,7 @@ class ProfileAvatar extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.surfaceElevated,
+          color: AppColors.goldMuted.withAlpha(20),
         ),
         clipBehavior: Clip.antiAlias,
         child: child,
@@ -148,13 +152,11 @@ class _Initial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        initial,
-        style: TextStyle(
-          color: AppColors.gold,
-          fontSize: size * 0.36,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Image.asset(
+        AppIcons.iconUser,
+        color: AppColors.primary,
+        height: size,
+        width: size,
       ),
     );
   }

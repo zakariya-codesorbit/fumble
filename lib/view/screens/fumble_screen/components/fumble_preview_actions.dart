@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fumble/state/providers/app_providers.dart';
+import 'package:fumble/utils/constant.dart';
+import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 abstract final class FumblePreviewActions {
   FumblePreviewActions._();
@@ -35,5 +37,9 @@ abstract final class FumblePreviewActions {
     return ref
         .read(fumbleNotifierProvider.notifier)
         .saveNoteAndFinish(note: note);
+  }
+
+  static void recordMemory() {
+    showAppToast(AppConstant.memoryRecordingSoon);
   }
 }

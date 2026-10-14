@@ -66,6 +66,7 @@ class ProfileCardHeader extends StatelessWidget {
     this.onPhoneTapOutside,
     // Actions
     this.showActions = true,
+    this.showEmail = true,
     this.onCall,
     this.onText,
     this.topSpacing = 20,
@@ -114,6 +115,7 @@ class ProfileCardHeader extends StatelessWidget {
   final VoidCallback? onPhoneTapOutside;
 
   final bool showActions;
+  final bool showEmail;
   final VoidCallback? onCall;
   final VoidCallback? onText;
   final double topSpacing;
@@ -121,8 +123,8 @@ class ProfileCardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bioText = bio?.trim() ?? '';
-    final showBioRow = showBio &&
-        (editingBio || !hideBioWhenEmpty || bioText.isNotEmpty);
+    final showBioRow =
+        showBio && (editingBio || !hideBioWhenEmpty || bioText.isNotEmpty);
 
     return Column(
       children: [
@@ -130,7 +132,7 @@ class ProfileCardHeader extends StatelessWidget {
         if (eyebrow != null && eyebrow!.trim().isNotEmpty) ...[
           eyebrow!.toText(
             color: AppColors.gold,
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.2,
             textAlign: TextAlign.center,
@@ -138,7 +140,11 @@ class ProfileCardHeader extends StatelessWidget {
           16.height,
         ],
         if (avatarLoading)
-          _ShimmerBox(width: avatarSize, height: avatarSize, radius: avatarSize / 2)
+          _ShimmerBox(
+            width: avatarSize,
+            height: avatarSize,
+            radius: avatarSize / 2,
+          )
         else
           ProfileAvatar(
             photoUrl: photoUrl,
@@ -217,12 +223,14 @@ class ProfileCardHeader extends StatelessWidget {
                 emptyLabel: emptyPhoneLabel,
                 onTap: onPhoneTap,
               ),
-            10.height,
-            _ContactLine(
-              value: email,
-              emptyLabel: emptyEmailLabel,
-              onTap: null,
-            ),
+            if (showEmail) ...[
+              10.height,
+              _ContactLine(
+                value: email,
+                emptyLabel: emptyEmailLabel,
+                onTap: null,
+              ),
+            ],
           ],
           if (showActions) ...[
             20.height,
@@ -232,14 +240,17 @@ class ProfileCardHeader extends StatelessWidget {
                 PillButton(
                   label: AppConstant.call,
                   icon: AppIcons.phone,
-                  filled: true,
+                  foregroundColor: AppColors.gold,
+                  borderColor: AppColors.goldMuted,
                   onTap: onCall,
                 ),
                 12.width,
                 PillButton(
                   label: AppConstant.text,
                   icon: AppIcons.chat,
-                  filled: false,
+                  backgroundColor: AppColors.surfaceElevated,
+                  foregroundColor: AppColors.white,
+                  borderColor: AppColors.softGrayDim,
                   onTap: onText,
                 ),
               ],
@@ -348,7 +359,9 @@ class _BioRow extends StatelessWidget {
     final text = (bioText.isNotEmpty ? bioText : placeholder).toText(
       fontSize: 14,
       fontWeight: AppStyle.w500,
-      color: bioText.isNotEmpty ? AppColors.tertiaryText : AppColors.softGrayDim,
+      color: bioText.isNotEmpty
+          ? AppColors.tertiaryText
+          : AppColors.softGrayDim,
       textAlign: TextAlign.center,
       maxLine: 3,
       overflow: TextOverflow.ellipsis,
