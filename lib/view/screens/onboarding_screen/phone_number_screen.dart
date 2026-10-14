@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/core/navigation/onboarding_gate.dart';
-import 'package:fumble/services/location/location_country_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/view/screens/onboarding_screen/components/onboarding_actions.dart';
 import 'package:fumble/view/screens/onboarding_screen/components/onboarding_layout.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 
@@ -48,13 +48,7 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
     if (!mounted || _locationRequested) return;
     _locationRequested = true;
 
-    // Keep an existing saved phone's country; only auto-detect for empty profiles.
-    final profile = ref.read(currentUserProfileProvider).valueOrNull;
-    if (profile != null && (profile.phone?.trim().isNotEmpty ?? false)) {
-      return;
-    }
-
-    final resolved = await LocationCountryService.resolveFromDeviceLocation();
+    final resolved = await OnboardingActions.resolveCountryFromLocation(ref);
     if (!mounted || resolved == null || !_allowLocationOverride) return;
 
     setState(() {
@@ -67,10 +61,22 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
     );
   }
 
+  Future<void> _submit() {
+    final phone = OnboardingActions.formatPhone(
+      national: _phone.text,
+      dialCode: _initialDialCode,
+      fieldState: _phoneFieldKey.currentState,
+    );
+    return OnboardingActions.savePhoneAndContinue(
+      ref: ref,
+      formKey: _formKey,
+      phone: phone,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
-    final actions = ref.read(onboardingNotifierProvider.notifier);
 
     if (profile != null && !_initialized) {
       final hasPhone = profile.phone?.trim().isNotEmpty ?? false;
@@ -83,32 +89,20 @@ class _PhoneNumberScreenState extends ConsumerState<PhoneNumberScreen> {
       _initialized = true;
     }
 
-    void submit() {
-      final national = _phone.text.trim();
-      final full = national.isEmpty
-          ? ''
-          : (_phoneFieldKey.currentState?.fullNumber ??
-                PhoneCountryField.formatFull(
-                  dialCode: _initialDialCode,
-                  national: national,
-                ));
-      actions.savePhoneAndContinue(formKey: _formKey, phone: full);
-    }
-
     return OnboardingLayout(
       title: AppConstant.onboardingPhoneTitle,
       subtitle: AppConstant.onboardingPhoneSubtitle,
       currentStep: OnboardingGate.phoneStep,
       cta: AppConstant.onboardingFinish,
       formKey: _formKey,
-      onContinue: submit,
+      onContinue: _submit,
       child: PhoneCountryField(
         key: _phoneFieldKey,
         controller: _phone,
         initialDialCode: _initialDialCode,
         initialCountryCode: _initialCountryCode,
         textInputAction: TextInputAction.done,
-        onSubmitted: (_) => submit(),
+        onSubmitted: (_) => _submit(),
         onCountryChanged: () => _allowLocationOverride = false,
       ),
     );

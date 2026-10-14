@@ -1,23 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/core/navigation/app_routes.dart';
-import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
-import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/connections_screen/components/connection_actions.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_tile.dart';
-import 'package:fumble/view/screens/setting_screen/components/setting_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
-import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/feedback/no_data_found.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
@@ -42,7 +38,6 @@ class ConnectionsScreen extends ConsumerWidget {
                   fontWeight: AppStyle.w600,
                   lineHeight: 1.15,
                 ),
-
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -80,12 +75,13 @@ class ConnectionsScreen extends ConsumerWidget {
                       final connection = connections[index];
                       return ConnectionTile(
                         connection: connection,
-                        onTap: () => push(
-                          AppRoutes.connectionDetail,
-                          arguments: connection.peerUid,
+                        onTap: () =>
+                            ConnectionActions.openDetail(connection.peerUid),
+                        onDeleteTap: () => ConnectionActions.confirmRemove(
+                          context: context,
+                          ref: ref,
+                          connection: connection,
                         ),
-                        onDeleteTap: () =>
-                            _confirmRemove(context, ref, connection),
                       );
                     },
                   );
@@ -96,36 +92,5 @@ class ConnectionsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _confirmRemove(
-    BuildContext context,
-    WidgetRef ref,
-    Connection connection,
-  ) {
-    return SettingActions.showConfirmSheet(
-      context: context,
-      title: AppConstant.removeConnection,
-      description: AppConstant.removeConnectionConfirm(connection.firstName),
-      primaryCta: AppConstant.delete,
-      destructive: true,
-      onPrimaryTap: () => _remove(ref, connection),
-    );
-  }
-
-  Future<void> _remove(WidgetRef ref, Connection connection) async {
-    final uid = ref.read(authServiceProvider).currentUser?.uid;
-    if (uid == null) return;
-    try {
-      await ref
-          .read(connectionRepositoryProvider)
-          .removeConnectionForBoth(ownerUid: uid, peerUid: connection.peerUid);
-      showAppToast(AppConstant.connectionRemoved);
-    } catch (e) {
-      final message = e is StateError && e.message == AppConstant.offline
-          ? AppConstant.offline
-          : AppConstant.removeConnectionFailed;
-      showAppToast(message, isError: true);
-    }
   }
 }

@@ -3,26 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/core/navigation/app_nav_index.dart';
-import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/navigator_keys.dart';
-import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/screens/my_fumble_screen/components/profile_header.dart';
-import 'package:fumble/view/screens/my_fumble_screen/components/profile_info_cards.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/profile_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
-import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
+import 'package:fumble/view/widgets/profile/profile_card.dart';
 
 class MyFumbleScreen extends ConsumerWidget {
   const MyFumbleScreen({super.key});
@@ -38,13 +35,13 @@ class MyFumbleScreen extends ConsumerWidget {
           brandTitle: true,
           leading: IconButton(
             icon: const Icon(AppIcons.settings, color: AppColors.warmGray),
-            onPressed: () => push(AppRoutes.settings),
+            onPressed: ProfileActions.openSettings,
           ),
         ),
         body: profileAsync.when(
           loading: () => const AppLoader(),
           error: (e, _) => AppErrorState(
-            onRetry: () => ref.invalidate(currentUserProfileProvider),
+            onRetry: () => ProfileActions.retryLoad(ref),
           ),
           data: (profile) {
             if (profile == null) {
@@ -166,7 +163,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     if (!mounted) return;
     FocusManager.instance.primaryFocus?.unfocus();
     _applyProfile(widget.profile);
-    ref.read(profileNotifierProvider.notifier).resetEdit();
+    ProfileActions.resetEdit(ref);
     setState(() {
       _active = null;
       _readyToClose = false;
@@ -223,7 +220,6 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
 
     final profile = widget.profile;
     final edit = ref.watch(profileNotifierProvider);
-    final actions = ref.read(profileNotifierProvider.notifier);
     final photoChanged =
         edit.localPhoto != null || edit.avatarSvg != null || edit.removePhoto;
     final showSave = _textChanged || photoChanged;
@@ -234,6 +230,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final locationText = _location.text.trim();
     final editingAbout = _active == 'aboutMe';
     final editingLocation = _active == 'location';
+    final displayPhone =
+        _fullPhone().isNotEmpty ? _fullPhone() : profile.phone;
 
     return Column(
       children: [
@@ -242,14 +240,15 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
-                ProfileHeader(
+                ProfileCardHeader(
                   name: profile.name,
                   photoUrl: edit.displayPhotoUrl(profile),
                   localFile: edit.localPhoto,
                   svg: edit.avatarSvg,
                   bio: _bio.text,
-                  phone: _fullPhone().isNotEmpty ? _fullPhone() : profile.phone,
+                  phone: displayPhone,
                   email: profile.email,
+                  showNameEditIcon: true,
                   editingName: _active == 'name',
                   editingBio: _active == 'bio',
                   editingPhone: _active == 'phone',
@@ -275,94 +274,69 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                     setState(() {});
                   },
                   onPhoneTapOutside: () => _closeIfStill('phone'),
-                  onPhotoTap: () => actions.showPhotoSheet(context),
-                  onCall: () {
-                    final phone = _fullPhone().isNotEmpty
-                        ? _fullPhone()
-                        : profile.phone?.trim();
-                    if (phone == null || phone.isEmpty) return;
-                    actions.call(phone);
-                  },
-                  onText: () {
-                    final phone = _fullPhone().isNotEmpty
-                        ? _fullPhone()
-                        : profile.phone?.trim();
-                    if (phone == null || phone.isEmpty) return;
-                    actions.text(phone);
-                  },
+                  onPhotoTap: () => ProfileActions.showPhotoSheet(
+                    context: context,
+                    ref: ref,
+                  ),
+                  onCall: () => ProfileActions.call(displayPhone),
+                  onText: () => ProfileActions.text(displayPhone),
                 ),
-                24.height,
-                const Divider(height: 1, thickness: 1, color: AppColors.border),
-                24.height,
-                ProfileInfoCard(
-                  title: AppConstant.aboutMeLabel,
-                  body: aboutText.isNotEmpty
-                      ? aboutText
-                      : AppConstant.addAboutMe,
-                  placeholder: aboutText.isEmpty,
-                  showEditIcon: !editingAbout,
-                  onTap: editingAbout ? null : () => _openField('aboutMe'),
-                  editor: editingAbout
-                      ? _inlineField(
-                          fieldKey: 'aboutMe',
-                          controller: _aboutMe,
-                          hint: AppConstant.addAboutMe,
-                          maxLine: 4,
-                        )
+                ProfileCardSections(
+                  aboutMe: ProfileCardSection(
+                    body: aboutText,
+                    emptyBody: AppConstant.addAboutMe,
+                    showEditIcon: !editingAbout,
+                    onTap: editingAbout ? null : () => _openField('aboutMe'),
+                    editor: editingAbout
+                        ? _inlineField(
+                            fieldKey: 'aboutMe',
+                            controller: _aboutMe,
+                            hint: AppConstant.addAboutMe,
+                            maxLine: 4,
+                          )
+                        : null,
+                  ),
+                  location: ProfileCardSection(
+                    body: locationText,
+                    emptyBody: AppConstant.addLocation,
+                    showEditIcon: !editingLocation,
+                    onTap:
+                        editingLocation ? null : () => _openField('location'),
+                    editor: editingLocation
+                        ? _inlineField(
+                            fieldKey: 'location',
+                            controller: _location,
+                            hint: AppConstant.addLocation,
+                          )
+                        : null,
+                  ),
+                  footerLabel: memberSince != null
+                      ? AppConstant.memberSinceLabel(memberSince)
+                      : null,
+                  extra: showSave
+                      ? [
+                          16.height,
+                          PrimaryButton(
+                            buttonName: AppConstant.save,
+                            isLoading: edit.isSaving,
+                            onPressed: () async {
+                              final ok = await ProfileActions.save(
+                                ref: ref,
+                                profile: profile,
+                                name: _name.text,
+                                bio: _bio.text,
+                                aboutMe: _aboutMe.text,
+                                location: _location.text,
+                                phone: _fullPhone(),
+                                nationalPhone: _phone.text,
+                              );
+                              if (!mounted || !ok) return;
+                              setState(() => _active = null);
+                            },
+                          ),
+                        ]
                       : null,
                 ),
-                12.height,
-                ProfileLocationCard(
-                  body: locationText.isNotEmpty
-                      ? locationText
-                      : AppConstant.addLocation,
-                  placeholder: locationText.isEmpty,
-                  showEditIcon: !editingLocation,
-                  onTap: editingLocation ? null : () => _openField('location'),
-                  editor: editingLocation
-                      ? _inlineField(
-                          fieldKey: 'location',
-                          controller: _location,
-                          hint: AppConstant.addLocation,
-                        )
-                      : null,
-                ),
-                if (memberSince != null) ...[
-                  20.height,
-                  AppConstant.memberSinceLabel(memberSince).toText(
-                    fontSize: 12,
-                    fontWeight: AppStyle.w500,
-                    color: AppColors.tertiaryText,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-                if (showSave) ...[
-                  16.height,
-                  PrimaryButton(
-                    buttonName: AppConstant.save,
-                    isLoading: edit.isSaving,
-                    onPressed: () async {
-                      final phone = _fullPhone();
-                      if (_phone.text.trim().isNotEmpty &&
-                          !PhoneCountryField.isValidNational(_phone.text)) {
-                        showAppToast(AppConstant.phoneInvalid, isError: true);
-                        return;
-                      }
-                      await actions.save(
-                        name: _name.text,
-                        bio: _bio.text,
-                        aboutMe: _aboutMe.text,
-                        location: _location.text,
-                        phone: phone,
-                        sharePhone: profile.sharePhone,
-                        shareEmail: profile.shareEmail,
-                      );
-                      if (!mounted) return;
-                      setState(() => _active = null);
-                    },
-                  ),
-                ],
-                40.height,
               ],
             ),
           ),

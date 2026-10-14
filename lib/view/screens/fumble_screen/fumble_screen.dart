@@ -4,14 +4,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/data/db/local_prefs.dart';
 import 'package:fumble/data/models/user_profile.dart';
-import 'package:fumble/services/fumble/fumble_qr.dart';
-import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -36,50 +34,29 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCache();
+    unawaited(_loadCache());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_bootstrapLocation());
     });
   }
 
   Future<void> _loadCache() async {
-    final uid = ref.read(authServiceProvider).currentUser?.uid;
-    final profile = await LocalPrefs.loadUserProfile();
+    final profile = await FumbleActions.loadCachedProfile(ref);
     if (!mounted) return;
     setState(() {
       _cacheLoaded = true;
-      if (profile != null && profile.uid == uid) _cached = profile;
+      _cached = profile;
     });
   }
 
-  /// Ask for location if needed and publish coords for peers who scan this QR.
   Future<void> _bootstrapLocation() async {
     if (!mounted || _locationBootstrapped) return;
     _locationBootstrapped = true;
-    await _publishLocation(promptIfDenied: true);
-  }
-
-  Future<void> _publishLocation({required bool promptIfDenied}) async {
-    if (!mounted) return;
-    final uid = ref.read(authServiceProvider).currentUser?.uid;
-    if (uid == null) return;
-
-    final place = await FumbleLocationService.capture(
-      context,
-      promptIfDenied: promptIfDenied,
+    await FumbleActions.publishLocation(
+      context: context,
+      ref: ref,
+      promptIfDenied: true,
     );
-    if (!mounted) return;
-    try {
-      await ref
-          .read(fumbleCodeRepositoryProvider)
-          .publishPublicMeetingPlace(uid: uid, location: place);
-    } catch (_) {
-      // Non-blocking — fumble still works without published location.
-    }
-  }
-
-  void _openScanner() {
-    ref.read(fumbleNotifierProvider.notifier).startFumble();
   }
 
   @override
@@ -97,14 +74,9 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
           profile.shareEmail == override.shareEmail) {
         ref.read(shareVisibilityProvider.notifier).state = null;
       }
-      if (profile.fumbleCode.isNotEmpty) {
-        unawaited(
-          ref.read(fumbleCodeRepositoryProvider).ensurePublicCreatedAt(
-                code: profile.fumbleCode,
-                createdAt: profile.createdAt,
-              ),
-        );
-      }
+      unawaited(
+        FumbleActions.ensurePublicCreatedAt(ref: ref, profile: profile),
+      );
     });
 
     var profile = live ?? _cached;
@@ -114,7 +86,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
         shareEmail: shareOverride.shareEmail,
       );
     }
-    final payload = _payloadFor(profile);
+    final payload = FumbleActions.qrPayload(profile);
     final qrKey = profile == null
         ? null
         : ValueKey('qr_${profile.uid}_${profile.name}');
@@ -174,11 +146,10 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                                 child: FumbleAura(
                                   size: size,
                                   phase: FumbleAuraPhase.sharing,
-                                  onTap: _openScanner,
+                                  onTap: () => FumbleActions.openScanner(ref),
                                   child: FumbleQrCode(
                                     key: qrKey,
                                     data: payload,
-                                    // Larger modules on screen → faster phone-to-phone scans.
                                     size: size * 0.68,
                                   ),
                                 ),
@@ -193,13 +164,5 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
         ),
       ),
     );
-  }
-
-  String? _payloadFor(UserProfile? profile) {
-    if (profile == null) return null;
-    final name = profile.name.trim();
-    final uid = profile.uid.trim();
-    if (uid.isEmpty || name.isEmpty) return null;
-    return FumbleQr.build(userId: uid, name: name);
   }
 }

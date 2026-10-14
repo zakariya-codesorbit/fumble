@@ -7,6 +7,7 @@ import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/setting_screen/components/setting_action_group.dart';
+import 'package:fumble/view/screens/setting_screen/components/setting_actions.dart';
 import 'package:fumble/view/screens/setting_screen/components/setting_toggle_group.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -18,14 +19,12 @@ class SettingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.read(settingNotifierProvider.notifier);
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
     final shareOverride = ref.watch(shareVisibilityProvider);
     final sharePhone =
         shareOverride?.sharePhone ?? profile?.sharePhone ?? true;
     final shareEmail =
         shareOverride?.shareEmail ?? profile?.shareEmail ?? true;
-    final profileActions = ref.read(profileNotifierProvider.notifier);
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -40,16 +39,18 @@ class SettingScreen extends ConsumerWidget {
                   label: AppConstant.sharePhoneSetting,
                   icon: AppIcons.phone,
                   value: sharePhone,
-                  onChanged: (value) => profileActions.updateShareVisibility(
-                    sharePhone: value,
+                  onChanged: (value) => SettingActions.updateSharePhone(
+                    ref: ref,
+                    value: value,
                   ),
                 ),
                 SettingToggleItem(
                   label: AppConstant.shareEmailSetting,
                   icon: AppIcons.email,
                   value: shareEmail,
-                  onChanged: (value) => profileActions.updateShareVisibility(
-                    shareEmail: value,
+                  onChanged: (value) => SettingActions.updateShareEmail(
+                    ref: ref,
+                    value: value,
                   ),
                 ),
               ],
@@ -61,13 +62,19 @@ class SettingScreen extends ConsumerWidget {
                 SettingActionItem(
                   label: AppConstant.logout,
                   icon: AppIcons.logout,
-                  onTap: () => settings.logout(context),
+                  onTap: () => SettingActions.logout(
+                    context: context,
+                    ref: ref,
+                  ),
                 ),
                 SettingActionItem(
                   label: AppConstant.deleteAccount,
                   icon: AppIcons.deleteOutline,
                   foreground: AppColors.error,
-                  onTap: () => settings.deleteAccount(context),
+                  onTap: () => SettingActions.deleteAccount(
+                    context: context,
+                    ref: ref,
+                  ),
                 ),
               ],
             ),

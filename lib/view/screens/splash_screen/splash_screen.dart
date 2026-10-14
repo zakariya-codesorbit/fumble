@@ -6,6 +6,7 @@ import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/splash_screen/components/splash_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 
@@ -33,11 +34,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final splash = ref.read(splashNotifierProvider.notifier);
-    ref.listen(authStateProvider, splash.onAuth);
+    ref.listen(
+      authStateProvider,
+      (previous, next) => SplashActions.onAuth(ref, previous, next),
+    );
 
     final auth = ref.watch(authStateProvider);
-    auth.whenData(splash.scheduleContinue);
+    auth.whenData((user) => SplashActions.scheduleContinue(ref, user));
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(

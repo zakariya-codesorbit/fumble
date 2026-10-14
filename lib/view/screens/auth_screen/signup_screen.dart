@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/core/navigation/app_routes.dart';
-import 'package:fumble/core/navigation/router_navigator.dart';
-import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
-import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/auth_screen/components/auth_actions.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
@@ -38,13 +35,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    await unfocusKeyboard();
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref
-        .read(authNotifierProvider.notifier)
-        .signUp(name: _name.text, email: _email.text, password: _password.text);
-  }
+  Future<void> _submit() => AuthActions.signUp(
+        ref: ref,
+        formKey: _formKey,
+        name: _name.text,
+        email: _email.text,
+        password: _password.text,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +97,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         TextButtonWidget(
                           buttonName: AppConstant.loginCta,
                           fontWeight: AppStyle.w600,
-                          onPressed: () => replace(AppRoutes.login),
+                          onPressed: AuthActions.goToLogin,
                         ),
                       ],
                     ),

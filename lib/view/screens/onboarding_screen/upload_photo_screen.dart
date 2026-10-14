@@ -6,6 +6,7 @@ import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/onboarding_screen/components/onboarding_actions.dart';
 import 'package:fumble/view/screens/onboarding_screen/components/onboarding_layout.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -19,13 +20,12 @@ class UploadPhotoScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
     final onboarding = ref.watch(onboardingNotifierProvider);
-    final actions = ref.read(onboardingNotifierProvider.notifier);
 
     return OnboardingLayout(
       title: AppConstant.onboardingPhotoTitle,
       subtitle: AppConstant.onboardingPhotoSubtitle,
       currentStep: OnboardingGate.photoStep,
-      onContinue: actions.savePhotoAndContinue,
+      onContinue: () => OnboardingActions.savePhotoAndContinue(ref),
       child: Column(
         children: [
           30.height,
@@ -35,7 +35,10 @@ class UploadPhotoScreen extends ConsumerWidget {
             svg: onboarding.avatarSvg,
             name: profile?.name,
             size: 140,
-            onTap: () => actions.showPhotoSheet(context),
+            onTap: () => OnboardingActions.showPhotoSheet(
+              context: context,
+              ref: ref,
+            ),
           ).center,
           25.height,
           AppConstant.onboardingPhotoHint
@@ -45,7 +48,12 @@ class UploadPhotoScreen extends ConsumerWidget {
                 fontWeight: AppStyle.w500,
                 textAlign: TextAlign.center,
               )
-              .onPress(() => actions.showPhotoSheet(context))
+              .onPress(
+                () => OnboardingActions.showPhotoSheet(
+                  context: context,
+                  ref: ref,
+                ),
+              )
               .center,
         ],
       ),

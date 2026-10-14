@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
-import 'package:fumble/utils/focus_utils.dart';
+import 'package:fumble/view/screens/auth_screen/components/auth_actions.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
@@ -29,13 +28,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _submit() {
-    unfocusKeyboard();
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref.read(authNotifierProvider.notifier).sendPasswordReset(
-          email: _email.text,
-        );
-  }
+  Future<void> _submit() => AuthActions.sendPasswordReset(
+        ref: ref,
+        formKey: _formKey,
+        email: _email.text,
+      );
 
   @override
   Widget build(BuildContext context) {

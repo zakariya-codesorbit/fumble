@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fumble/core/theme/colors.dart';
+import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
@@ -11,6 +13,38 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 
 abstract final class SettingActions {
   SettingActions._();
+
+  static Future<void> updateSharePhone({
+    required WidgetRef ref,
+    required bool value,
+  }) {
+    return ref
+        .read(profileNotifierProvider.notifier)
+        .updateShareVisibility(sharePhone: value);
+  }
+
+  static Future<void> updateShareEmail({
+    required WidgetRef ref,
+    required bool value,
+  }) {
+    return ref
+        .read(profileNotifierProvider.notifier)
+        .updateShareVisibility(shareEmail: value);
+  }
+
+  static Future<void> logout({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) {
+    return ref.read(settingNotifierProvider.notifier).logout(context);
+  }
+
+  static Future<void> deleteAccount({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) {
+    return ref.read(settingNotifierProvider.notifier).deleteAccount(context);
+  }
 
   static Future<void> showConfirmSheet({
     required BuildContext context,
