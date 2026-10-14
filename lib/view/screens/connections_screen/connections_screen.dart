@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fumble/core/navigation/app_routes.dart';
+import 'package:fumble/core/navigation/router_navigator.dart';
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
@@ -17,8 +20,6 @@ import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/feedback/no_data_found.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
-
-import '../../../core/theme/colors.dart';
 
 class ConnectionsScreen extends ConsumerWidget {
   const ConnectionsScreen({super.key});
@@ -79,6 +80,10 @@ class ConnectionsScreen extends ConsumerWidget {
                       final connection = connections[index];
                       return ConnectionTile(
                         connection: connection,
+                        onTap: () => push(
+                          AppRoutes.connectionDetail,
+                          arguments: connection.peerUid,
+                        ),
                         onDeleteTap: () =>
                             _confirmRemove(context, ref, connection),
                       );

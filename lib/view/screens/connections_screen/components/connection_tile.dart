@@ -12,9 +12,15 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
 
 class ConnectionTile extends StatefulWidget {
-  const ConnectionTile({super.key, required this.connection, this.onDeleteTap});
+  const ConnectionTile({
+    super.key,
+    required this.connection,
+    this.onTap,
+    this.onDeleteTap,
+  });
 
   final Connection connection;
+  final VoidCallback? onTap;
   final VoidCallback? onDeleteTap;
 
   @override
@@ -137,7 +143,9 @@ class _ConnectionTileState extends State<ConnectionTile> {
                     setState(() => _offset = open ? -_actionWidth : 0);
                   }
                 : null,
-            onTap: _offset < 0 ? _close : null,
+            onTap: _offset < 0
+                ? _close
+                : widget.onTap,
             child: Transform.translate(
               offset: Offset(_offset, 0),
               child: Container(

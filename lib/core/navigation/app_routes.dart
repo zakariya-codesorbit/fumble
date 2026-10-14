@@ -6,6 +6,7 @@ import 'package:fumble/view/screens/auth_screen/login_screen.dart';
 import 'package:fumble/view/screens/auth_screen/signup_screen.dart';
 import 'package:fumble/view/screens/onboarding_screen/phone_number_screen.dart';
 import 'package:fumble/view/screens/onboarding_screen/upload_photo_screen.dart';
+import 'package:fumble/view/screens/connections_screen/connection_detail_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connections_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_scanner_screen.dart';
@@ -28,6 +29,7 @@ abstract final class AppRoutes {
   static const String fumble = '/fumble';
   static const String myfumble = '/my-fumble';
   static const String connections = '/connections';
+  static const String connectionDetail = '/connection-detail';
   static const String fumbleScanner = '/fumble-scanner';
   static const String fumblePreview = '/fumble-preview';
   static const String settings = '/settings';
@@ -47,6 +49,10 @@ abstract final class AppRoutes {
     fumble: (_) => const FumbleScreen(),
     myfumble: (_) => const MyFumbleScreen(),
     connections: (_) => const ConnectionsScreen(),
+    connectionDetail: (context) {
+      final peerUid = ModalRoute.of(context)?.settings.arguments as String?;
+      return ConnectionDetailScreen(peerUid: peerUid ?? '');
+    },
     fumbleScanner: (_) => const FumbleScannerScreen(),
     fumblePreview: (_) => const FumblePreviewScreen(),
     settings: (_) => const SettingScreen(),
