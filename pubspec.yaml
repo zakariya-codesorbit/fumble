@@ -47,6 +47,7 @@ dependencies:
   encrypt: ^5.0.3
   geolocator: ^14.0.1
   geocoding: ^5.0.0
+  speech_to_text: ^7.4.0
 
 dev_dependencies:
   flutter_test:

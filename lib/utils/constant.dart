@@ -95,8 +95,14 @@ abstract final class AppConstant {
   static const String theMomentLabel = 'THE MOMENT';
   static const String nearExchangeLocation = 'Near exchange location';
   static const String recordMemory = 'Record Memory';
+  static const String listeningMemory = 'Listening…';
   static const String typeMemoryHint = 'Or type a memory about how you met...';
-  static const String memoryRecordingSoon = 'Voice memory coming soon';
+  static const String speechUnavailable =
+      'Speech recognition isn\'t available on this device.';
+  static const String micPermissionSettings =
+      'Microphone access is disabled. Please open Settings and allow Fumble to use your microphone.';
+  static const String speechPermissionSettings =
+      'Speech recognition is disabled. Please open Settings and allow Fumble to use speech recognition.';
 
   static const String connectionsTitle = 'CONNECTIONS';
   static const String connectionsEmptyTitle = 'No connections yet';

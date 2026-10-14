@@ -9,12 +9,22 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 
 /// Outlined gold "Record Memory" control on the fumble preview.
 class FumblePreviewRecordMemory extends StatelessWidget {
-  const FumblePreviewRecordMemory({super.key, this.onTap});
+  const FumblePreviewRecordMemory({
+    super.key,
+    this.onTap,
+    this.isListening = false,
+  });
 
   final VoidCallback? onTap;
+  final bool isListening;
 
   @override
   Widget build(BuildContext context) {
+    final label = isListening
+        ? AppConstant.listeningMemory
+        : AppConstant.recordMemory;
+    final accent = isListening ? AppColors.error : AppColors.gold;
+
     return Material(
       color: AppColors.clear,
       borderRadius: BorderRadius.circular(20),
@@ -27,15 +37,19 @@ class FumblePreviewRecordMemory extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.goldMuted, width: 0.5),
+            border: Border.all(color: accent, width: isListening ? 1.4 : 0.5),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(AppIcons.mic, size: 22, color: AppColors.gold),
+              Icon(
+                isListening ? Icons.mic_rounded : AppIcons.mic,
+                size: 22,
+                color: accent,
+              ),
               10.width,
-              AppConstant.recordMemory.toText(
-                color: AppColors.gold,
+              label.toText(
+                color: accent,
                 fontSize: 16,
                 fontWeight: AppStyle.w700,
               ),

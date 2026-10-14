@@ -15,7 +15,14 @@ import '../../services/auth/auth_service.dart';
 import '../../services/fumble/fumble_service.dart';
 import '../../services/offline/connection_sync.dart';
 import '../../services/offline/offline_fumble_queue.dart';
+import '../../services/speech/voice_memory_service.dart';
 import '../../services/storage/profile_photo_service.dart';
+
+final voiceMemoryServiceProvider = Provider<VoiceMemoryService>((ref) {
+  final service = VoiceMemoryService();
+  ref.onDispose(service.dispose);
+  return service;
+});
 
 final pendingFumbleLocalStoreProvider = Provider<PendingFumbleLocalStore>((
   ref,

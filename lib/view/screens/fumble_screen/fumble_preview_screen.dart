@@ -33,10 +33,12 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
   final _location = TextEditingController();
   final _momentAt = DateTime.now();
   StreamSubscription<bool>? _connectivitySub;
+  late final _voice = ref.read(voiceMemoryServiceProvider);
   var _online = ConnectionManager().isConnected;
   var _hasNote = false;
   var _editingLocation = false;
   var _locationSeeded = false;
+  var _listening = false;
 
   @override
   void initState() {
@@ -72,10 +74,27 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
   @override
   void dispose() {
     _connectivitySub?.cancel();
+    unawaited(_voice.stop());
     _note.removeListener(_onNoteChanged);
     _note.dispose();
     _location.dispose();
     super.dispose();
+  }
+
+  Future<void> _toggleVoiceMemory() async {
+    final listening = await FumblePreviewActions.toggleVoiceMemory(
+      ref: ref,
+      noteController: _note,
+      onChanged: () {
+        if (!mounted) return;
+        setState(() {
+          _listening = _voice.isListening;
+          _hasNote = _note.text.trim().isNotEmpty;
+        });
+      },
+    );
+    if (!mounted) return;
+    setState(() => _listening = listening);
   }
 
   @override
@@ -172,14 +191,13 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                     ),
                     16.height,
                     FumblePreviewRecordMemory(
-                      onTap: fumble.isSavingNote
-                          ? null
-                          : FumblePreviewActions.recordMemory,
+                      isListening: _listening,
+                      onTap: fumble.isSavingNote ? null : _toggleVoiceMemory,
                     ),
                     16.height,
                     FumblePreviewMemoryNote(
                       controller: _note,
-                      enabled: !fumble.isSavingNote,
+                      enabled: !fumble.isSavingNote && !_listening,
                     ),
                     40.height,
                   ],

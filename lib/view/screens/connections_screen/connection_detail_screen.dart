@@ -41,10 +41,12 @@ class _ConnectionDetailScreenState
   final _note = TextEditingController();
   final _location = TextEditingController();
   StreamSubscription<bool>? _connectivitySub;
+  late final _voice = ref.read(voiceMemoryServiceProvider);
   var _initializedNote = false;
   var _locationSeeded = false;
   var _saving = false;
   var _editingLocation = false;
+  var _listening = false;
 
   @override
   void initState() {
@@ -61,6 +63,7 @@ class _ConnectionDetailScreenState
   @override
   void dispose() {
     _connectivitySub?.cancel();
+    unawaited(_voice.stop());
     _note.removeListener(_onNoteEdited);
     _note.dispose();
     _location.dispose();
@@ -68,6 +71,19 @@ class _ConnectionDetailScreenState
   }
 
   void _onNoteEdited() => setState(() {});
+
+  Future<void> _toggleVoiceMemory() async {
+    final listening = await FumblePreviewActions.toggleVoiceMemory(
+      ref: ref,
+      noteController: _note,
+      onChanged: () {
+        if (!mounted) return;
+        setState(() => _listening = _voice.isListening);
+      },
+    );
+    if (!mounted) return;
+    setState(() => _listening = listening);
+  }
 
   Future<void> _loadPublicExtras() async {
     final extras = await ConnectionDetailActions.loadPublicExtras(
@@ -208,14 +224,13 @@ class _ConnectionDetailScreenState
                         ),
                         16.height,
                         FumblePreviewRecordMemory(
-                          onTap: _saving
-                              ? null
-                              : FumblePreviewActions.recordMemory,
+                          isListening: _listening,
+                          onTap: _saving ? null : _toggleVoiceMemory,
                         ),
                         16.height,
                         FumblePreviewMemoryNote(
                           controller: _note,
-                          enabled: !_saving,
+                          enabled: !_saving && !_listening,
                         ),
                         40.height,
                       ],
