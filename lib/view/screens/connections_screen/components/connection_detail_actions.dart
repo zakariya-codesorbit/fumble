@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/public_fumble_profile.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
@@ -57,10 +58,15 @@ abstract final class ConnectionDetailActions {
       final PublicFumbleProfile? card = await codes.loadPublicProfile(uid);
       if (card == null) return null;
       final aboutMe = card.aboutMe?.trim();
-      final location = card.fumblePlace?.trim() ?? card.location?.trim();
+      // Prefer meeting place / coords geocode — not profile city.
+      var meeting = card.fumblePlace?.trim();
+      if ((meeting == null || meeting.isEmpty) && card.fumbleLocation != null) {
+        meeting = (await FumbleLocationService.placeLabel(card.fumbleLocation!))
+            ?.trim();
+      }
       return ConnectionPublicExtras(
         aboutMe: (aboutMe != null && aboutMe.isNotEmpty) ? aboutMe : null,
-        location: (location != null && location.isNotEmpty) ? location : null,
+        location: (meeting != null && meeting.isNotEmpty) ? meeting : null,
       );
     } catch (_) {
       return null;

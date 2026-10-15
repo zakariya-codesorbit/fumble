@@ -41,12 +41,25 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
   var _editingLocation = false;
   var _locationSeeded = false;
   var _listening = false;
+  /// Baseline after scanner GPS auto-fill — Done enables when user edits.
+  var _baselineLocation = '';
+
+  bool get _locationDirty {
+    final current = _location.text.trim();
+    if (current.isEmpty || current == AppConstant.enterFumbleLocation) {
+      return _baselineLocation.isNotEmpty;
+    }
+    return current != _baselineLocation;
+  }
+
+  bool get _canDone => _hasNote || _locationDirty;
 
   @override
   void initState() {
     super.initState();
     _voice = ref.read(voiceMemoryServiceProvider);
     _note.addListener(_onNoteChanged);
+    _location.addListener(_onLocationChanged);
     _connectivitySub = ConnectionManager().connectionStream.listen((online) {
       if (!mounted) return;
       setState(() => _online = online);
@@ -66,17 +79,22 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
         ref.read(fumbleNotifierProvider).preview?.peerUid.trim() ?? '';
     final codes = ref.read(fumbleCodeRepositoryProvider);
 
-    final place = await FumblePreviewActions.resolveMeetingPlace(
+    // Scanner GPS first; if off, geocode peer coords (same as Firebase save).
+    final place = await FumblePreviewActions.resolveMeetingPlaceForPreview(
       peerUid: peerUid,
       codes: codes,
     );
 
     if (!mounted || requestId != _placeRequestId) return;
-    if (place == null || place.isEmpty) return;
-    setState(() {
-      _location.text = place;
-      _locationSeeded = true;
-    });
+    if (place != null && place.isNotEmpty) {
+      setState(() {
+        _location.text = place;
+        _locationSeeded = true;
+        _baselineLocation = place;
+      });
+    } else {
+      setState(() => _locationSeeded = true);
+    }
   }
 
   void _onNoteChanged() {
@@ -86,11 +104,17 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
     setState(() => _hasNote = hasNote);
   }
 
+  void _onLocationChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
   @override
   void dispose() {
     _placeRequestId++;
     _connectivitySub?.cancel();
     _note.removeListener(_onNoteChanged);
+    _location.removeListener(_onLocationChanged);
     unawaited(_voice?.stop());
     _note.dispose();
     _location.dispose();
@@ -135,10 +159,14 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
 
     ref.listen(fumbleNotifierProvider, (previous, next) {
       if (_locationSeeded) return;
-      // Peer public card may arrive after QR-only preview — retry meeting place.
-      if (previous?.preview?.peerUid != next.preview?.peerUid ||
-          (!(previous?.preview?.enriched ?? false) &&
-              (next.preview?.enriched ?? false))) {
+      // Retry scanner GPS once preview/connection is ready.
+      final peerChanged =
+          previous?.preview?.peerUid != next.preview?.peerUid;
+      final enriched = !(previous?.preview?.enriched ?? false) &&
+          (next.preview?.enriched ?? false);
+      final connected =
+          !(previous?.connectionSaved ?? false) && next.connectionSaved;
+      if (peerChanged || enriched || connected) {
         unawaited(_resolveMeetingPlace());
       }
     });
@@ -229,7 +257,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                 ),
               ),
             ),
-            if (_hasNote)
+            if (_canDone)
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 8, 24, 24.h),
                 child: PrimaryButton(

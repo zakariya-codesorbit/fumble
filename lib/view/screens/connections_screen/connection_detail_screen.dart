@@ -119,9 +119,8 @@ class _ConnectionDetailScreenState
       _initializedNote = true;
     }
     if (_locationSeeded) return;
-    final place = connection.fumblePlace?.trim().isNotEmpty == true
-        ? connection.fumblePlace!.trim()
-        : (connection.location?.trim() ?? '');
+    // Meeting place only — not profile city (`connection.location`).
+    final place = connection.fumblePlace?.trim() ?? '';
     if (place.isEmpty) return;
     _location.text = place;
     _locationSeeded = true;

@@ -100,17 +100,23 @@ class ConnectionRepository {
       return false;
     }
 
+    // Prefer scanner GPS when available; otherwise use peer's published coords.
+    // Always geocode lat/lng for the connection label so we don't keep a coarse
+    // stored city string (e.g. "Islamabad Pakistan") when precise coords exist.
     FumbleLocation? coords = fumbleLocation;
     String? placeLabel;
-    if (coords == null) {
+    if (coords != null) {
+      placeLabel = await FumbleLocationService.placeLabel(coords);
+    } else {
       try {
         final card = await _codes.loadPublicProfile(preview.peerUid);
         coords = card?.fumbleLocation;
-        placeLabel = card?.fumblePlace;
+        if (coords != null) {
+          placeLabel = await FumbleLocationService.placeLabel(coords);
+        }
+        // Meeting place only — never profile city (`card.location`).
+        placeLabel ??= RepoUtils.blankToNull(card?.fumblePlace);
       } catch (_) {}
-    }
-    if (coords != null && (placeLabel == null || placeLabel.isEmpty)) {
-      placeLabel = await FumbleLocationService.placeLabel(coords);
     }
 
     final now = DateTime.now();
@@ -323,16 +329,25 @@ class ConnectionRepository {
       }
       try {
         final coords = latestLocal.fumbleLocation ?? peer.fumbleLocation;
-        var placeLabel = latestLocal.fumblePlace ?? peer.fumblePlace;
-        if (coords != null && (placeLabel == null || placeLabel.isEmpty)) {
-          placeLabel = await FumbleLocationService.placeLabel(coords);
-          if (RepoUtils.filled(placeLabel)) {
-            latestLocal = latestLocal.copyWith(
-              fumblePlace: placeLabel,
-              updatedAt: DateTime.now(),
-            );
-            await _local.saveConnection(ownerUid, latestLocal);
+        // Geocode coords first — never prefer peer's coarse city label
+        // (e.g. "Islamabad Pakistan") when precise lat/lng exist.
+        String? placeLabel = latestLocal.fumblePlace;
+        if (coords != null) {
+          final geocoded = await FumbleLocationService.placeLabel(coords);
+          if (RepoUtils.filled(geocoded)) {
+            placeLabel = geocoded;
           }
+        }
+        // Meeting place only — never profile city (`peer.location`).
+        placeLabel ??= peer.fumblePlace;
+        if (RepoUtils.filled(placeLabel) &&
+            placeLabel != latestLocal.fumblePlace) {
+          latestLocal = latestLocal.copyWith(
+            fumblePlace: placeLabel,
+            fumbleLocation: coords ?? latestLocal.fumbleLocation,
+            updatedAt: DateTime.now(),
+          );
+          await _local.saveConnection(ownerUid, latestLocal);
         }
         // Reload again — note may have changed while resolving place/profile.
         latestLocal = await _local.loadSingleConnection(
@@ -449,12 +464,15 @@ class ConnectionRepository {
       fumbleLocation: row.fumbleLocation ?? card.fumbleLocation,
       clearFumbleLocation:
           row.fumbleLocation == null && card.fumbleLocation == null,
+      // Keep local meeting place; if empty + coords, leave empty so push geocodes.
+      // Never copy profile city into fumblePlace.
       fumblePlace: RepoUtils.filled(row.fumblePlace)
           ? row.fumblePlace
-          : card.fumblePlace,
-      clearFumblePlace:
-          !RepoUtils.filled(row.fumblePlace) &&
-          !RepoUtils.filled(card.fumblePlace),
+          : ((row.fumbleLocation ?? card.fumbleLocation) == null
+              ? card.fumblePlace
+              : null),
+      clearFumblePlace: !RepoUtils.filled(row.fumblePlace) &&
+          (row.fumbleLocation ?? card.fumbleLocation) != null,
     );
   }
 
@@ -717,10 +735,16 @@ class ConnectionRepository {
         : Timestamp.fromDate(fumbledAt);
     final coords = fumbleLocation ?? peer.fumbleLocation;
     final placeValue = coords?.toGeoPoint();
-    var placeLabel = RepoUtils.blankToNull(fumblePlace) ?? peer.fumblePlace;
-    if (coords != null && !RepoUtils.filled(placeLabel)) {
-      placeLabel = await FumbleLocationService.placeLabel(coords);
+    // Prefer a geocoded label from coords over a possibly coarse stored string.
+    String? placeLabel = RepoUtils.blankToNull(fumblePlace);
+    if (coords != null) {
+      final geocoded = await FumbleLocationService.placeLabel(coords);
+      if (RepoUtils.filled(geocoded)) {
+        placeLabel = geocoded;
+      }
     }
+    // Meeting place only — never profile city (`peer.location`).
+    placeLabel ??= RepoUtils.blankToNull(peer.fumblePlace);
     final initiator = RepoUtils.blankToNull(initiatedBy);
     final now = FieldValue.serverTimestamp();
     final batch = _db.batch();

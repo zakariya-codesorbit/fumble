@@ -57,7 +57,9 @@ class _ConnectionTileState extends State<ConnectionTile> {
   Future<void> _resolvePlace() async {
     final saved = widget.connection.fumblePlace?.trim();
     if (saved != null && saved.isNotEmpty) {
-      _placeLabel = saved;
+      if (_placeLabel != saved) {
+        setState(() => _placeLabel = saved);
+      }
       return;
     }
     final loc = widget.connection.fumbleLocation;
@@ -65,10 +67,12 @@ class _ConnectionTileState extends State<ConnectionTile> {
     _placeLoading = true;
     try {
       final label = await FumbleLocationService.placeLabel(loc);
-      if (!mounted || label == null) return;
-      setState(() => _placeLabel = label);
+      if (!mounted) return;
+      if (label != null && label.trim().isNotEmpty) {
+        setState(() => _placeLabel = label.trim());
+      }
     } catch (_) {
-      // Keep placeholder in UI.
+      // Keep placeholder — do not show profile city as meeting place.
     } finally {
       _placeLoading = false;
     }

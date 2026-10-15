@@ -106,19 +106,21 @@ abstract final class FumblePreviewActions {
     await ref.read(voiceMemoryServiceProvider).stop();
   }
 
-  /// Meeting place for THE MOMENT: own GPS when allowed, else peer's published
-  /// place. Returns null when neither is available (show hint instead).
+  /// Label for the preview location field.
+  /// 1) Scanner GPS → geocode
+  /// 2) Else peer published coords → geocode (same place saved to Firebase)
   ///
-  /// Callers must pass [peerUid] / [codes] before any `await` so [WidgetRef]
-  /// is not used after the widget may have been disposed.
-  static Future<String?> resolveMeetingPlace({
+  /// Pass [peerUid] / [codes] before any `await` so [WidgetRef] is not used
+  /// after dispose.
+  static Future<String?> resolveMeetingPlaceForPreview({
     required String peerUid,
     required FumbleCodeRepository codes,
   }) async {
-    final coords = await FumbleLocationService.currentLocation();
-    if (coords != null) {
-      final label = await FumbleLocationService.placeLabel(coords);
-      if (label != null && label.trim().isNotEmpty) return label.trim();
+    final ownCoords = await FumbleLocationService.currentLocation();
+    if (ownCoords != null) {
+      final label = await FumbleLocationService.placeLabel(ownCoords);
+      final trimmed = label?.trim();
+      if (trimmed != null && trimmed.isNotEmpty) return trimmed;
     }
 
     if (!ConnectionManager().isConnected) return null;
@@ -127,8 +129,17 @@ abstract final class FumblePreviewActions {
 
     try {
       final card = await codes.loadPublicProfile(uid);
-      final place = card?.fumblePlace?.trim();
-      if (place != null && place.isNotEmpty) return place;
+      if (card == null) return null;
+
+      final peerCoords = card.fumbleLocation;
+      if (peerCoords != null) {
+        final label = await FumbleLocationService.placeLabel(peerCoords);
+        final trimmed = label?.trim();
+        if (trimmed != null && trimmed.isNotEmpty) return trimmed;
+      }
+
+      final published = card.fumblePlace?.trim();
+      if (published != null && published.isNotEmpty) return published;
     } catch (_) {}
     return null;
   }
