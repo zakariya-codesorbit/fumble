@@ -15,10 +15,12 @@ class Connection {
     this.location,
     this.phone,
     this.note,
+    this.noteUpdatedAt,
     this.sharePhone = true,
     this.shareEmail = true,
     this.fumbleLocation,
     this.fumblePlace,
+    this.initiatedBy,
     required this.fumbledAt,
     required this.updatedAt,
     required this.syncStatus,
@@ -33,13 +35,17 @@ class Connection {
   /// Peer's profile location (city / place text).
   final String? location;
   final String? phone;
-  /// Private note for the owner about this connection.
+  /// Shared memory note for this fumble (same text on both users' cards).
   final String? note;
+  /// When [note] was last changed — used for last-write-wins sync.
+  final DateTime? noteUpdatedAt;
   final bool sharePhone;
   final bool shareEmail;
   final FumbleLocation? fumbleLocation;
   /// Human-readable place (street/city) saved with the connection.
   final String? fumblePlace;
+  /// UID of who scanned / started the fumble. Same on both users' docs.
+  final String? initiatedBy;
   final DateTime fumbledAt;
   final DateTime updatedAt;
   final SyncStatus syncStatus;
@@ -59,6 +65,13 @@ class Connection {
   String? get visiblePhone =>
       sharePhone && hasPhone ? phone!.trim() : null;
 
+  /// True when this owner started the fumble (or legacy rows with no initiator).
+  bool youInitiated(String ownerUid) {
+    final initiator = initiatedBy?.trim() ?? '';
+    if (initiator.isEmpty) return true;
+    return initiator == ownerUid;
+  }
+
   factory Connection.fromMap(String id, Map<String, dynamic> data) {
     final fumbledAt = _asDateTime(data['fumbledAt']) ?? DateTime.now();
     return Connection(
@@ -71,10 +84,12 @@ class Connection {
       location: _blankToNull(data['location'] as String?),
       phone: _blankToNull(data['phone'] as String?),
       note: _blankToNull(data['note'] as String?),
+      noteUpdatedAt: _asDateTime(data['noteUpdatedAt']),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
       fumblePlace: _blankToNull(data['fumblePlace'] as String?),
+      initiatedBy: _blankToNull(data['initiatedBy'] as String?),
       fumbledAt: fumbledAt,
       updatedAt: _asDateTime(data['updatedAt']) ?? fumbledAt,
       syncStatus: SyncStatus.synced,
@@ -97,6 +112,9 @@ class Connection {
       location: _blankToNull(row['location'] as String?),
       phone: _blankToNull(row['phone'] as String?),
       note: _blankToNull(row['note'] as String?),
+      noteUpdatedAt: row['note_updated_at'] is int
+          ? DateTime.fromMillisecondsSinceEpoch(row['note_updated_at'] as int)
+          : null,
       sharePhone: _boolFromSql(row['share_phone']),
       shareEmail: _boolFromSql(row['share_email']),
       fumbleLocation: lat is num && lng is num
@@ -106,6 +124,7 @@ class Connection {
             )
           : null,
       fumblePlace: _blankToNull(row['fumble_place'] as String?),
+      initiatedBy: _blankToNull(row['initiated_by'] as String?),
       fumbledAt: createdAt,
       updatedAt: DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int),
       syncStatus: SyncStatus.values.firstWhere(
@@ -126,11 +145,13 @@ class Connection {
       'location': location,
       'phone': phone,
       'note': note,
+      'note_updated_at': noteUpdatedAt?.millisecondsSinceEpoch,
       'share_phone': sharePhone ? 1 : 0,
       'share_email': shareEmail ? 1 : 0,
       'fumble_lat': fumbleLocation?.latitude,
       'fumble_lng': fumbleLocation?.longitude,
       'fumble_place': fumblePlace,
+      'initiated_by': initiatedBy,
       'created_at': fumbledAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
       'sync_status': syncStatus.name,
@@ -148,12 +169,16 @@ class Connection {
     bool clearPhone = false,
     String? note,
     bool clearNote = false,
+    DateTime? noteUpdatedAt,
+    bool clearNoteUpdatedAt = false,
     bool? sharePhone,
     bool? shareEmail,
     FumbleLocation? fumbleLocation,
     bool clearFumbleLocation = false,
     String? fumblePlace,
     bool clearFumblePlace = false,
+    String? initiatedBy,
+    bool clearInitiatedBy = false,
     DateTime? fumbledAt,
     DateTime? updatedAt,
     SyncStatus? syncStatus,
@@ -168,6 +193,9 @@ class Connection {
       location: clearLocation ? null : (location ?? this.location),
       phone: clearPhone ? null : (phone ?? this.phone),
       note: clearNote ? null : (note ?? this.note),
+      noteUpdatedAt: clearNoteUpdatedAt
+          ? null
+          : (noteUpdatedAt ?? this.noteUpdatedAt),
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
       fumbleLocation: clearFumbleLocation
@@ -176,6 +204,9 @@ class Connection {
       fumblePlace: clearFumblePlace
           ? null
           : (fumblePlace ?? this.fumblePlace),
+      initiatedBy: clearInitiatedBy
+          ? null
+          : (initiatedBy ?? this.initiatedBy),
       fumbledAt: fumbledAt ?? this.fumbledAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
@@ -191,11 +222,13 @@ class Connection {
         location == other.location &&
         phone == other.phone &&
         note == other.note &&
+        noteUpdatedAt == other.noteUpdatedAt &&
         sharePhone == other.sharePhone &&
         shareEmail == other.shareEmail &&
         fumbleLocation?.latitude == other.fumbleLocation?.latitude &&
         fumbleLocation?.longitude == other.fumbleLocation?.longitude &&
         fumblePlace == other.fumblePlace &&
+        initiatedBy == other.initiatedBy &&
         fumbledAt == other.fumbledAt &&
         syncStatus == other.syncStatus;
   }

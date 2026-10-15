@@ -15,16 +15,15 @@ class ConnectionTile extends StatefulWidget {
   const ConnectionTile({
     super.key,
     required this.connection,
+    required this.ownerUid,
     this.onTap,
     this.onDeleteTap,
-    /// When true, subtitle is "You Fumbled X"; when false, "X Fumbled you".
-    this.youInitiated = true,
   });
 
   final Connection connection;
+  final String ownerUid;
   final VoidCallback? onTap;
   final VoidCallback? onDeleteTap;
-  final bool youInitiated;
 
   @override
   State<ConnectionTile> createState() => _ConnectionTileState();
@@ -93,7 +92,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final displayName = connection.firstName.isNotEmpty
         ? connection.firstName
         : connection.name;
-    final raw = widget.youInitiated
+    final raw = connection.youInitiated(widget.ownerUid)
         ? AppConstant.youFumbled(displayName)
         : AppConstant.fumbledYou(displayName);
     return raw.toUpperCase();

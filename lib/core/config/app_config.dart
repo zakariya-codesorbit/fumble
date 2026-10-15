@@ -17,8 +17,8 @@ abstract final class AppConfig {
   static const String termsOfServiceUrl = AppUrls.termsOfServiceUrl;
 
   static const String databaseFileName = 'fumble.db';
-  /// Local SQLite schema for app Version 1.
-  static const int databaseSchemaVersion = 1;
+  /// Local SQLite schema. Bump when adding connection columns / migrations.
+  static const int databaseSchemaVersion = 3;
 
   /// Prefix for encrypted QR wire format: `fumble:1.<ciphertext>`.
   static const String qrPrefix = 'fumble:';

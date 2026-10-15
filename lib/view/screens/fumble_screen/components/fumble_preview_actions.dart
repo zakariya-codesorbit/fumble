@@ -38,10 +38,12 @@ abstract final class FumblePreviewActions {
   static Future<void> saveNoteAndFinish({
     required WidgetRef ref,
     required String note,
+    String? fumblePlace,
   }) {
-    return ref
-        .read(fumbleNotifierProvider.notifier)
-        .saveNoteAndFinish(note: note);
+    return ref.read(fumbleNotifierProvider.notifier).saveNoteAndFinish(
+          note: note,
+          fumblePlace: fumblePlace,
+        );
   }
 
   /// Toggles voice listening. Returns whether listening is active after the call.

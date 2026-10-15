@@ -114,6 +114,7 @@ class ConnectionRepository {
     }
 
     final now = DateTime.now();
+    final initialNote = RepoUtils.blankToNull(note);
     final connection = Connection(
       id: preview.peerUid,
       peerUid: preview.peerUid,
@@ -123,11 +124,13 @@ class ConnectionRepository {
       bio: RepoUtils.blankToNull(preview.bio),
       location: RepoUtils.blankToNull(preview.location),
       phone: RepoUtils.blankToNull(preview.phone),
-      note: RepoUtils.blankToNull(note),
+      note: initialNote,
+      noteUpdatedAt: initialNote != null ? now : null,
       sharePhone: RepoUtils.filled(preview.phone),
       shareEmail: RepoUtils.filled(preview.email),
       fumbleLocation: coords,
       fumblePlace: RepoUtils.blankToNull(placeLabel),
+      initiatedBy: ownerUid,
       fumbledAt: now,
       updatedAt: now,
       syncStatus: SyncStatus.pending,
@@ -140,11 +143,25 @@ class ConnectionRepository {
     return true;
   }
 
-  /// Updates the private note on an existing local connection and syncs.
+  /// Updates the shared note on an existing local connection and syncs.
   Future<void> updateConnectionNote({
     required String ownerUid,
     required String peerUid,
     required String note,
+  }) {
+    return updateConnectionMemory(
+      ownerUid: ownerUid,
+      peerUid: peerUid,
+      note: note,
+    );
+  }
+
+  /// Updates shared note and/or meeting place, then syncs to both users.
+  Future<void> updateConnectionMemory({
+    required String ownerUid,
+    required String peerUid,
+    String? note,
+    String? fumblePlace,
   }) async {
     final existing = await _local.loadSingleConnection(
       ownerUid: ownerUid,
@@ -152,11 +169,30 @@ class ConnectionRepository {
     );
     if (existing == null) return;
 
-    final trimmed = note.trim();
-    final updated = existing.copyWith(
-      note: trimmed.isEmpty ? null : trimmed,
-      clearNote: trimmed.isEmpty,
-      updatedAt: DateTime.now(),
+    var updated = existing;
+    final now = DateTime.now();
+    if (note != null) {
+      final trimmed = note.trim();
+      final nextNote = trimmed.isEmpty ? null : trimmed;
+      if (nextNote != existing.note) {
+        updated = updated.copyWith(
+          note: nextNote,
+          clearNote: nextNote == null,
+          noteUpdatedAt: now,
+        );
+      }
+    }
+    if (fumblePlace != null) {
+      final trimmed = fumblePlace.trim();
+      updated = updated.copyWith(
+        fumblePlace: trimmed.isEmpty ? null : trimmed,
+        clearFumblePlace: trimmed.isEmpty,
+      );
+    }
+    if (updated.sameContent(existing)) return;
+
+    updated = updated.copyWith(
+      updatedAt: now,
       syncStatus: SyncStatus.pending,
     );
     await _local.saveConnection(ownerUid, updated);
@@ -283,13 +319,37 @@ class ConnectionRepository {
             );
           }
         }
+        final noteSync = await _resolveSharedNoteForPush(
+          ownerUid: ownerUid,
+          peerUid: row.peerUid,
+          local: row,
+        );
+        if (noteSync.shouldUpdateLocal &&
+            (noteSync.note != row.note ||
+                noteSync.noteUpdatedAt != row.noteUpdatedAt)) {
+          await _local.saveConnection(
+            ownerUid,
+            next.copyWith(
+              note: noteSync.note,
+              clearNote: noteSync.note == null,
+              noteUpdatedAt: noteSync.noteUpdatedAt,
+              clearNoteUpdatedAt: noteSync.noteUpdatedAt == null,
+              updatedAt: DateTime.now(),
+            ),
+          );
+          _changes.add(ownerUid);
+        }
+
         await saveConnectionForBoth(
           scanner: scanner,
           peer: peer,
           fumbledAt: row.fumbledAt,
           fumbleLocation: coords,
           fumblePlace: placeLabel,
-          note: row.note,
+          note: noteSync.note,
+          noteUpdatedAt: noteSync.noteUpdatedAt,
+          writeNote: noteSync.writeNote,
+          initiatedBy: row.initiatedBy,
         );
         await _markSyncStatus(ownerUid, row.peerUid, SyncStatus.synced);
       } catch (e, st) {
@@ -423,7 +483,12 @@ class ConnectionRepository {
             !RepoUtils.filled(local.location),
         phone: remote.sharePhone ? remote.phone : null,
         clearPhone: !remote.sharePhone || !RepoUtils.filled(remote.phone),
-        note: RepoUtils.filled(local.note) ? local.note : remote.note,
+        // Shared note: when local is synced, cloud is source of truth (LWW).
+        note: remote.note,
+        clearNote: !RepoUtils.filled(remote.note),
+        noteUpdatedAt: remote.noteUpdatedAt ?? local.noteUpdatedAt,
+        clearNoteUpdatedAt:
+            remote.noteUpdatedAt == null && local.noteUpdatedAt == null,
         sharePhone: remote.sharePhone,
         shareEmail: remote.shareEmail,
         fumbleLocation: remote.fumbleLocation ?? local.fumbleLocation,
@@ -434,6 +499,9 @@ class ConnectionRepository {
             : local.fumblePlace,
         clearFumblePlace: !RepoUtils.filled(remote.fumblePlace) &&
             !RepoUtils.filled(local.fumblePlace),
+        initiatedBy: RepoUtils.filled(remote.initiatedBy)
+            ? remote.initiatedBy
+            : local.initiatedBy,
         fumbledAt: remote.fumbledAt,
         updatedAt: remote.updatedAt,
         syncStatus: SyncStatus.synced,
@@ -523,6 +591,69 @@ class ConnectionRepository {
     _changes.add(ownerUid);
   }
 
+  /// Picks which shared note to push so a newer remote note is not wiped.
+  Future<({String? note, DateTime? noteUpdatedAt, bool writeNote, bool shouldUpdateLocal})>
+      _resolveSharedNoteForPush({
+    required String ownerUid,
+    required String peerUid,
+    required Connection local,
+  }) async {
+    try {
+      final snap = await _connections(ownerUid).doc(peerUid).get();
+      if (!snap.exists) {
+        return (
+          note: local.note,
+          noteUpdatedAt: local.noteUpdatedAt,
+          writeNote: local.noteUpdatedAt != null || RepoUtils.filled(local.note),
+          shouldUpdateLocal: false,
+        );
+      }
+      final data = snap.data() ?? {};
+      final remoteNote = RepoUtils.blankToNull(data['note'] as String?);
+      final remoteUpdated = Connection.fromMap(peerUid, data).noteUpdatedAt;
+      final localUpdated = local.noteUpdatedAt;
+
+      if (localUpdated == null && remoteUpdated == null) {
+        final note = RepoUtils.filled(local.note) ? local.note : remoteNote;
+        return (
+          note: note,
+          noteUpdatedAt: null,
+          writeNote: RepoUtils.filled(note),
+          shouldUpdateLocal: note != local.note,
+        );
+      }
+      if (localUpdated == null) {
+        return (
+          note: remoteNote,
+          noteUpdatedAt: remoteUpdated,
+          writeNote: false,
+          shouldUpdateLocal: true,
+        );
+      }
+      if (remoteUpdated == null || !localUpdated.isBefore(remoteUpdated)) {
+        return (
+          note: local.note,
+          noteUpdatedAt: localUpdated,
+          writeNote: true,
+          shouldUpdateLocal: false,
+        );
+      }
+      return (
+        note: remoteNote,
+        noteUpdatedAt: remoteUpdated,
+        writeNote: false,
+        shouldUpdateLocal: true,
+      );
+    } catch (_) {
+      return (
+        note: local.note,
+        noteUpdatedAt: local.noteUpdatedAt,
+        writeNote: local.noteUpdatedAt != null,
+        shouldUpdateLocal: false,
+      );
+    }
+  }
+
   /// Writes the connection under both users' Firestore trees.
   Future<void> saveConnectionForBoth({
     required UserProfile scanner,
@@ -531,6 +662,10 @@ class ConnectionRepository {
     FumbleLocation? fumbleLocation,
     String? fumblePlace,
     String? note,
+    DateTime? noteUpdatedAt,
+    /// When false, existing shared notes on both docs are left untouched.
+    bool writeNote = false,
+    String? initiatedBy,
   }) async {
     final at = fumbledAt == null
         ? FieldValue.serverTimestamp()
@@ -541,9 +676,21 @@ class ConnectionRepository {
     if (coords != null && !RepoUtils.filled(placeLabel)) {
       placeLabel = await FumbleLocationService.placeLabel(coords);
     }
+    final initiator = RepoUtils.blankToNull(initiatedBy);
+    final now = FieldValue.serverTimestamp();
     final batch = _db.batch();
 
-    batch.set(_connections(scanner.uid).doc(peer.uid), {
+    final sharedNote = RepoUtils.blankToNull(note);
+    final noteFields = <String, dynamic>{
+      if (writeNote) ...{
+        'note': sharedNote ?? FieldValue.delete(),
+        'noteUpdatedAt': noteUpdatedAt == null
+            ? FieldValue.delete()
+            : Timestamp.fromDate(noteUpdatedAt),
+      },
+    };
+
+    final scannerDoc = <String, dynamic>{
       'peerUid': peer.uid,
       'name': peer.name,
       'email': peer.shareEmail ? peer.email : '',
@@ -551,15 +698,17 @@ class ConnectionRepository {
       'bio': peer.bio,
       'location': peer.location,
       'phone': peer.sharePhone ? peer.phone : null,
-      'note': RepoUtils.blankToNull(note),
       'sharePhone': peer.sharePhone,
       'shareEmail': peer.shareEmail,
       'fumbleLocation': placeValue,
       'fumblePlace': placeLabel,
       'fumbledAt': at,
-    }, SetOptions(merge: true));
+      'updatedAt': now,
+      'initiatedBy': ?initiator,
+      ...noteFields,
+    };
 
-    batch.set(_connections(peer.uid).doc(scanner.uid), {
+    final peerDoc = <String, dynamic>{
       'peerUid': scanner.uid,
       'name': scanner.name,
       'email': scanner.publicEmail,
@@ -572,7 +721,22 @@ class ConnectionRepository {
       'fumbleLocation': placeValue,
       'fumblePlace': placeLabel,
       'fumbledAt': at,
-    }, SetOptions(merge: true));
+      'updatedAt': now,
+      'initiatedBy': ?initiator,
+      // Same shared note on both sides so both cards stay in sync.
+      ...noteFields,
+    };
+
+    batch.set(
+      _connections(scanner.uid).doc(peer.uid),
+      scannerDoc,
+      SetOptions(merge: true),
+    );
+    batch.set(
+      _connections(peer.uid).doc(scanner.uid),
+      peerDoc,
+      SetOptions(merge: true),
+    );
 
     await batch.commit();
   }

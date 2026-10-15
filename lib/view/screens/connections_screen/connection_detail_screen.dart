@@ -134,6 +134,7 @@ class _ConnectionDetailScreenState
       ref: ref,
       connection: connection,
       note: _note.text,
+      fumblePlace: _location.text,
     );
     if (!mounted) return;
     if (!ok) setState(() => _saving = false);
@@ -180,6 +181,11 @@ class _ConnectionDetailScreenState
             final displayName = connection.firstName.isNotEmpty
                 ? connection.firstName
                 : connection.name;
+            final ownerUid =
+                ref.read(authServiceProvider).currentUser?.uid ?? '';
+            final fumbleLabel = connection.youInitiated(ownerUid)
+                ? AppConstant.youFumbled(displayName)
+                : AppConstant.fumbledYou(displayName);
             final dateLabel =
                 DateFormat('d MMMM yyyy').format(connection.fumbledAt);
             final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
@@ -196,8 +202,7 @@ class _ConnectionDetailScreenState
                       children: [
                         ProfileCardHeader(
                           name: connection.name,
-                          eyebrow: AppConstant.youFumbled(displayName)
-                              .toUpperCase(),
+                          eyebrow: fumbleLabel.toUpperCase(),
                           photoUrl: connection.photoUrl,
                           bio: connection.bio,
                           phone: connection.visiblePhone,
@@ -232,7 +237,7 @@ class _ConnectionDetailScreenState
                           ),
                         16.height,
                         FumblePreviewRememberPrompt(
-                          message: AppConstant.youFumbled(displayName),
+                          message: fumbleLabel,
                         ),
                         16.height,
                         FumblePreviewRecordMemory(

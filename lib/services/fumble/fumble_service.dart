@@ -164,6 +164,7 @@ class FumbleService {
       peer: peerCard,
       fumbleLocation: coords,
       fumblePlace: placeLabel,
+      initiatedBy: scannerUid,
     );
   }
 

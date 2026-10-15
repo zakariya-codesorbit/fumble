@@ -28,11 +28,11 @@ class LocalDatabase {
         await _createConnections(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        // Version 1 schema: ensure all connection columns exist.
         if (oldVersion < 1) {
           await _createPendingFumbles(db);
           await _createConnections(db);
         }
+        // v2: initiated_by (+ any missing columns from earlier builds).
         await _ensureConnectionColumns(db);
       },
       onOpen: (db) async {
@@ -70,7 +70,9 @@ class LocalDatabase {
         fumble_lat REAL,
         fumble_lng REAL,
         fumble_place TEXT,
+        initiated_by TEXT,
         note TEXT,
+        note_updated_at INTEGER,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,
         sync_status TEXT NOT NULL,
@@ -93,8 +95,16 @@ class LocalDatabase {
     if (!names.contains('fumble_place')) {
       await db.execute('ALTER TABLE connections ADD COLUMN fumble_place TEXT');
     }
+    if (!names.contains('initiated_by')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN initiated_by TEXT');
+    }
     if (!names.contains('note')) {
       await db.execute('ALTER TABLE connections ADD COLUMN note TEXT');
+    }
+    if (!names.contains('note_updated_at')) {
+      await db.execute(
+        'ALTER TABLE connections ADD COLUMN note_updated_at INTEGER',
+      );
     }
     if (!names.contains('location')) {
       await db.execute('ALTER TABLE connections ADD COLUMN location TEXT');

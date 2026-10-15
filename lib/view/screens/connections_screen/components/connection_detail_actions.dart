@@ -58,11 +58,12 @@ abstract final class ConnectionDetailActions {
     }
   }
 
-  /// Returns `true` when the note was saved and the screen should pop.
+  /// Returns `true` when note/place were saved and the screen should pop.
   static Future<bool> saveNoteAndPop({
     required WidgetRef ref,
     required Connection connection,
     required String note,
+    String? fumblePlace,
   }) async {
     final uid = ref.read(authServiceProvider).currentUser?.uid;
     if (uid == null) {
@@ -71,10 +72,18 @@ abstract final class ConnectionDetailActions {
     }
 
     try {
-      await ref.read(connectionRepositoryProvider).updateConnectionNote(
+      final place = fumblePlace?.trim();
+      final placeToSave = (place != null &&
+              place.isNotEmpty &&
+              place != AppConstant.nearExchangeLocation)
+          ? place
+          : null;
+
+      await ref.read(connectionRepositoryProvider).updateConnectionMemory(
             ownerUid: uid,
             peerUid: connection.peerUid,
             note: note,
+            fumblePlace: placeToSave,
           );
       pop();
       return true;

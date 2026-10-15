@@ -23,6 +23,7 @@ class ConnectionsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final connectionsAsync = ref.watch(connectionsProvider);
+    final ownerUid = ref.watch(authServiceProvider).currentUser?.uid ?? '';
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -75,6 +76,7 @@ class ConnectionsScreen extends ConsumerWidget {
                       final connection = connections[index];
                       return ConnectionTile(
                         connection: connection,
+                        ownerUid: ownerUid,
                         onTap: () =>
                             ConnectionActions.openDetail(connection.peerUid),
                         onDeleteTap: () => ConnectionActions.confirmRemove(

@@ -216,8 +216,11 @@ class FumbleNotifier extends Notifier<FumbleState> {
     }
   }
 
-  /// Done is only for attaching a note, then leaving.
-  Future<void> saveNoteAndFinish({required String note}) async {
+  /// Done is only for attaching a note (and optional place), then leaving.
+  Future<void> saveNoteAndFinish({
+    required String note,
+    String? fumblePlace,
+  }) async {
     final trimmed = note.trim();
     if (trimmed.isEmpty) {
       finish(openConnections: true);
@@ -253,10 +256,18 @@ class FumbleNotifier extends Notifier<FumbleState> {
         }
       }
 
-      await ref.read(connectionRepositoryProvider).updateConnectionNote(
+      final place = fumblePlace?.trim();
+      final placeToSave = (place != null &&
+              place.isNotEmpty &&
+              place != AppConstant.nearExchangeLocation)
+          ? place
+          : null;
+
+      await ref.read(connectionRepositoryProvider).updateConnectionMemory(
             ownerUid: uid,
             peerUid: preview.peerUid,
             note: trimmed,
+            fumblePlace: placeToSave,
           );
       hideLoadingDialog();
       state = state.copyWith(isSavingNote: false);

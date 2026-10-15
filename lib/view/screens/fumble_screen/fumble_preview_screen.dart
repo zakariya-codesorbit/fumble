@@ -237,6 +237,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                       : () => FumblePreviewActions.saveNoteAndFinish(
                           ref: ref,
                           note: _note.text,
+                          fumblePlace: _location.text,
                         ),
                 ),
               ),
