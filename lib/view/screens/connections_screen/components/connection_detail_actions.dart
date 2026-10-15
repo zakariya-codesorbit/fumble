@@ -84,7 +84,7 @@ abstract final class ConnectionDetailActions {
       final place = fumblePlace?.trim();
       final placeToSave = (place != null &&
               place.isNotEmpty &&
-              place != AppConstant.nearExchangeLocation)
+              place != AppConstant.enterFumbleLocation)
           ? place
           : null;
 

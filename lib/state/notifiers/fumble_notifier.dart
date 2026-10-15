@@ -259,7 +259,7 @@ class FumbleNotifier extends Notifier<FumbleState> {
       final place = fumblePlace?.trim();
       final placeToSave = (place != null &&
               place.isNotEmpty &&
-              place != AppConstant.nearExchangeLocation)
+              place != AppConstant.enterFumbleLocation)
           ? place
           : null;
 

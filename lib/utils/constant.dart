@@ -96,7 +96,10 @@ abstract final class AppConstant {
       'You Fumbled $name just now. Want to remember the moment?';
 
   static const String theMomentLabel = 'THE MOMENT';
-  static const String nearExchangeLocation = 'Near exchange location';
+  /// Placeholder on preview / detail when meeting place is empty.
+  static const String enterFumbleLocation = 'Enter Fumble location';
+  /// Shown on connection list cards when no place is saved.
+  static const String fumbleLocationNotSet = 'Fumble location not set';
   static const String recordMemory = 'Record Memory';
   static const String listeningMemory = 'Listening…';
   static const String typeMemoryHint = 'Or type a memory about how you met...';

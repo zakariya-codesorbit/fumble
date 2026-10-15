@@ -153,7 +153,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
     final hasLocation = _location.text.trim().isNotEmpty;
     final locationLabel = hasLocation
         ? _location.text.trim()
-        : AppConstant.nearExchangeLocation;
+        : AppConstant.enterFumbleLocation;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -287,7 +287,7 @@ class _LocationEditor extends StatelessWidget {
         decoration: InputDecoration(
           isDense: true,
           filled: false,
-          hintText: AppConstant.nearExchangeLocation,
+          hintText: AppConstant.enterFumbleLocation,
           hintStyle: TextStyle(
             fontSize: 14,
             color: AppColors.softGrayDim,

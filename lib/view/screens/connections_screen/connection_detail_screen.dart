@@ -180,7 +180,7 @@ class _ConnectionDetailScreenState
             final savedPlace = connection.fumblePlace?.trim() ?? '';
             final currentPlace = _location.text.trim();
             final placeDirty = currentPlace != savedPlace &&
-                currentPlace != AppConstant.nearExchangeLocation;
+                currentPlace != AppConstant.enterFumbleLocation;
             final dirty = noteDirty || placeDirty;
             final displayName = connection.firstName.isNotEmpty
                 ? connection.firstName
@@ -194,9 +194,10 @@ class _ConnectionDetailScreenState
               'd MMMM yyyy',
             ).format(connection.fumbledAt);
             final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
-            final locationLabel = _location.text.trim().isNotEmpty
+            final hasLocation = _location.text.trim().isNotEmpty;
+            final locationLabel = hasLocation
                 ? _location.text.trim()
-                : AppConstant.nearExchangeLocation;
+                : AppConstant.enterFumbleLocation;
 
             return Column(
               children: [
@@ -238,6 +239,7 @@ class _ConnectionDetailScreenState
                             dateLabel: dateLabel,
                             timeLabel: timeLabel,
                             locationLabel: locationLabel,
+                            locationPlaceholder: !hasLocation,
                             onLocationTap: _saving
                                 ? null
                                 : () => setState(() => _editingLocation = true),
@@ -313,7 +315,7 @@ class _LocationEditor extends StatelessWidget {
         decoration: InputDecoration(
           isDense: true,
           filled: false,
-          hintText: AppConstant.nearExchangeLocation,
+          hintText: AppConstant.enterFumbleLocation,
           hintStyle: TextStyle(
             fontSize: 14,
             color: AppColors.softGrayDim,

@@ -85,7 +85,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
     if (_placeLabel != null && _placeLabel!.trim().isNotEmpty) {
       return _placeLabel!.trim();
     }
-    return AppConstant.nearExchangeLocation;
+    return AppConstant.fumbleLocationNotSet;
   }
 
   String _statusLabel(Connection connection) {
@@ -106,6 +106,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final note = connection.note?.trim() ?? '';
     final canDelete = widget.onDeleteTap != null;
     final place = _fumbleLocationText(connection);
+    final placeUnset = place == AppConstant.fumbleLocationNotSet;
     final status = _statusLabel(connection);
 
     return ClipRRect(
@@ -233,7 +234,9 @@ class _ConnectionTileState extends State<ConnectionTile> {
                           child: place.toText(
                             fontSize: 12,
                             fontWeight: AppStyle.w500,
-                            color: AppColors.tertiaryText,
+                            color: placeUnset
+                                ? AppColors.softGrayDim
+                                : AppColors.softGray,
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
