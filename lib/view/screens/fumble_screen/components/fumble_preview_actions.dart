@@ -27,6 +27,15 @@ abstract final class FumblePreviewActions {
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
+  static Future<void> whatsApp(String? phone) async {
+    final digits = phone?.replaceAll(RegExp(r'\D'), '') ?? '';
+    if (digits.isEmpty) return;
+    final uri = Uri.parse('https://wa.me/$digits');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   static Future<void> loadDetails(WidgetRef ref) {
     return ref.read(fumbleNotifierProvider.notifier).loadPreviewDetails();
   }

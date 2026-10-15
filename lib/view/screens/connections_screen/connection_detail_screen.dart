@@ -154,9 +154,8 @@ class _ConnectionDetailScreenState
         ),
         body: connectionsAsync.when(
           loading: () => const AppLoader(),
-          error: (e, _) => AppErrorState(
-            onRetry: () => ref.invalidate(connectionsProvider),
-          ),
+          error: (e, _) =>
+              AppErrorState(onRetry: () => ref.invalidate(connectionsProvider)),
           data: (connections) {
             Connection? match;
             for (final c in connections) {
@@ -176,8 +175,7 @@ class _ConnectionDetailScreenState
             final connection = match;
             _ensureSeeded(connection);
 
-            final dirty =
-                _note.text.trim() != (connection.note?.trim() ?? '');
+            final dirty = _note.text.trim() != (connection.note?.trim() ?? '');
             final displayName = connection.firstName.isNotEmpty
                 ? connection.firstName
                 : connection.name;
@@ -186,8 +184,9 @@ class _ConnectionDetailScreenState
             final fumbleLabel = connection.youInitiated(ownerUid)
                 ? AppConstant.youFumbled(displayName)
                 : AppConstant.fumbledYou(displayName);
-            final dateLabel =
-                DateFormat('d MMMM yyyy').format(connection.fumbledAt);
+            final dateLabel = DateFormat(
+              'd MMMM yyyy',
+            ).format(connection.fumbledAt);
             final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
             final locationLabel = _location.text.trim().isNotEmpty
                 ? _location.text.trim()
@@ -216,6 +215,9 @@ class _ConnectionDetailScreenState
                           onText: () => ConnectionDetailActions.text(
                             connection.visiblePhone,
                           ),
+                          onWhatsApp: () => ConnectionDetailActions.whatsApp(
+                            connection.visiblePhone,
+                          ),
                         ),
                         24.height,
                         if (_editingLocation)
@@ -232,13 +234,10 @@ class _ConnectionDetailScreenState
                             locationLabel: locationLabel,
                             onLocationTap: _saving
                                 ? null
-                                : () =>
-                                    setState(() => _editingLocation = true),
+                                : () => setState(() => _editingLocation = true),
                           ),
                         16.height,
-                        FumblePreviewRememberPrompt(
-                          message: fumbleLabel,
-                        ),
+                        FumblePreviewRememberPrompt(message: fumbleLabel),
                         16.height,
                         FumblePreviewRecordMemory(
                           isListening: _listening,
@@ -259,8 +258,7 @@ class _ConnectionDetailScreenState
                     padding: EdgeInsets.fromLTRB(24, 8, 24, 24.h),
                     child: PrimaryButton(
                       buttonName: AppConstant.done,
-                      onPressed:
-                          _saving ? null : () => _onSaveNote(connection),
+                      onPressed: _saving ? null : () => _onSaveNote(connection),
                     ),
                   ),
               ],

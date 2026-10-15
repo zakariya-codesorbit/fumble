@@ -69,6 +69,7 @@ class ProfileCardHeader extends StatelessWidget {
     this.showEmail = true,
     this.onCall,
     this.onText,
+    this.onWhatsApp,
     this.topSpacing = 20,
   });
 
@@ -118,6 +119,7 @@ class ProfileCardHeader extends StatelessWidget {
   final bool showEmail;
   final VoidCallback? onCall;
   final VoidCallback? onText;
+  final VoidCallback? onWhatsApp;
   final double topSpacing;
 
   @override
@@ -235,23 +237,37 @@ class ProfileCardHeader extends StatelessWidget {
           if (showActions) ...[
             20.height,
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                PillButton(
-                  label: AppConstant.call,
-                  icon: AppIcons.phone,
-                  foregroundColor: AppColors.gold,
-                  borderColor: AppColors.goldMuted,
-                  onTap: onCall,
+                Expanded(
+                  child: PillButton(
+                    label: AppConstant.call,
+                    icon: AppIcons.phone,
+                    foregroundColor: AppColors.gold,
+                    borderColor: AppColors.goldMuted,
+                    onTap: onCall,
+                  ),
                 ),
-                12.width,
-                PillButton(
-                  label: AppConstant.text,
-                  icon: AppIcons.chat,
-                  backgroundColor: AppColors.surfaceElevated,
-                  foregroundColor: AppColors.white,
-                  borderColor: AppColors.softGrayDim,
-                  onTap: onText,
+                8.width,
+                Expanded(
+                  child: PillButton(
+                    label: AppConstant.text,
+                    icon: AppIcons.chat,
+                    backgroundColor: AppColors.surfaceElevated,
+                    foregroundColor: AppColors.white,
+                    borderColor: AppColors.softGrayDim,
+                    onTap: onText,
+                  ),
+                ),
+                8.width,
+                Expanded(
+                  child: PillButton(
+                    label: AppConstant.whatsApp,
+                    iconAsset: AppIcons.iconWhatsapp,
+                    backgroundColor: AppColors.surfaceElevated,
+                    foregroundColor: AppColors.white,
+                    borderColor: AppColors.softGrayDim,
+                    onTap: onWhatsApp,
+                  ),
                 ),
               ],
             ),

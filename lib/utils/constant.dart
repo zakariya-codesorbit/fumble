@@ -52,6 +52,7 @@ abstract final class AppConstant {
   static const String phoneLabel = 'Phone';
   static const String call = 'Call';
   static const String text = 'Text';
+  static const String whatsApp = 'WhatsApp';
   static const String addBio = 'Add a short bio';
   static const String addAboutMe = 'Add a few words about yourself';
   static const String addLocation = 'Add your location';

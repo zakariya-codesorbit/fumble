@@ -280,6 +280,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                   ),
                   onCall: () => ProfileActions.call(displayPhone),
                   onText: () => ProfileActions.text(displayPhone),
+                  onWhatsApp: () => ProfileActions.whatsApp(displayPhone),
                 ),
                 ProfileCardSections(
                   aboutMe: ProfileCardSection(

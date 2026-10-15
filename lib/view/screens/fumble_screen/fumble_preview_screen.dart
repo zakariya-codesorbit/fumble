@@ -190,6 +190,8 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                       topSpacing: 8,
                       onCall: () => FumblePreviewActions.call(preview.phone),
                       onText: () => FumblePreviewActions.text(preview.phone),
+                      onWhatsApp: () =>
+                          FumblePreviewActions.whatsApp(preview.phone),
                     ),
                     24.height,
                     if (_editingLocation)

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppIcons {
   static const String iconEdit = 'assets/icons/ic_edit.svg';
   static const String iconUser = 'assets/icons/ic_user.png';
+  static const String iconWhatsapp = 'assets/icons/ic_whatsapp.png';
 
   static const IconData tabfumble = Icons.circle_outlined;
   static const IconData tabMyfumble = Icons.person;

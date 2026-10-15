@@ -9,15 +9,17 @@ class PillButton extends StatelessWidget {
   const PillButton({
     super.key,
     required this.label,
-    required this.icon,
     required this.onTap,
+    this.icon,
+    this.iconAsset,
     this.backgroundColor = AppColors.clear,
     this.foregroundColor = AppColors.white,
     this.borderColor = AppColors.border,
-  });
+  }) : assert(icon != null || iconAsset != null);
 
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconAsset;
   final VoidCallback? onTap;
   final Color backgroundColor;
   final Color foregroundColor;
@@ -25,6 +27,7 @@ class PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final asset = iconAsset;
     return Material(
       color: backgroundColor,
       borderRadius: BorderRadius.circular(AppStyle.radiusPill),
@@ -33,7 +36,8 @@ class PillButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppStyle.radiusPill),
         child: Container(
           height: 38.h,
-          width: 85.w,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 6.w),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppStyle.radiusPill),
@@ -42,12 +46,24 @@ class PillButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18.w, color: foregroundColor),
-              8.width,
-              label.toText(
-                color: foregroundColor,
-                fontSize: 16,
-                fontWeight: AppStyle.w700,
+              if (asset != null)
+                Image.asset(
+                  asset,
+                  width: 16.w,
+                  height: 16.w,
+                  color: foregroundColor,
+                )
+              else
+                Icon(icon, size: 16.w, color: foregroundColor),
+              4.width,
+              Flexible(
+                child: label.toText(
+                  color: foregroundColor,
+                  fontSize: 13,
+                  fontWeight: AppStyle.w700,
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
