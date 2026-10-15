@@ -104,7 +104,6 @@ class _ConnectionTileState extends State<ConnectionTile> {
     final date = DateFormat('d MMMM yyyy').format(connection.fumbledAt);
     final time = DateFormat('HH:mm').format(connection.fumbledAt);
     final note = connection.note?.trim() ?? '';
-    final badge = _syncBadge(connection.syncStatus);
     final canDelete = widget.onDeleteTap != null;
     final place = _fumbleLocationText(connection);
     final status = _statusLabel(connection);
@@ -184,21 +183,11 @@ class _ConnectionTileState extends State<ConnectionTile> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: connection.name.toText(
-                                      fontSize: 16,
-                                      fontWeight: AppStyle.w600,
-                                      maxLine: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (badge != null) ...[
-                                    8.width,
-                                    _SyncBadge(badge: badge),
-                                  ],
-                                ],
+                              connection.name.toText(
+                                fontSize: 16,
+                                fontWeight: AppStyle.w600,
+                                maxLine: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               4.height,
                               status.toText(
@@ -219,13 +208,13 @@ class _ConnectionTileState extends State<ConnectionTile> {
                             date.toText(
                               fontSize: 12,
                               fontWeight: AppStyle.w500,
-                              color: AppColors.softGray,
+                              color: AppColors.tertiaryText,
                             ),
                             2.height,
                             time.toText(
                               fontSize: 12,
                               fontWeight: AppStyle.w500,
-                              color: AppColors.softGray,
+                              color: AppColors.tertiaryText,
                             ),
                           ],
                         ),
@@ -244,7 +233,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                           child: place.toText(
                             fontSize: 12,
                             fontWeight: AppStyle.w500,
-                            color: AppColors.softGray,
+                            color: AppColors.tertiaryText,
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -277,55 +266,4 @@ class _ConnectionTileState extends State<ConnectionTile> {
       ),
     );
   }
-}
-
-class _SyncBadge extends StatelessWidget {
-  const _SyncBadge({required this.badge});
-
-  final ({String label, IconData icon, Color color}) badge;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: badge.color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(AppStyle.radiusPill),
-        border: Border.all(color: badge.color.withValues(alpha: 0.45)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(badge.icon, size: 12, color: badge.color),
-          4.width,
-          badge.label.toText(
-            fontSize: 11,
-            fontWeight: AppStyle.w600,
-            color: badge.color,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-({String label, IconData icon, Color color})? _syncBadge(SyncStatus status) {
-  return switch (status) {
-    SyncStatus.synced => null,
-    SyncStatus.syncing => (
-      label: AppConstant.syncStatusSyncing,
-      icon: AppIcons.refresh,
-      color: AppColors.gold,
-    ),
-    SyncStatus.failed => (
-      label: AppConstant.syncStatusFailed,
-      icon: AppIcons.refresh,
-      color: AppColors.error,
-    ),
-    SyncStatus.pending => (
-      label: AppConstant.pendingSync,
-      icon: AppIcons.refresh,
-      color: AppColors.softGray,
-    ),
-  };
 }

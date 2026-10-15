@@ -67,7 +67,7 @@ abstract final class ConnectionDetailActions {
     }
   }
 
-  /// Returns `true` when note/place were saved and the screen should pop.
+  /// Returns `true` when the screen should pop after a successful save attempt.
   static Future<bool> saveNoteAndPop({
     required WidgetRef ref,
     required Connection connection,
@@ -94,6 +94,8 @@ abstract final class ConnectionDetailActions {
             note: note,
             fumblePlace: placeToSave,
           );
+      // Refresh list listeners before leaving so the card shows the new note.
+      ref.read(connectionRepositoryProvider).refreshConnections(uid);
       pop();
       return true;
     } catch (_) {

@@ -175,7 +175,13 @@ class _ConnectionDetailScreenState
             final connection = match;
             _ensureSeeded(connection);
 
-            final dirty = _note.text.trim() != (connection.note?.trim() ?? '');
+            final noteDirty =
+                _note.text.trim() != (connection.note?.trim() ?? '');
+            final savedPlace = connection.fumblePlace?.trim() ?? '';
+            final currentPlace = _location.text.trim();
+            final placeDirty = currentPlace != savedPlace &&
+                currentPlace != AppConstant.nearExchangeLocation;
+            final dirty = noteDirty || placeDirty;
             final displayName = connection.firstName.isNotEmpty
                 ? connection.firstName
                 : connection.name;

@@ -144,7 +144,7 @@ class ConnectionRepository {
   }
 
   /// Updates the shared note on an existing local connection and syncs.
-  Future<void> updateConnectionNote({
+  Future<bool> updateConnectionNote({
     required String ownerUid,
     required String peerUid,
     required String note,
@@ -157,7 +157,8 @@ class ConnectionRepository {
   }
 
   /// Updates shared note and/or meeting place, then syncs to both users.
-  Future<void> updateConnectionMemory({
+  /// Returns `true` when a local write happened.
+  Future<bool> updateConnectionMemory({
     required String ownerUid,
     required String peerUid,
     String? note,
@@ -167,7 +168,9 @@ class ConnectionRepository {
       ownerUid: ownerUid,
       peerUid: peerUid,
     );
-    if (existing == null) return;
+    if (existing == null) {
+      throw StateError('connection_not_found');
+    }
 
     var updated = existing;
     final now = DateTime.now();
@@ -184,12 +187,15 @@ class ConnectionRepository {
     }
     if (fumblePlace != null) {
       final trimmed = fumblePlace.trim();
-      updated = updated.copyWith(
-        fumblePlace: trimmed.isEmpty ? null : trimmed,
-        clearFumblePlace: trimmed.isEmpty,
-      );
+      final nextPlace = trimmed.isEmpty ? null : trimmed;
+      if (nextPlace != existing.fumblePlace) {
+        updated = updated.copyWith(
+          fumblePlace: nextPlace,
+          clearFumblePlace: nextPlace == null,
+        );
+      }
     }
-    if (updated.sameContent(existing)) return;
+    if (updated.sameContent(existing)) return false;
 
     updated = updated.copyWith(
       updatedAt: now,
@@ -198,6 +204,7 @@ class ConnectionRepository {
     await _local.saveConnection(ownerUid, updated);
     _changes.add(ownerUid);
     unawaited(syncConnections(ownerUid));
+    return true;
   }
 
   /// Merges public-card fields into a locally saved offline connection.
@@ -287,49 +294,63 @@ class ConnectionRepository {
     for (final row in rows) {
       if (!ConnectionManager().isConnected) return;
       final peer = await _resolvePeerProfile(row);
-      final next = _mergeLocalWithPeerProfile(row, peer);
-      final changed = !_sameSharedFields(row, next);
-      final needsWrite = changed || row.syncStatus != SyncStatus.synced;
+      // Reload before merging — a note edit may have landed mid-sync.
+      var latestLocal = await _local.loadSingleConnection(
+            ownerUid: ownerUid,
+            peerUid: row.peerUid,
+          ) ??
+          row;
+      final next = _mergeLocalWithPeerProfile(latestLocal, peer);
+      final changed = !_sameSharedFields(latestLocal, next);
+      final needsWrite =
+          changed || latestLocal.syncStatus != SyncStatus.synced;
       if (!needsWrite) continue;
 
       if (changed) {
-        await _local.saveConnection(
-          ownerUid,
-          next.copyWith(updatedAt: DateTime.now()),
+        latestLocal = next.copyWith(
+          updatedAt: DateTime.now(),
+          syncStatus: latestLocal.syncStatus != SyncStatus.synced
+              ? latestLocal.syncStatus
+              : next.syncStatus,
         );
+        await _local.saveConnection(ownerUid, latestLocal);
         _changes.add(ownerUid);
       }
 
-      final wasSynced = row.syncStatus == SyncStatus.synced;
+      final wasSynced = latestLocal.syncStatus == SyncStatus.synced;
       if (!wasSynced) {
         await _markSyncStatus(ownerUid, row.peerUid, SyncStatus.syncing);
       }
       try {
-        final coords = row.fumbleLocation ?? peer.fumbleLocation;
-        var placeLabel = row.fumblePlace ?? peer.fumblePlace;
+        final coords = latestLocal.fumbleLocation ?? peer.fumbleLocation;
+        var placeLabel = latestLocal.fumblePlace ?? peer.fumblePlace;
         if (coords != null && (placeLabel == null || placeLabel.isEmpty)) {
           placeLabel = await FumbleLocationService.placeLabel(coords);
           if (RepoUtils.filled(placeLabel)) {
-            await _local.saveConnection(
-              ownerUid,
-              next.copyWith(
-                fumblePlace: placeLabel,
-                updatedAt: DateTime.now(),
-              ),
+            latestLocal = latestLocal.copyWith(
+              fumblePlace: placeLabel,
+              updatedAt: DateTime.now(),
             );
+            await _local.saveConnection(ownerUid, latestLocal);
           }
         }
+        // Reload again — note may have changed while resolving place/profile.
+        latestLocal = await _local.loadSingleConnection(
+              ownerUid: ownerUid,
+              peerUid: row.peerUid,
+            ) ??
+            latestLocal;
         final noteSync = await _resolveSharedNoteForPush(
           ownerUid: ownerUid,
           peerUid: row.peerUid,
-          local: row,
+          local: latestLocal,
         );
         if (noteSync.shouldUpdateLocal &&
-            (noteSync.note != row.note ||
-                noteSync.noteUpdatedAt != row.noteUpdatedAt)) {
+            (noteSync.note != latestLocal.note ||
+                noteSync.noteUpdatedAt != latestLocal.noteUpdatedAt)) {
           await _local.saveConnection(
             ownerUid,
-            next.copyWith(
+            latestLocal.copyWith(
               note: noteSync.note,
               clearNote: noteSync.note == null,
               noteUpdatedAt: noteSync.noteUpdatedAt,
@@ -343,13 +364,13 @@ class ConnectionRepository {
         await saveConnectionForBoth(
           scanner: scanner,
           peer: peer,
-          fumbledAt: row.fumbledAt,
+          fumbledAt: latestLocal.fumbledAt,
           fumbleLocation: coords,
           fumblePlace: placeLabel,
           note: noteSync.note,
           noteUpdatedAt: noteSync.noteUpdatedAt,
           writeNote: noteSync.writeNote,
-          initiatedBy: row.initiatedBy,
+          initiatedBy: latestLocal.initiatedBy,
         );
         await _markSyncStatus(ownerUid, row.peerUid, SyncStatus.synced);
       } catch (e, st) {
@@ -483,12 +504,17 @@ class ConnectionRepository {
             !RepoUtils.filled(local.location),
         phone: remote.sharePhone ? remote.phone : null,
         clearPhone: !remote.sharePhone || !RepoUtils.filled(remote.phone),
-        // Shared note: when local is synced, cloud is source of truth (LWW).
-        note: remote.note,
-        clearNote: !RepoUtils.filled(remote.note),
-        noteUpdatedAt: remote.noteUpdatedAt ?? local.noteUpdatedAt,
-        clearNoteUpdatedAt:
-            remote.noteUpdatedAt == null && local.noteUpdatedAt == null,
+        // Shared note: last-write-wins by noteUpdatedAt (never clobber newer local).
+        note: _preferRemoteNote(local, remote) ? remote.note : local.note,
+        clearNote: _preferRemoteNote(local, remote)
+            ? !RepoUtils.filled(remote.note)
+            : !RepoUtils.filled(local.note),
+        noteUpdatedAt: _preferRemoteNote(local, remote)
+            ? (remote.noteUpdatedAt ?? local.noteUpdatedAt)
+            : (local.noteUpdatedAt ?? remote.noteUpdatedAt),
+        clearNoteUpdatedAt: _preferRemoteNote(local, remote)
+            ? remote.noteUpdatedAt == null && local.noteUpdatedAt == null
+            : local.noteUpdatedAt == null && remote.noteUpdatedAt == null,
         sharePhone: remote.sharePhone,
         shareEmail: remote.shareEmail,
         fumbleLocation: remote.fumbleLocation ?? local.fumbleLocation,
@@ -591,20 +617,38 @@ class ConnectionRepository {
     _changes.add(ownerUid);
   }
 
-  /// Picks which shared note to push so a newer remote note is not wiped.
+  bool _preferRemoteNote(Connection local, Connection remote) {
+    final localAt = local.noteUpdatedAt;
+    final remoteAt = remote.noteUpdatedAt;
+    if (localAt == null) return true;
+    if (remoteAt == null) return false;
+    return !remoteAt.isBefore(localAt);
+  }
+
+  /// Picks which shared note to push so a newer local note is never wiped.
   Future<({String? note, DateTime? noteUpdatedAt, bool writeNote, bool shouldUpdateLocal})>
       _resolveSharedNoteForPush({
     required String ownerUid,
     required String peerUid,
     required Connection local,
   }) async {
+    // Explicit local note edits always win until they are pushed.
+    if (local.syncStatus != SyncStatus.synced && local.noteUpdatedAt != null) {
+      return (
+        note: local.note,
+        noteUpdatedAt: local.noteUpdatedAt,
+        writeNote: true,
+        shouldUpdateLocal: false,
+      );
+    }
+
     try {
       final snap = await _connections(ownerUid).doc(peerUid).get();
       if (!snap.exists) {
         return (
           note: local.note,
           noteUpdatedAt: local.noteUpdatedAt,
-          writeNote: local.noteUpdatedAt != null || RepoUtils.filled(local.note),
+          writeNote: local.noteUpdatedAt != null,
           shouldUpdateLocal: false,
         );
       }
@@ -614,12 +658,12 @@ class ConnectionRepository {
       final localUpdated = local.noteUpdatedAt;
 
       if (localUpdated == null && remoteUpdated == null) {
-        final note = RepoUtils.filled(local.note) ? local.note : remoteNote;
+        // Don't invent a write that could clear the other side's note.
         return (
-          note: note,
+          note: local.note,
           noteUpdatedAt: null,
-          writeNote: RepoUtils.filled(note),
-          shouldUpdateLocal: note != local.note,
+          writeNote: false,
+          shouldUpdateLocal: false,
         );
       }
       if (localUpdated == null) {
@@ -627,7 +671,8 @@ class ConnectionRepository {
           note: remoteNote,
           noteUpdatedAt: remoteUpdated,
           writeNote: false,
-          shouldUpdateLocal: true,
+          shouldUpdateLocal: remoteNote != local.note ||
+              remoteUpdated != local.noteUpdatedAt,
         );
       }
       if (remoteUpdated == null || !localUpdated.isBefore(remoteUpdated)) {
