@@ -239,8 +239,8 @@ class _ConnectionTileState extends State<ConnectionTile> {
                             fontSize: 12,
                             fontWeight: AppStyle.w500,
                             color: placeUnset
-                                ? AppColors.softGrayDim
-                                : AppColors.softGray,
+                                ? AppColors.tertiaryText
+                                : AppColors.tertiaryText,
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
