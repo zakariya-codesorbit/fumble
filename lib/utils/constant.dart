@@ -95,6 +95,20 @@ abstract final class AppConstant {
   static String youFumbledJustNow(String name) =>
       'You Fumbled $name just now. Want to remember the moment?';
 
+  /// Connection detail remember prompt when the shared note is empty.
+  static String rememberMomentEmptyYouInitiated(String name) =>
+      'You fumbled $name. Want to remember the moment?';
+
+  static String rememberMomentEmptyTheyInitiated(String name) =>
+      '$name fumbled you. Want to remember the moment?';
+
+  /// Connection detail remember prompt when a shared note exists.
+  static String sharedMemoryYouInitiated(String name) =>
+      'You fumbled $name. Your shared memory.';
+
+  static String sharedMemoryTheyInitiated(String name) =>
+      '$name fumbled you. Your shared memory.';
+
   static const String theMomentLabel = 'THE MOMENT';
   /// Placeholder on preview / detail when meeting place is empty.
   static const String enterFumbleLocation = 'Enter Fumble location';

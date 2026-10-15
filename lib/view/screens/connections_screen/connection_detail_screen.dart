@@ -186,9 +186,18 @@ class _ConnectionDetailScreenState
                 : connection.name;
             final ownerUid =
                 ref.read(authServiceProvider).currentUser?.uid ?? '';
-            final fumbleLabel = connection.youInitiated(ownerUid)
+            final youInitiated = connection.youInitiated(ownerUid);
+            final fumbleLabel = youInitiated
                 ? AppConstant.youFumbled(displayName)
                 : AppConstant.fumbledYou(displayName);
+            final noteEmpty = _note.text.trim().isEmpty;
+            final rememberMessage = noteEmpty
+                ? (youInitiated
+                    ? AppConstant.rememberMomentEmptyYouInitiated(displayName)
+                    : AppConstant.rememberMomentEmptyTheyInitiated(displayName))
+                : (youInitiated
+                    ? AppConstant.sharedMemoryYouInitiated(displayName)
+                    : AppConstant.sharedMemoryTheyInitiated(displayName));
             final dateLabel = DateFormat(
               'd MMMM yyyy',
             ).format(connection.fumbledAt);
@@ -244,7 +253,7 @@ class _ConnectionDetailScreenState
                                 : () => setState(() => _editingLocation = true),
                           ),
                         16.height,
-                        FumblePreviewRememberPrompt(message: fumbleLabel),
+                        FumblePreviewRememberPrompt(message: rememberMessage),
                         16.height,
                         FumblePreviewRecordMemory(
                           isListening: _listening,
