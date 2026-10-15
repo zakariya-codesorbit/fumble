@@ -133,6 +133,9 @@ abstract final class AppConstant {
   static const String locationPermissionTitle = 'Permission needed';
   static const String locationPermissionSettings =
       'Location access is disabled. Please open Settings and allow Fumble to use your location.';
+  static const String locationServicesTitle = 'Location is off';
+  static const String locationServicesSettings =
+      'Device location is turned off. Turn it on so Fumble can fill the meeting place.';
   static const String invalidQr = 'This isn\'t a valid Fumble code.';
   static const String malformedQr = 'This Fumble code is malformed.';
   static const String unsupportedQrVersion =

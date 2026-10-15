@@ -120,27 +120,52 @@ abstract final class FumblePreviewActions {
     if (ownCoords != null) {
       final label = await FumbleLocationService.placeLabel(ownCoords);
       final trimmed = label?.trim();
-      if (trimmed != null && trimmed.isNotEmpty) return trimmed;
+      if (trimmed != null && trimmed.isNotEmpty) {
+        debugPrint('[FumblePreview] meeting place from OWN GPS: $trimmed');
+        return trimmed;
+      }
+      debugPrint('[FumblePreview] own GPS ok but geocode empty');
     }
 
-    if (!ConnectionManager().isConnected) return null;
+    if (!ConnectionManager().isConnected) {
+      debugPrint('[FumblePreview] offline — no peer location fallback');
+      return null;
+    }
     final uid = peerUid.trim();
-    if (uid.isEmpty) return null;
+    if (uid.isEmpty) {
+      debugPrint('[FumblePreview] peerUid empty — no peer location fallback');
+      return null;
+    }
 
     try {
       final card = await codes.loadPublicProfile(uid);
-      if (card == null) return null;
+      if (card == null) {
+        debugPrint('[FumblePreview] peer profile null for $uid');
+        return null;
+      }
 
       final peerCoords = card.fumbleLocation;
       if (peerCoords != null) {
         final label = await FumbleLocationService.placeLabel(peerCoords);
         final trimmed = label?.trim();
-        if (trimmed != null && trimmed.isNotEmpty) return trimmed;
+        if (trimmed != null && trimmed.isNotEmpty) {
+          debugPrint('[FumblePreview] meeting place from PEER GPS: $trimmed');
+          return trimmed;
+        }
+        debugPrint('[FumblePreview] peer GPS ok but geocode empty');
+      } else {
+        debugPrint('[FumblePreview] peer has no fumbleLocation');
       }
 
       final published = card.fumblePlace?.trim();
-      if (published != null && published.isNotEmpty) return published;
-    } catch (_) {}
+      if (published != null && published.isNotEmpty) {
+        debugPrint('[FumblePreview] meeting place from peer fumblePlace: $published');
+        return published;
+      }
+      debugPrint('[FumblePreview] peer has no fumblePlace either');
+    } catch (e) {
+      debugPrint('[FumblePreview] peer location load failed → $e');
+    }
     return null;
   }
 }

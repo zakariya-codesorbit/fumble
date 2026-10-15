@@ -89,6 +89,21 @@ abstract final class FumbleLocationService {
     );
   }
 
+  /// Prompts to enable the system Location toggle when services are off.
+  static Future<bool> ensureLocationServices(BuildContext context) async {
+    if (await Geolocator.isLocationServiceEnabled()) return true;
+    if (!context.mounted) return false;
+    await SettingActions.showConfirmSheet(
+      context: context,
+      title: AppConstant.locationServicesTitle,
+      description: AppConstant.locationServicesSettings,
+      primaryCta: AppConstant.openSettings,
+      destructive: false,
+      onPrimaryTap: Geolocator.openLocationSettings,
+    );
+    return Geolocator.isLocationServiceEnabled();
+  }
+
   static Future<bool> hasPermission() async {
     return Permission.locationWhenInUse.isGranted;
   }
@@ -96,16 +111,31 @@ abstract final class FumbleLocationService {
   /// Current coordinates when permission + services allow; otherwise null.
   static Future<FumbleLocation?> currentLocation() async {
     try {
-      if (!await hasPermission()) return null;
-      if (!await Geolocator.isLocationServiceEnabled()) return null;
+      final permitted = await hasPermission();
+      if (!permitted) {
+        debugPrint('[FumbleLocation] currentLocation: permission denied');
+        return null;
+      }
+      final servicesOn = await Geolocator.isLocationServiceEnabled();
+      if (!servicesOn) {
+        debugPrint(
+          '[FumbleLocation] currentLocation: permission ok but GPS/services OFF',
+        );
+        return null;
+      }
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.medium,
           timeLimit: Duration(seconds: 10),
         ),
       );
+      debugPrint(
+        '[FumbleLocation] currentLocation: ok '
+        '(${position.latitude}, ${position.longitude})',
+      );
       return FumbleLocation.fromPosition(position);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[FumbleLocation] currentLocation: failed → $e');
       return null;
     }
   }
@@ -121,6 +151,11 @@ abstract final class FumbleLocationService {
         ? await ensurePermission(context)
         : await hasPermission();
     if (!allowed) return null;
+    if (!context.mounted) return null;
+    if (promptIfDenied) {
+      final servicesOn = await ensureLocationServices(context);
+      if (!servicesOn) return null;
+    }
     return currentLocation();
   }
 
