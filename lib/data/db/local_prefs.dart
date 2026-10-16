@@ -8,6 +8,21 @@ import '../models/user_profile.dart';
 abstract final class LocalPrefs {
   static const _onboardingCompletedKey = 'onboarding_completed';
   static const _profileKey = 'cached_user_profile';
+  /// Survives only while the app is installed. Cleared on uninstall, unlike
+  /// iOS Keychain (where Firebase Auth keeps the session).
+  static const _installMarkerKey = 'install_marker_v1';
+
+  /// `true` when this process is the first launch after a fresh install
+  /// (SharedPreferences empty, Keychain may still hold Auth).
+  static Future<bool> isFreshInstall() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !(prefs.getBool(_installMarkerKey) ?? false);
+  }
+
+  static Future<void> markInstall() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_installMarkerKey, true);
+  }
 
   static Future<bool> get onboardingCompleted async {
     final prefs = await SharedPreferences.getInstance();
