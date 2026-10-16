@@ -17,12 +17,14 @@ class ConnectionLocalStore {
     final db = await _local.database;
     final rows = await db.query(
       'connections',
-      columns: const ['peer_uid'],
+      columns: const ['peer_uid', 'sync_status'],
       where: 'owner_uid = ? AND peer_uid = ?',
       whereArgs: [ownerUid, peerUid],
       limit: 1,
     );
-    return rows.isNotEmpty;
+    if (rows.isEmpty) return false;
+    // Tombstones are not active connections (user may re-fumble).
+    return rows.first['sync_status'] != SyncStatus.pendingDelete.name;
   }
 
   Future<List<Connection>> loadAllConnections(String ownerUid) async {
@@ -34,6 +36,14 @@ class ConnectionLocalStore {
       orderBy: 'created_at DESC',
     );
     return rows.map(Connection.fromLocalRow).toList();
+  }
+
+  /// Active connections only (hides offline-delete tombstones).
+  Future<List<Connection>> loadVisibleConnections(String ownerUid) async {
+    final rows = await loadAllConnections(ownerUid);
+    return rows
+        .where((row) => row.syncStatus != SyncStatus.pendingDelete)
+        .toList();
   }
 
   Future<Connection?> loadSingleConnection({

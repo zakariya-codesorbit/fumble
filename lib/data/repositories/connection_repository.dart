@@ -55,7 +55,7 @@ class ConnectionRepository {
       Future<void> emit() async {
         final token = ++generation;
         try {
-          final rows = await _local.loadAllConnections(ownerUid);
+          final rows = await _local.loadVisibleConnections(ownerUid);
           if (token != generation || listener.isClosed) return;
           listener.add(rows);
         } catch (e, st) {
@@ -98,6 +98,18 @@ class ConnectionRepository {
       peerUid: preview.peerUid,
     )) {
       return false;
+    }
+
+    // Replace an offline-delete tombstone so the peer can be fumbled again.
+    final existing = await _local.loadSingleConnection(
+      ownerUid: ownerUid,
+      peerUid: preview.peerUid,
+    );
+    if (existing?.syncStatus == SyncStatus.pendingDelete) {
+      await _local.removeConnection(
+        ownerUid: ownerUid,
+        peerUid: preview.peerUid,
+      );
     }
 
     // Prefer scanner GPS when available; otherwise use peer's published coords.
@@ -288,17 +300,46 @@ class ConnectionRepository {
     final rows = await _local.loadAllConnections(ownerUid);
     if (rows.isEmpty) return;
 
+    // Offline removes first — no owner profile required.
+    for (final row in rows) {
+      if (row.syncStatus != SyncStatus.pendingDelete) continue;
+      if (!ConnectionManager().isConnected) return;
+      try {
+        await _deleteRemoteConnectionPair(
+          ownerUid: ownerUid,
+          peerUid: row.peerUid,
+        );
+        await _local.removeConnection(
+          ownerUid: ownerUid,
+          peerUid: row.peerUid,
+        );
+        _changes.add(ownerUid);
+      } catch (e, st) {
+        if (RepoUtils.isOfflineError(e)) return;
+        await _crashlytics.recordError(
+          e,
+          st,
+          reason: 'connection_pending_delete_failed',
+        );
+      }
+    }
+
+    final remaining = await _local.loadAllConnections(ownerUid);
+    if (remaining.isEmpty) return;
+
     final scanner = await _loadOwnerProfile(ownerUid);
     if (scanner == null) {
-      for (final row in rows) {
+      for (final row in remaining) {
         if (row.syncStatus == SyncStatus.synced) continue;
+        if (row.syncStatus == SyncStatus.pendingDelete) continue;
         await _markSyncStatus(ownerUid, row.peerUid, SyncStatus.failed);
       }
       return;
     }
 
-    for (final row in rows) {
+    for (final row in remaining) {
       if (!ConnectionManager().isConnected) return;
+      if (row.syncStatus == SyncStatus.pendingDelete) continue;
       final peer = await _resolvePeerProfile(row);
       // Reload before merging — a note edit may have landed mid-sync.
       var latestLocal = await _local.loadSingleConnection(
@@ -557,6 +598,17 @@ class ConnectionRepository {
 
     final localRows = await _local.loadAllConnections(ownerUid);
     for (final row in localRows) {
+      if (row.syncStatus == SyncStatus.pendingDelete) {
+        // Remote already gone (e.g. peer removed us) — drop the tombstone.
+        if (!remotePeerIds.contains(row.peerUid)) {
+          await _local.removeConnection(
+            ownerUid: ownerUid,
+            peerUid: row.peerUid,
+          );
+          changed = true;
+        }
+        continue;
+      }
       if (row.syncStatus != SyncStatus.synced) continue;
       if (remotePeerIds.contains(row.peerUid)) continue;
       await _local.removeConnection(ownerUid: ownerUid, peerUid: row.peerUid);
@@ -615,6 +667,9 @@ class ConnectionRepository {
   }
 
   /// Deletes the connection for both users (Firestore + local).
+  ///
+  /// Offline: removes from the UI immediately and queues a Firestore delete
+  /// (`pendingDelete`) that runs on the next sync when back online.
   Future<void> removeConnectionForBoth({
     required String ownerUid,
     required String peerUid,
@@ -623,16 +678,45 @@ class ConnectionRepository {
 
     await ConnectionManager().ready();
     if (!ConnectionManager().isConnected) {
-      throw StateError(AppConstant.offline);
+      final local = await _local.loadSingleConnection(
+        ownerUid: ownerUid,
+        peerUid: peerUid,
+      );
+      // Never reached the cloud — drop locally, nothing to sync.
+      if (local == null || local.syncStatus == SyncStatus.pending) {
+        await _local.removeConnection(ownerUid: ownerUid, peerUid: peerUid);
+        _changes.add(ownerUid);
+        return;
+      }
+      await _markSyncStatus(ownerUid, peerUid, SyncStatus.pendingDelete);
+      return;
     }
 
+    try {
+      await _deleteRemoteConnectionPair(
+        ownerUid: ownerUid,
+        peerUid: peerUid,
+      );
+    } catch (e) {
+      if (RepoUtils.isOfflineError(e)) {
+        await _markSyncStatus(ownerUid, peerUid, SyncStatus.pendingDelete);
+        return;
+      }
+      rethrow;
+    }
+
+    await _local.removeConnection(ownerUid: ownerUid, peerUid: peerUid);
+    _changes.add(ownerUid);
+  }
+
+  Future<void> _deleteRemoteConnectionPair({
+    required String ownerUid,
+    required String peerUid,
+  }) async {
     final batch = _db.batch();
     batch.delete(_connections(ownerUid).doc(peerUid));
     batch.delete(_connections(peerUid).doc(ownerUid));
     await batch.commit();
-
-    await _local.removeConnection(ownerUid: ownerUid, peerUid: peerUid);
-    _changes.add(ownerUid);
   }
 
   bool _preferRemoteNote(Connection local, Connection remote) {

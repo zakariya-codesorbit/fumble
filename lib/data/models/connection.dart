@@ -2,7 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:fumble/services/location/fumble_location_service.dart';
 
-enum SyncStatus { pending, syncing, synced, failed }
+enum SyncStatus {
+  pending,
+  syncing,
+  synced,
+  failed,
+  /// Removed locally while offline; Firestore delete runs on next sync.
+  pendingDelete,
+}
 
 class Connection {
   const Connection({

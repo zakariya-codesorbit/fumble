@@ -194,6 +194,9 @@ abstract final class AppConstant {
   static const String connectionRemoved = 'Connection removed';
   static const String removeConnectionFailed =
       'Couldn\'t remove connection. Try again.';
+  /// Shown only if we need to explain deferred cloud delete (optional UX).
+  static const String connectionRemovedOffline =
+      'Connection removed. It will sync when you\'re back online.';
 
   static const String delete = 'Delete';
   static const String closeTooltip = 'Close';
