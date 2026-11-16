@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.codesorbit.fumble"
+    namespace = "com.olivermann.fumble"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.codesorbit.fumble"
+        applicationId = "com.olivermann.fumble"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

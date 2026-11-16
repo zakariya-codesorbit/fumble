@@ -11,9 +11,9 @@
 
 fumble is a private way for two people to exchange contact cards in real life by scanning a QR code.
 
-Package name: `fumble`. Android / iOS identifiers: `com.codesorbit.fumble`.
+Package name: `fumble`. Android / iOS identifiers: `com.olivermann.fumble`.
 
-Firebase project: `fumble-283d8`.
+Firebase project: `fumble-2026`.
 
 ## Version 1 features
 
