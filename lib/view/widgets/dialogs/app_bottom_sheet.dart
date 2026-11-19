@@ -42,39 +42,42 @@ class AppBottomSheet extends StatelessWidget {
           bottom: mq.padding.bottom + mq.viewInsets.bottom + 14.h,
         );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor ?? AppColors.surfaceElevated,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
-      ),
-      padding: resolvedPadding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          5.height,
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: title.toText(
-                  color: AppColors.primaryText,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  maxLine: 2,
+    // Use Material (not DecoratedBox/Container) so ListTile ink/splash
+    // paints on this surface instead of being covered by a colored box.
+    return Material(
+      color: backgroundColor ?? AppColors.surfaceElevated,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: resolvedPadding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            5.height,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: title.toText(
+                    color: AppColors.primaryText,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    maxLine: 2,
+                  ),
                 ),
-              ),
-              if (titleAccessoryActions != null) ...titleAccessoryActions!,
-              Icon(
-                Icons.close_rounded,
-                size: 22.h,
-                color: AppColors.secondaryText,
-              ).onPress(() => Navigator.maybePop(context)),
-            ],
-          ),
-          SizedBox(height: titleBottomGap.h),
-          child,
-        ],
+                if (titleAccessoryActions != null) ...titleAccessoryActions!,
+                Icon(
+                  Icons.close_rounded,
+                  size: 22.h,
+                  color: AppColors.secondaryText,
+                ).onPress(() => Navigator.maybePop(context)),
+              ],
+            ),
+            SizedBox(height: titleBottomGap.h),
+            child,
+          ],
+        ),
       ),
     );
   }
