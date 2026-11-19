@@ -13,6 +13,7 @@ import 'package:fumble/data/repositories/user_repository.dart';
 import 'package:fumble/services/fumble/fumble_qr.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
+import 'package:fumble/utils/app_avatars.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/widgets/avatar/avatar_picker_sheet.dart';
@@ -24,19 +25,20 @@ class ProfileEditState {
   const ProfileEditState({
     this.isSaving = false,
     this.localPhoto,
-    this.avatarSvg,
+    this.avatarAsset,
     this.removePhoto = false,
   });
 
   final bool isSaving;
   final File? localPhoto;
-  final String? avatarSvg;
+  /// Bundled avatar PNG asset path (e.g. assets/avatars/avatar-1.png).
+  final String? avatarAsset;
   final bool removePhoto;
 
   bool hasExistingPhoto(UserProfile? profile) {
     return !removePhoto &&
         (localPhoto != null ||
-            avatarSvg != null ||
+            avatarAsset != null ||
             (profile?.photoUrl != null && profile!.photoUrl!.isNotEmpty));
   }
 
@@ -47,14 +49,14 @@ class ProfileEditState {
     bool? isSaving,
     File? localPhoto,
     bool clearLocalPhoto = false,
-    String? avatarSvg,
+    String? avatarAsset,
     bool clearAvatar = false,
     bool? removePhoto,
   }) {
     return ProfileEditState(
       isSaving: isSaving ?? this.isSaving,
       localPhoto: clearLocalPhoto ? null : (localPhoto ?? this.localPhoto),
-      avatarSvg: clearAvatar ? null : (avatarSvg ?? this.avatarSvg),
+      avatarAsset: clearAvatar ? null : (avatarAsset ?? this.avatarAsset),
       removePhoto: removePhoto ?? this.removePhoto,
     );
   }
@@ -100,7 +102,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         final path = await showAvatarPickerSheet(context);
         if (path == null || path.isEmpty) return;
         state = state.copyWith(
-          avatarSvg: path,
+          avatarAsset: AppAvatars.resolve(path) ?? path,
           clearLocalPhoto: true,
           removePhoto: false,
         );
@@ -126,6 +128,10 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       if (!context.mounted) return;
       if (isPhotoPermissionError(e)) {
         await showPhotoPermissionPopup(context, camera: camera);
+        return;
+      }
+      if (e is PhotoTooLargeException) {
+        showAppToast(AppConstant.photoTooLarge, isError: true);
         return;
       }
       showAppToast(e.toString(), isError: true);
@@ -191,11 +197,20 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     try {
       String? nextPhoto;
       if (state.removePhoto) {
+        await _photos.deleteIfStorageUrl(profile.photoUrl);
         nextPhoto = '';
-      } else if (state.avatarSvg != null) {
-        nextPhoto = state.avatarSvg;
+      } else if (state.avatarAsset != null) {
+        nextPhoto = await _photos.uploadAvatarAsset(
+          uid: profile.uid,
+          assetPath: state.avatarAsset!,
+          previousPhotoUrl: profile.photoUrl,
+        );
       } else if (state.localPhoto != null) {
-        nextPhoto = await _photos.toBase64(state.localPhoto!);
+        nextPhoto = await _photos.uploadProfilePhoto(
+          uid: profile.uid,
+          file: state.localPhoto!,
+          previousPhotoUrl: profile.photoUrl,
+        );
       }
 
       // Update QR immediately on save (before Firestore stream catches up).
@@ -241,7 +256,12 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     } catch (e) {
       ref.read(shareVisibilityProvider.notifier).state = null;
       state = state.copyWith(isSaving: false);
-      showAppToast(e.toString(), isError: true);
+      showAppToast(
+        e is PhotoTooLargeException
+            ? AppConstant.photoTooLarge
+            : e.toString(),
+        isError: true,
+      );
     }
   }
 

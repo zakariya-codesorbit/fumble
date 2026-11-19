@@ -32,7 +32,7 @@ class UploadPhotoScreen extends ConsumerWidget {
           ProfileAvatar(
             photoUrl: profile?.photoUrl,
             localFile: onboarding.localPhoto,
-            svg: onboarding.avatarSvg,
+            avatarAsset: onboarding.avatarAsset,
             name: profile?.name,
             size: 130.w,
             onTap: () =>

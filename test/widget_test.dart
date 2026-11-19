@@ -8,7 +8,7 @@ import 'package:fumble/core/config/app_config.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/services/fumble/fumble_qr.dart';
-import 'package:fumble/utils/avatar_svg.dart';
+import 'package:fumble/utils/app_avatars.dart';
 
 void main() {
   test('Route table includes fumble V1 paths', () {
@@ -121,25 +121,18 @@ void main() {
     );
   });
 
-  test('avatar stylesheets are copied onto the shapes', () {
-    const raw = '''
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
-<defs><style>.cls-1{fill:#fcc19c;}.cls-2{opacity:0.5;}.cls-3{mix-blend-mode:multiply;}</style></defs>
-<g class="cls-2"><path class="cls-1" d="M0 0h10v10z"/></g>
-</svg>
-''';
-    final prepared = inlineSvgClassStyles(raw);
-    expect(prepared.contains('fill="#fcc19c"'), isTrue);
-    expect(prepared.contains('opacity="0.5"'), isTrue);
-    expect(prepared.contains('<style'), isFalse);
-    expect(prepared.contains('mix-blend-mode'), isFalse);
-
-    final avatar = inlineSvgClassStyles(
-      File('assets/avatars/avatar-1.svg').readAsStringSync(),
+  test('bundled avatars are PNGs and legacy SVG paths resolve', () {
+    expect(AppAvatars.all.every((path) => path.endsWith('.png')), isTrue);
+    expect(
+      File('assets/avatars/avatar-1.png').existsSync(),
+      isTrue,
     );
-    expect(avatar.contains('fill="#fcc19c"'), isTrue);
-    expect(avatar.contains('fill="#1b1012"'), isTrue);
-    expect(avatar.contains('class="'), isFalse);
+    expect(
+      AppAvatars.resolve('assets/avatars/avatar-1.svg'),
+      AppAvatars.avatar1,
+    );
+    expect(AppAvatars.isAsset('assets/avatars/avatar-1.svg'), isTrue);
+    expect(AppAvatars.isAsset('assets/avatars/avatar-1.png'), isTrue);
   });
 }
 

@@ -4,6 +4,11 @@ platform :ios, '15.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# firebase_core wants 12.19.3, but FirebaseAppCheck 12.19.3 is missing from the
+# CocoaPods CDN. Pin to 12.19.0 until that podspec is published.
+# If CDN hits HTTP/2 framing errors: CURL_HOME with a .curlrc containing --http1.1
+$FirebaseSDKVersion = '12.19.0'
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,

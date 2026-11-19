@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:fumble/utils/app_avatars.dart';
-import 'package:fumble/utils/avatar_svg.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/view/widgets/dialogs/app_bottom_sheet.dart';
@@ -34,7 +33,7 @@ Future<String?> showAvatarPickerSheet(BuildContext context) {
                 ),
               ),
               child: ClipOval(
-                child: AvatarSvgPicture(asset: path),
+                child: Image.asset(path, fit: BoxFit.cover),
               ).paddingAll(4),
             ),
           );

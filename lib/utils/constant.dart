@@ -66,6 +66,9 @@ abstract final class AppConstant {
   static const String photoUpdated = 'Photo updated';
   static const String photoUploadFailed =
       'Couldn\'t save photo. Try a smaller image.';
+  static const String photoTooLarge =
+      'Please choose an image smaller than 2 MB.';
+  static const String cropPhoto = 'Crop photo';
   static const String save = 'Save';
   static const String cancel = 'Cancel';
   static const String logout = 'Log out';

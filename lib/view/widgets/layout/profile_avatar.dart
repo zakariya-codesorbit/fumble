@@ -3,11 +3,9 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fumble/utils/app_assets.dart';
 
 import 'package:fumble/utils/app_avatars.dart';
-import 'package:fumble/utils/avatar_svg.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
@@ -19,16 +17,17 @@ class ProfileAvatar extends StatelessWidget {
     super.key,
     this.photoUrl,
     this.localFile,
-    this.svg,
+    this.avatarAsset,
     this.name,
     this.size = 50,
     this.onTap,
   });
 
-  /// Network URL, base64 JPEG, or an SVG string.
+  /// Network URL, base64 image, or bundled avatar asset path.
   final String? photoUrl;
   final File? localFile;
-  final String? svg;
+  /// Selected bundled avatar asset (PNG path).
+  final String? avatarAsset;
   final String? name;
   final double size;
   final VoidCallback? onTap;
@@ -45,11 +44,10 @@ class ProfileAvatar extends StatelessWidget {
 
     if (localFile != null) {
       child = Image.file(localFile!, fit: BoxFit.cover);
-    } else if (svg != null && svg!.trim().isNotEmpty) {
-      child = _svg(svg!);
-    } else if (AppAvatars.isAsset(photoUrl) ||
-        ProfilePhotoService.isSvg(photoUrl)) {
-      child = _svg(photoUrl!);
+    } else if (avatarAsset != null && avatarAsset!.trim().isNotEmpty) {
+      child = _bundledAvatar(avatarAsset!);
+    } else if (AppAvatars.isAsset(photoUrl)) {
+      child = _bundledAvatar(photoUrl!);
     } else if (ProfilePhotoService.isNetworkUrl(photoUrl)) {
       child = CachedNetworkImage(
         imageUrl: photoUrl!,
@@ -101,7 +99,7 @@ class ProfileAvatar extends StatelessWidget {
           Positioned(
             right: 8.w,
             bottom: 2.h,
-            child: photoUrl != null || localFile != null || svg != null
+            child: photoUrl != null || localFile != null || avatarAsset != null
                 ? Container(
                     width: size * 0.28,
                     height: size * 0.28,
@@ -137,11 +135,9 @@ class ProfileAvatar extends StatelessWidget {
   }
 }
 
-Widget _svg(String value) {
-  if (AppAvatars.isAsset(value)) {
-    return AvatarSvgPicture(asset: value);
-  }
-  return SvgPicture.string(value, fit: BoxFit.cover);
+Widget _bundledAvatar(String value) {
+  final asset = AppAvatars.resolve(value) ?? value;
+  return Image.asset(asset, fit: BoxFit.cover);
 }
 
 class _Initial extends StatelessWidget {

@@ -12,6 +12,7 @@ import 'package:fumble/data/repositories/user_repository.dart';
 import 'package:fumble/services/auth/auth_service.dart';
 import 'package:fumble/services/storage/profile_photo_service.dart';
 import 'package:fumble/state/providers/service_providers.dart';
+import 'package:fumble/utils/app_avatars.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/focus_utils.dart';
 import 'package:fumble/view/widgets/avatar/avatar_picker_sheet.dart';
@@ -24,24 +25,25 @@ class OnboardingState {
   const OnboardingState({
     this.isSaving = false,
     this.localPhoto,
-    this.avatarSvg,
+    this.avatarAsset,
   });
 
   final bool isSaving;
   final File? localPhoto;
-  final String? avatarSvg;
+  /// Bundled avatar PNG asset path (e.g. assets/avatars/avatar-1.png).
+  final String? avatarAsset;
 
   OnboardingState copyWith({
     bool? isSaving,
     File? localPhoto,
     bool clearLocalPhoto = false,
-    String? avatarSvg,
+    String? avatarAsset,
     bool clearAvatar = false,
   }) {
     return OnboardingState(
       isSaving: isSaving ?? this.isSaving,
       localPhoto: clearLocalPhoto ? null : (localPhoto ?? this.localPhoto),
-      avatarSvg: clearAvatar ? null : (avatarSvg ?? this.avatarSvg),
+      avatarAsset: clearAvatar ? null : (avatarAsset ?? this.avatarAsset),
     );
   }
 }
@@ -104,7 +106,10 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
       case PhotoSourceChoice.avatar:
         final path = await showAvatarPickerSheet(context);
         if (path == null || path.isEmpty) return;
-        state = state.copyWith(avatarSvg: path, clearLocalPhoto: true);
+        state = state.copyWith(
+          avatarAsset: AppAvatars.resolve(path) ?? path,
+          clearLocalPhoto: true,
+        );
       case PhotoSourceChoice.remove:
         break;
     }
@@ -125,6 +130,10 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
         await showPhotoPermissionPopup(context, camera: camera);
         return;
       }
+      if (e is PhotoTooLargeException) {
+        showAppToast(AppConstant.photoTooLarge, isError: true);
+        return;
+      }
       showAppToast(e.toString(), isError: true);
     }
   }
@@ -132,13 +141,20 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
   Future<void> savePhotoAndContinue() {
     return _saveAndContinue(
       persist: (uid) async {
-        if (state.avatarSvg != null) {
-          await _users.updateUserProfile(uid: uid, photoUrl: state.avatarSvg);
+        if (state.avatarAsset != null) {
+          final photoUrl = await _photos.uploadAvatarAsset(
+            uid: uid,
+            assetPath: state.avatarAsset!,
+          );
+          await _users.updateUserProfile(uid: uid, photoUrl: photoUrl);
           return;
         }
         if (state.localPhoto == null) return;
-        final encoded = await _photos.toBase64(state.localPhoto!);
-        await _users.updateUserProfile(uid: uid, photoUrl: encoded);
+        final photoUrl = await _photos.uploadProfilePhoto(
+          uid: uid,
+          file: state.localPhoto!,
+        );
+        await _users.updateUserProfile(uid: uid, photoUrl: photoUrl);
       },
       photoFilled: true,
     );
@@ -190,7 +206,12 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     } catch (e) {
       hideLoadingDialog();
       state = state.copyWith(isSaving: false);
-      showAppToast(e.toString(), isError: true);
+      showAppToast(
+        e is PhotoTooLargeException
+            ? AppConstant.photoTooLarge
+            : e.toString(),
+        isError: true,
+      );
     }
   }
 }

@@ -221,7 +221,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final profile = widget.profile;
     final edit = ref.watch(profileNotifierProvider);
     final photoChanged =
-        edit.localPhoto != null || edit.avatarSvg != null || edit.removePhoto;
+        edit.localPhoto != null || edit.avatarAsset != null || edit.removePhoto;
     final showSave = _textChanged || photoChanged;
     final memberSince = profile.createdAt != null
         ? DateFormat('MMMM yyyy').format(profile.createdAt!)
@@ -244,7 +244,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                   name: profile.name,
                   photoUrl: edit.displayPhotoUrl(profile),
                   localFile: edit.localPhoto,
-                  svg: edit.avatarSvg,
+                  avatarAsset: edit.avatarAsset,
                   bio: _bio.text,
                   phone: displayPhone,
                   email: profile.email,

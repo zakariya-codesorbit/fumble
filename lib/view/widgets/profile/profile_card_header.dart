@@ -27,7 +27,7 @@ class ProfileCardHeader extends StatelessWidget {
     this.eyebrow,
     this.photoUrl,
     this.localFile,
-    this.svg,
+    this.avatarAsset,
     this.avatarSize = 120,
     this.onPhotoTap,
     this.avatarLoading = false,
@@ -77,7 +77,7 @@ class ProfileCardHeader extends StatelessWidget {
   final String? eyebrow;
   final String? photoUrl;
   final File? localFile;
-  final String? svg;
+  final String? avatarAsset;
   final double avatarSize;
   final VoidCallback? onPhotoTap;
   final bool avatarLoading;
@@ -151,7 +151,7 @@ class ProfileCardHeader extends StatelessWidget {
           ProfileAvatar(
             photoUrl: photoUrl,
             localFile: localFile,
-            svg: svg,
+            avatarAsset: avatarAsset,
             name: name,
             size: avatarSize,
             onTap: onPhotoTap,
