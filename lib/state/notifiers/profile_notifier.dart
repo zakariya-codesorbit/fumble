@@ -180,6 +180,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     required String aboutMe,
     required String location,
     required String phone,
+    required String whatsApp,
     required bool sharePhone,
     required bool shareEmail,
   }) async {
@@ -226,6 +227,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
             aboutMe: aboutMe.trim().isEmpty ? null : aboutMe.trim(),
             location: location.trim().isEmpty ? null : location.trim(),
             phone: phone.trim().isEmpty ? null : phone.trim(),
+            whatsApp: whatsApp.trim().isEmpty ? null : whatsApp.trim(),
             sharePhone: sharePhone,
             shareEmail: shareEmail,
             photoUrl: nextPhoto == null
@@ -243,6 +245,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         aboutMe: aboutMe,
         location: location,
         phone: phone,
+        whatsApp: whatsApp,
         sharePhone: sharePhone,
         shareEmail: shareEmail,
       );

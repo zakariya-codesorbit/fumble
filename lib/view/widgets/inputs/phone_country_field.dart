@@ -20,6 +20,7 @@ class PhoneCountryField extends StatefulWidget {
     this.onChanged,
     this.onCountryChanged,
     this.onTapOutside,
+    this.showLabel = true,
   });
 
   final TextEditingController controller;
@@ -30,6 +31,7 @@ class PhoneCountryField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onCountryChanged;
   final VoidCallback? onTapOutside;
+  final bool showLabel;
 
   /// Country from the device region / current locale (e.g. PK, US).
   static ({String dialCode, String countryCode}) fromDeviceLocale() {
@@ -163,13 +165,15 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppConstant.phoneLabel.toText(
-          color: AppColors.gold,
-          fontSize: 12,
-          fontWeight: AppStyle.w600,
-          letterSpacing: 1.2,
-        ),
-        8.height,
+        if (widget.showLabel) ...[
+          AppConstant.phoneLabel.toText(
+            color: AppColors.gold,
+            fontSize: 12,
+            fontWeight: AppStyle.w600,
+            letterSpacing: 1.2,
+          ),
+          8.height,
+        ],
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

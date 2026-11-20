@@ -54,6 +54,7 @@ abstract final class ProfileActions {
     required String location,
     required String phone,
     required String nationalPhone,
+    required String whatsApp,
   }) async {
     if (nationalPhone.trim().isNotEmpty &&
         !PhoneCountryField.isValidNational(nationalPhone)) {
@@ -67,6 +68,7 @@ abstract final class ProfileActions {
           aboutMe: aboutMe,
           location: location,
           phone: phone,
+          whatsApp: whatsApp,
           sharePhone: profile.sharePhone,
           shareEmail: profile.shareEmail,
         );

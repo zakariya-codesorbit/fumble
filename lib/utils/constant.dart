@@ -44,12 +44,22 @@ abstract final class AppConstant {
   static const String resetEmailSent = 'Check your email for a reset link.';
 
   static const String scanToFumble = 'SCAN TO FUMBLE';
+  static const String yourIdentity = 'YOUR IDENTITY';
+  static const String myFumbleTitle = 'My Fumble';
   static const String memberSince = 'Member since';
   static const String editProfile = 'Edit profile';
+  static const String editMyFumble = 'Edit My Fumble';
   static const String bioLabel = 'Bio';
   static const String aboutMeLabel = 'ABOUT ME';
   static const String locationLabel = 'Location';
   static const String phoneLabel = 'Phone';
+  static const String phoneNumberLabel = 'Phone number';
+  static const String whatsAppNumberLabel = 'WhatsApp number';
+  static const String profilePhotoLabel = 'Profile photo';
+  static const String chooseFile = 'Choose file';
+  static const String noFileChosen = 'No file chosen';
+  static const String saveProfile = 'Save profile';
+  static const String optionalHint = 'Optional';
   static const String call = 'Call';
   static const String text = 'Text';
   static const String whatsApp = 'WhatsApp';

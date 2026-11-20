@@ -10,16 +10,16 @@ import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_edit_card.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_identity_card.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/profile_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
-import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
-import 'package:fumble/view/widgets/profile/profile_card.dart';
 
 class MyFumbleScreen extends ConsumerWidget {
   const MyFumbleScreen({super.key});
@@ -72,14 +72,11 @@ class _ProfileBody extends ConsumerStatefulWidget {
 class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _name;
   late final TextEditingController _bio;
-  late final TextEditingController _aboutMe;
-  late final TextEditingController _location;
   late final TextEditingController _phone;
+  late final TextEditingController _whatsApp;
   final _phoneFieldKey = GlobalKey<PhoneCountryFieldState>();
   late String _phoneDialCode;
   late String _phoneCountryCode;
-  String? _active;
-  bool _readyToClose = false;
 
   @override
   void initState() {
@@ -90,8 +87,11 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   @override
   void didUpdateWidget(covariant _ProfileBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.profile.phone != widget.profile.phone && _active != 'phone') {
+    if (oldWidget.profile.phone != widget.profile.phone) {
       _syncPhoneFromProfile(widget.profile);
+    }
+    if (oldWidget.profile.whatsApp != widget.profile.whatsApp) {
+      _whatsApp.text = widget.profile.whatsApp ?? '';
     }
   }
 
@@ -109,9 +109,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     routeObserver.unsubscribe(this);
     _name.dispose();
     _bio.dispose();
-    _aboutMe.dispose();
-    _location.dispose();
     _phone.dispose();
+    _whatsApp.dispose();
     super.dispose();
   }
 
@@ -124,8 +123,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _bindControllers(UserProfile profile) {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
-    _aboutMe = TextEditingController(text: profile.aboutMe ?? '');
-    _location = TextEditingController(text: profile.location ?? '');
+    _whatsApp = TextEditingController(text: profile.whatsApp ?? '');
     _phone = TextEditingController();
     _syncPhoneFromProfile(profile);
   }
@@ -154,8 +152,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _applyProfile(UserProfile profile) {
     _name.text = profile.name;
     _bio.text = profile.bio ?? '';
-    _aboutMe.text = profile.aboutMe ?? '';
-    _location.text = profile.location ?? '';
+    _whatsApp.text = profile.whatsApp ?? '';
     _syncPhoneFromProfile(profile);
   }
 
@@ -164,10 +161,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     FocusManager.instance.primaryFocus?.unfocus();
     _applyProfile(widget.profile);
     ProfileActions.resetEdit(ref);
-    setState(() {
-      _active = null;
-      _readyToClose = false;
-    });
+    setState(() {});
   }
 
   bool get _textChanged {
@@ -175,39 +169,25 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final savedPhone = (profile.phone ?? '').trim();
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
-        _aboutMe.text.trim() != (profile.aboutMe ?? '').trim() ||
-        _location.text.trim() != (profile.location ?? '').trim() ||
+        _whatsApp.text.trim() != (profile.whatsApp ?? '').trim() ||
         _fullPhone() != savedPhone;
   }
 
-  void _openField(String key) {
-    setState(() {
-      _active = key;
-      _readyToClose = false;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _active != key) return;
-      setState(() => _readyToClose = true);
-    });
-  }
-
-  void _closeIfStill(String key) {
-    if (_active != key) return;
-    // Phone uses TapRegion; close immediately on outside tap.
-    if (key == 'phone') {
-      FocusManager.instance.primaryFocus?.unfocus();
-      setState(() {
-        _active = null;
-        _readyToClose = false;
-      });
-      return;
-    }
-    if (!_readyToClose) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _active != key) return;
-      FocusManager.instance.primaryFocus?.unfocus();
-      setState(() => _active = null);
-    });
+  Future<void> _save() async {
+    final profile = widget.profile;
+    final ok = await ProfileActions.save(
+      ref: ref,
+      profile: profile,
+      name: _name.text,
+      bio: _bio.text,
+      aboutMe: profile.aboutMe ?? '',
+      location: profile.location ?? '',
+      phone: _fullPhone(),
+      nationalPhone: _phone.text,
+      whatsApp: _whatsApp.text,
+    );
+    if (!mounted || !ok) return;
+    setState(() {});
   }
 
   @override
@@ -222,157 +202,90 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final edit = ref.watch(profileNotifierProvider);
     final photoChanged =
         edit.localPhoto != null || edit.avatarAsset != null || edit.removePhoto;
-    final showSave = _textChanged || photoChanged;
+    final canSave = _textChanged || photoChanged;
     final memberSince = profile.createdAt != null
         ? DateFormat('MMMM yyyy').format(profile.createdAt!)
         : null;
-    final aboutText = _aboutMe.text.trim();
-    final locationText = _location.text.trim();
-    final editingAbout = _active == 'aboutMe';
-    final editingLocation = _active == 'location';
     final displayPhone =
         _fullPhone().isNotEmpty ? _fullPhone() : profile.phone;
 
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                ProfileCardHeader(
-                  name: profile.name,
-                  photoUrl: edit.displayPhotoUrl(profile),
-                  localFile: edit.localPhoto,
-                  avatarAsset: edit.avatarAsset,
-                  bio: _bio.text,
-                  phone: displayPhone,
-                  email: profile.email,
-                  showNameEditIcon: true,
-                  editingName: _active == 'name',
-                  editingBio: _active == 'bio',
-                  editingPhone: _active == 'phone',
-                  nameController: _name,
-                  bioController: _bio,
-                  phoneController: _phone,
-                  phoneFieldKey: _phoneFieldKey,
-                  phoneDialCode: _phoneDialCode,
-                  phoneCountryCode: _phoneCountryCode,
-                  onNameTap: () => _openField('name'),
-                  onNameChanged: (_) => setState(() {}),
-                  onNameTapOutside: () => _closeIfStill('name'),
-                  onBioTap: () => _openField('bio'),
-                  onBioChanged: (_) => setState(() {}),
-                  onBioTapOutside: () => _closeIfStill('bio'),
-                  onPhoneTap: () => _openField('phone'),
-                  onPhoneChanged: (_) => setState(() {}),
-                  onPhoneCountryChanged: () {
-                    final state = _phoneFieldKey.currentState;
-                    if (state != null) {
-                      _phoneDialCode = state.dialCode;
-                    }
-                    setState(() {});
-                  },
-                  onPhoneTapOutside: () => _closeIfStill('phone'),
-                  onPhotoTap: () => ProfileActions.showPhotoSheet(
-                    context: context,
-                    ref: ref,
-                  ),
-                  onCall: () => ProfileActions.call(displayPhone),
-                  onText: () => ProfileActions.text(displayPhone),
-                  onWhatsApp: () => ProfileActions.whatsApp(displayPhone),
-                ),
-                ProfileCardSections(
-                  aboutMe: ProfileCardSection(
-                    body: aboutText,
-                    emptyBody: AppConstant.addAboutMe,
-                    showEditIcon: !editingAbout,
-                    onTap: editingAbout ? null : () => _openField('aboutMe'),
-                    editor: editingAbout
-                        ? _inlineField(
-                            fieldKey: 'aboutMe',
-                            controller: _aboutMe,
-                            hint: AppConstant.addAboutMe,
-                            maxLine: 4,
-                          )
-                        : null,
-                  ),
-                  location: ProfileCardSection(
-                    body: locationText,
-                    emptyBody: AppConstant.addLocation,
-                    showEditIcon: !editingLocation,
-                    onTap:
-                        editingLocation ? null : () => _openField('location'),
-                    editor: editingLocation
-                        ? _inlineField(
-                            fieldKey: 'location',
-                            controller: _location,
-                            hint: AppConstant.addLocation,
-                          )
-                        : null,
-                  ),
-                  footerLabel: memberSince != null
-                      ? AppConstant.memberSinceLabel(memberSince)
-                      : null,
-                  extra: showSave
-                      ? [
-                          16.height,
-                          PrimaryButton(
-                            buttonName: AppConstant.save,
-                            isLoading: edit.isSaving,
-                            onPressed: () async {
-                              final ok = await ProfileActions.save(
-                                ref: ref,
-                                profile: profile,
-                                name: _name.text,
-                                bio: _bio.text,
-                                aboutMe: _aboutMe.text,
-                                location: _location.text,
-                                phone: _fullPhone(),
-                                nationalPhone: _phone.text,
-                              );
-                              if (!mounted || !ok) return;
-                              setState(() => _active = null);
-                            },
-                          ),
-                        ]
-                      : null,
-                ),
-              ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: AppConstant.yourIdentity.toText(
+              color: AppColors.gold,
+              fontSize: 12,
+              fontWeight: AppStyle.w600,
+              letterSpacing: 1.4,
+              textAlign: TextAlign.center,
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _inlineField({
-    required String fieldKey,
-    required TextEditingController controller,
-    required String hint,
-    int maxLine = 1,
-  }) {
-    return TextField(
-      controller: controller,
-      autofocus: true,
-      maxLines: maxLine,
-      cursorColor: AppColors.gold,
-      style: TextStyle(
-        fontSize: 16,
-        color: AppColors.tertiaryText,
-        fontFamily: AppStyle.fontFamily,
-        fontFamilyFallback: AppStyle.fontFamilyFallback,
-      ),
-      onChanged: (_) => setState(() {}),
-      onTapOutside: (_) => _closeIfStill(fieldKey),
-      decoration: InputDecoration(
-        isDense: true,
-        filled: false,
-        hintText: hint,
-        contentPadding: EdgeInsets.zero,
-        border: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
+          6.height,
+          Center(
+            child: AppConstant.myFumbleTitle.toText(
+              fontSize: 28,
+              fontWeight: AppStyle.w700,
+              color: AppColors.white,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          20.height,
+          MyFumbleIdentityCard(
+            name: _name.text.trim().isEmpty ? profile.name : _name.text.trim(),
+            bio: _bio.text,
+            phone: displayPhone,
+            email: profile.email,
+            photoUrl: edit.displayPhotoUrl(profile),
+            localFile: edit.localPhoto,
+            avatarAsset: edit.avatarAsset,
+            onPhotoTap: () => ProfileActions.showPhotoSheet(
+              context: context,
+              ref: ref,
+            ),
+          ),
+          20.height,
+          MyFumbleEditCard(
+            nameController: _name,
+            phoneController: _phone,
+            phoneFieldKey: _phoneFieldKey,
+            phoneDialCode: _phoneDialCode,
+            phoneCountryCode: _phoneCountryCode,
+            whatsAppController: _whatsApp,
+            bioController: _bio,
+            onPhoneChanged: (_) => setState(() {}),
+            onPhoneCountryChanged: () {
+              final state = _phoneFieldKey.currentState;
+              if (state != null) {
+                _phoneDialCode = state.dialCode;
+              }
+              setState(() {});
+            },
+            onChanged: () => setState(() {}),
+            onChoosePhoto: () => ProfileActions.showPhotoSheet(
+              context: context,
+              ref: ref,
+            ),
+            onSave: canSave && !edit.isSaving ? _save : null,
+            isSaving: edit.isSaving,
+            localPhoto: edit.localPhoto,
+            avatarAsset: edit.avatarAsset,
+            hasExistingPhoto: profile.hasPhoto && !edit.removePhoto,
+          ),
+          if (memberSince != null) ...[
+            20.height,
+            Center(
+              child: AppConstant.memberSinceLabel(memberSince).toText(
+                fontSize: 12,
+                fontWeight: AppStyle.w500,
+                color: AppColors.tertiaryText,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -11,6 +11,7 @@ class UserProfile {
     this.aboutMe,
     this.location,
     this.phone,
+    this.whatsApp,
     this.sharePhone = true,
     this.shareEmail = true,
     this.createdAt,
@@ -26,6 +27,7 @@ class UserProfile {
   final String? aboutMe;
   final String? location;
   final String? phone;
+  final String? whatsApp;
   final bool sharePhone;
   final bool shareEmail;
   final DateTime? createdAt;
@@ -67,6 +69,7 @@ class UserProfile {
       aboutMe: (data['aboutMe'] as String?)?.trim(),
       location: (data['location'] as String?)?.trim(),
       phone: (data['phone'] as String?)?.trim(),
+      whatsApp: (data['whatsApp'] as String?)?.trim(),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
       createdAt: _asDateTime(data['createdAt']),
@@ -84,6 +87,7 @@ class UserProfile {
       'aboutMe': aboutMe,
       'location': location,
       'phone': phone,
+      'whatsApp': whatsApp,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
       'createdAt': FieldValue.serverTimestamp(),
@@ -100,6 +104,7 @@ class UserProfile {
     String? aboutMe,
     String? location,
     String? phone,
+    String? whatsApp,
     bool? sharePhone,
     bool? shareEmail,
     DateTime? createdAt,
@@ -115,6 +120,7 @@ class UserProfile {
       aboutMe: aboutMe ?? this.aboutMe,
       location: location ?? this.location,
       phone: phone ?? this.phone,
+      whatsApp: whatsApp ?? this.whatsApp,
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
       createdAt: createdAt ?? this.createdAt,
@@ -133,6 +139,7 @@ class UserProfile {
       'aboutMe': aboutMe,
       'location': location,
       'phone': phone,
+      'whatsApp': whatsApp,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
       'createdAt': createdAt?.millisecondsSinceEpoch,
@@ -151,6 +158,7 @@ class UserProfile {
       aboutMe: (json['aboutMe'] as String?)?.trim(),
       location: (json['location'] as String?)?.trim(),
       phone: (json['phone'] as String?)?.trim(),
+      whatsApp: (json['whatsApp'] as String?)?.trim(),
       sharePhone: json['sharePhone'] as bool? ?? true,
       shareEmail: json['shareEmail'] as bool? ?? true,
       createdAt: createdAtMs is int

@@ -63,6 +63,7 @@ class UserRepository {
     String? aboutMe,
     String? location,
     String? phone,
+    String? whatsApp,
     bool? sharePhone,
     bool? shareEmail,
   }) async {
@@ -81,6 +82,7 @@ class UserRepository {
     if (aboutMe != null) data['aboutMe'] = aboutMe.trim();
     if (location != null) data['location'] = location.trim();
     if (phone != null) data['phone'] = phone.trim();
+    if (whatsApp != null) data['whatsApp'] = whatsApp.trim();
     if (sharePhone != null) data['sharePhone'] = sharePhone;
     if (shareEmail != null) data['shareEmail'] = shareEmail;
 
