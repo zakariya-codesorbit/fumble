@@ -46,6 +46,7 @@ class _ConnectionDetailScreenState
   var _extrasRequestId = 0;
   var _initializedNote = false;
   var _locationSeeded = false;
+  var _seedingControllers = false;
   var _saving = false;
   var _editingLocation = false;
   var _listening = false;
@@ -77,7 +78,8 @@ class _ConnectionDetailScreenState
   }
 
   void _onNoteEdited() {
-    if (!mounted) return;
+    // Avoid setState while controllers are seeded from build().
+    if (!mounted || _seedingControllers) return;
     setState(() {});
   }
 
@@ -114,16 +116,21 @@ class _ConnectionDetailScreenState
   }
 
   void _ensureSeeded(Connection connection) {
-    if (!_initializedNote) {
-      _note.text = connection.note?.trim() ?? '';
-      _initializedNote = true;
+    _seedingControllers = true;
+    try {
+      if (!_initializedNote) {
+        _note.text = connection.note?.trim() ?? '';
+        _initializedNote = true;
+      }
+      if (_locationSeeded) return;
+      // Meeting place only — not profile city (`connection.location`).
+      final place = connection.fumblePlace?.trim() ?? '';
+      if (place.isEmpty) return;
+      _location.text = place;
+      _locationSeeded = true;
+    } finally {
+      _seedingControllers = false;
     }
-    if (_locationSeeded) return;
-    // Meeting place only — not profile city (`connection.location`).
-    final place = connection.fumblePlace?.trim() ?? '';
-    if (place.isEmpty) return;
-    _location.text = place;
-    _locationSeeded = true;
   }
 
   Future<void> _onSaveNote(Connection connection) async {
@@ -178,7 +185,8 @@ class _ConnectionDetailScreenState
                 _note.text.trim() != (connection.note?.trim() ?? '');
             final savedPlace = connection.fumblePlace?.trim() ?? '';
             final currentPlace = _location.text.trim();
-            final placeDirty = currentPlace != savedPlace &&
+            final placeDirty =
+                currentPlace != savedPlace &&
                 currentPlace != AppConstant.enterFumbleLocation;
             final dirty = noteDirty || placeDirty;
             final displayName = connection.firstName.isNotEmpty
@@ -193,14 +201,15 @@ class _ConnectionDetailScreenState
             final noteEmpty = _note.text.trim().isEmpty;
             final rememberMessage = noteEmpty
                 ? (youInitiated
-                    ? AppConstant.rememberMomentEmptyYouInitiated(displayName)
-                    : AppConstant.rememberMomentEmptyTheyInitiated(displayName))
+                      ? AppConstant.rememberMomentEmptyYouInitiated(displayName)
+                      : AppConstant.rememberMomentEmptyTheyInitiated(
+                          displayName,
+                        ))
                 : (youInitiated
-                    ? AppConstant.sharedMemoryYouInitiated(displayName)
-                    : AppConstant.sharedMemoryTheyInitiated(displayName));
-            final dateLabel = DateFormat(
-              'd MMMM yyyy',
-            ).format(connection.fumbledAt);
+                      ? AppConstant.sharedMemoryYouInitiated(displayName)
+                      : AppConstant.sharedMemoryTheyInitiated(displayName));
+            final dateLabel = DateFormat('d MMMM yyyy')
+                .format(connection.fumbledAt);
             final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
             final hasLocation = _location.text.trim().isNotEmpty;
             final locationLabel = hasLocation

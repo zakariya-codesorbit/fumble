@@ -263,9 +263,8 @@ class ProfileCardHeader extends StatelessWidget {
                   child: PillButton(
                     label: AppConstant.whatsApp,
                     iconAsset: AppIcons.iconWhatsapp,
-                    backgroundColor: AppColors.surfaceElevated,
-                    foregroundColor: AppColors.white,
-                    borderColor: AppColors.softGrayDim,
+                    foregroundColor: AppColors.whatsApp,
+                    borderColor: AppColors.whatsAppMuted,
                     onTap: onWhatsApp,
                   ),
                 ),

@@ -14,6 +14,8 @@ abstract final class AppColors {
   static const Color surfaceElevated = Color(0xFF141414);
   static const Color gold = Color(0xFFD4AF37);
   static const Color goldMuted = Color(0xFFB8962E);
+  static const Color whatsApp = Color(0xFF25D366);
+  static const Color whatsAppMuted = Color(0xFF1E9E4F);
   static const Color qrBackground = Color(0xFF080808);
   static const Color qrGround = gold;
   static const Color qrModule = background;

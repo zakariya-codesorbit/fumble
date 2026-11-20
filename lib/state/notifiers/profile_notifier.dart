@@ -134,7 +134,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         showAppToast(AppConstant.photoTooLarge, isError: true);
         return;
       }
-      showAppToast(e.toString(), isError: true);
+      showAppToast(AppConstant.somethingWrong, isError: true);
     }
   }
 
@@ -170,7 +170,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       );
     } catch (e) {
       ref.read(shareVisibilityProvider.notifier).state = null;
-      showAppToast(e.toString(), isError: true);
+      showAppToast(AppConstant.somethingWrong, isError: true);
     }
   }
 
@@ -259,7 +259,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       showAppToast(
         e is PhotoTooLargeException
             ? AppConstant.photoTooLarge
-            : e.toString(),
+            : AppConstant.somethingWrong,
         isError: true,
       );
     }

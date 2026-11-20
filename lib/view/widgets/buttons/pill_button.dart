@@ -41,7 +41,7 @@ class PillButton extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppStyle.radiusPill),
-            border: Border.all(color: borderColor, width: 0.5),
+            border: Border.all(color: borderColor, width: 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

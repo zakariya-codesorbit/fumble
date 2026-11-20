@@ -134,7 +134,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
         showAppToast(AppConstant.photoTooLarge, isError: true);
         return;
       }
-      showAppToast(e.toString(), isError: true);
+      showAppToast(AppConstant.somethingWrong, isError: true);
     }
   }
 
@@ -209,7 +209,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
       showAppToast(
         e is PhotoTooLargeException
             ? AppConstant.photoTooLarge
-            : e.toString(),
+            : AppConstant.somethingWrong,
         isError: true,
       );
     }
