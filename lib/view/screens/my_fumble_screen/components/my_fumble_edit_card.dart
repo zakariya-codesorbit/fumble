@@ -214,6 +214,7 @@ class _EditInput extends StatelessWidget {
       keyboardType: keyboardType,
       cursorColor: AppColors.gold,
       onChanged: onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(
         fontSize: 16,
         color: AppColors.white,

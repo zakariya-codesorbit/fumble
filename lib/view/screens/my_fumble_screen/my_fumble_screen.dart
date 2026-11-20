@@ -209,11 +209,15 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     final displayPhone =
         _fullPhone().isNotEmpty ? _fullPhone() : profile.phone;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      behavior: HitTestBehavior.opaque,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Center(
             child: AppConstant.yourIdentity.toText(
               color: AppColors.gold,
@@ -285,7 +289,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
               ),
             ),
           ],
-        ],
+          ],
+        ),
       ),
     );
   }
