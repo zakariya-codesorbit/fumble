@@ -57,7 +57,7 @@ class BottomNavigation extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(icon, color: color, size: 32),
+                      Icon(icon, color: color, size: 26),
                       4.height,
                       tab.label.toText(
                         color: color,

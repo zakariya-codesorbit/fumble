@@ -6,10 +6,10 @@ class AppIcons {
   static const String iconWhatsapp = 'assets/icons/ic_whatsapp.png';
 
   static const IconData tabfumble = Icons.circle_outlined;
-  static const IconData tabMyfumble = Icons.person;
-  static const IconData tabMyfumbleOutlined = Icons.person_outline_rounded;
-  static const IconData tabConnections = Icons.people_alt;
-  static const IconData tabConnectionsOutlined = Icons.people_alt_outlined;
+  static const IconData tabMyfumble = Icons.account_circle_outlined;
+  static const IconData tabMyfumbleOutlined = Icons.account_circle_outlined;
+  static const IconData tabConnections = Icons.groups_outlined;
+  static const IconData tabConnectionsOutlined = Icons.groups_outlined;
   static const IconData settings = Icons.settings_outlined;
   static const IconData close = Icons.close_rounded;
   static const IconData back = Icons.arrow_back_ios_new_rounded;
