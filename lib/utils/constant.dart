@@ -141,9 +141,9 @@ abstract final class AppConstant {
   static const String connectionsTabFumbled = 'FUMBLED';
   static const String connectionsTabHalfFumble = 'HALF FUMBLE';
   static const String connectionsTabAll = 'ALL';
-  static const String connectionsEmptyTitle = 'No connections yet';
+  static const String connectionsEmptyTitle = 'No fumbles yet';
   static const String connectionsEmptyBody =
-      'Tap your QR on the home tab to scan someone\'s code.';
+      'Fumble someone to save the moment here.';
   static const String fumbledOn = 'Fumbled';
   static const String metAtPrefix = 'Met at';
   static String metAt(String place) => '$metAtPrefix $place';
