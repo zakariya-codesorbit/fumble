@@ -138,6 +138,9 @@ abstract final class AppConstant {
       'Speech recognition is disabled. Please open Settings and allow Fumble to use speech recognition.';
 
   static const String connectionsTitle = 'CONNECTIONS';
+  static const String connectionsTabFumbled = 'FUMBLED';
+  static const String connectionsTabHalfFumble = 'HALF FUMBLE';
+  static const String connectionsTabAll = 'ALL';
   static const String connectionsEmptyTitle = 'No connections yet';
   static const String connectionsEmptyBody =
       'Tap your QR on the home tab to scan someone\'s code.';
