@@ -312,6 +312,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
             ),
             onSave: canSave && !edit.isSaving ? _save : null,
             isSaving: edit.isSaving,
+            showSaveButton: canSave || edit.isSaving,
             localPhoto: edit.localPhoto,
             avatarAsset: edit.avatarAsset,
             hasExistingPhoto: profile.hasPhoto && !edit.removePhoto,

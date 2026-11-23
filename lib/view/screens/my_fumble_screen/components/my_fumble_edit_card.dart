@@ -33,6 +33,7 @@ class MyFumbleEditCard extends StatelessWidget {
     required this.onChoosePhoto,
     required this.onSave,
     required this.isSaving,
+    required this.showSaveButton,
     this.localPhoto,
     this.avatarAsset,
     this.hasExistingPhoto = false,
@@ -56,6 +57,7 @@ class MyFumbleEditCard extends StatelessWidget {
   final VoidCallback onChoosePhoto;
   final VoidCallback? onSave;
   final bool isSaving;
+  final bool showSaveButton;
   final File? localPhoto;
   final String? avatarAsset;
   final bool hasExistingPhoto;
@@ -172,13 +174,14 @@ class MyFumbleEditCard extends StatelessWidget {
               onChanged: (_) => onChanged(),
             ),
           ),
-          24.height,
-          PrimaryButton(
-            buttonName: AppConstant.saveProfile,
-            isLoading: isSaving,
-            radius: AppStyle.radiusMd,
-            onPressed: onSave,
-          ),
+          if (showSaveButton) ...[
+            24.height,
+            PrimaryButton(
+              buttonName: AppConstant.saveProfile,
+              radius: AppStyle.radiusMd,
+              onPressed: isSaving ? null : onSave,
+            ),
+          ],
         ],
       ),
     );

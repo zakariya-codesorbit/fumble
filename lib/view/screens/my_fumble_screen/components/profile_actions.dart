@@ -7,6 +7,8 @@ import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/focus_utils.dart';
+import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 
@@ -68,17 +70,23 @@ abstract final class ProfileActions {
       return false;
     }
 
-    await ref.read(profileNotifierProvider.notifier).save(
-          name: name,
-          bio: bio,
-          aboutMe: aboutMe,
-          location: location,
-          phone: phone,
-          whatsApp: whatsApp,
-          sharePhone: profile.sharePhone,
-          shareEmail: profile.shareEmail,
-        );
-    return true;
+    await unfocusKeyboard();
+    showLoadingDialog(message: AppConstant.loading);
+    try {
+      await ref.read(profileNotifierProvider.notifier).save(
+            name: name,
+            bio: bio,
+            aboutMe: aboutMe,
+            location: location,
+            phone: phone,
+            whatsApp: whatsApp,
+            sharePhone: profile.sharePhone,
+            shareEmail: profile.shareEmail,
+          );
+      return true;
+    } finally {
+      hideLoadingDialog();
+    }
   }
 
   static void resetEdit(WidgetRef ref) {
