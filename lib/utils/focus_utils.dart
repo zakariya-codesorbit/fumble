@@ -15,5 +15,5 @@ Future<void> unfocusKeyboard({bool saveAutofill = false}) async {
   }
   TextInput.finishAutofillContext(shouldSave: saveAutofill);
   await WidgetsBinding.instance.endOfFrame;
-  await Future<void>.delayed(const Duration(milliseconds: 50));
+  await Future<void>.delayed(const Duration(milliseconds: 80));
 }

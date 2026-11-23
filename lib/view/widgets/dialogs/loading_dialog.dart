@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:fumble/core/navigation/navigator_keys.dart';
 import 'package:fumble/core/theme/colors.dart';
@@ -56,4 +57,11 @@ void hideLoadingDialog() {
   final nav = navigatorKey.currentState;
   if (nav == null || !nav.canPop()) return;
   nav.pop();
+  // Dialog pop restores focus to the previous TextField and can flash the IME.
+  FocusManager.instance.primaryFocus?.unfocus();
+  try {
+    SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+  } catch (_) {
+    // Channel may be unavailable in tests / early startup.
+  }
 }

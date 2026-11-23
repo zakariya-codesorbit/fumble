@@ -36,8 +36,10 @@ abstract final class AuthActions {
     required String email,
     required String password,
   }) async {
+    // Close IME before validate/loading so it cannot flash back under dialogs.
     await unfocusKeyboard();
     if (!(formKey.currentState?.validate() ?? false)) return;
+    await unfocusKeyboard();
     await ref.read(authNotifierProvider.notifier).signUp(
           name: name,
           email: email,

@@ -14,6 +14,7 @@ import 'services/half_fumble/invite_link_bootstrap.dart';
 import 'state/providers/app_providers.dart';
 import 'core/theme/colors.dart';
 import 'utils/constant.dart';
+import 'utils/focus_utils.dart';
 import 'view/screens/setting_screen/components/setting_actions.dart';
 import 'view/widgets/dialogs/loading_dialog.dart';
 import 'view/widgets/feedback/custom_snackbar.dart';
@@ -84,21 +85,22 @@ void _onAuthUi(AuthUiState? previous, AuthUiState next) {
 
   final dialog = next.dialog;
   if (dialog != null && dialog.id != previous?.dialog?.id) {
-    final context = navigatorKey.currentContext;
-    if (context != null) {
-      // Defer so navigation to login can settle first.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final ctx = navigatorKey.currentContext;
-        if (ctx == null || !ctx.mounted) return;
-        SettingActions.showConfirmSheet(
-          context: ctx,
-          title: dialog.title,
-          description: dialog.body,
-          primaryCta: dialog.cta,
-          destructive: false,
-          onPrimaryTap: () {},
-        );
-      });
-    }
+    // Wait for login route + IME hide so the keyboard does not flash
+    // under the verify-email sheet.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await unfocusKeyboard();
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await unfocusKeyboard();
+      final ctx = navigatorKey.currentContext;
+      if (ctx == null || !ctx.mounted) return;
+      await SettingActions.showConfirmSheet(
+        context: ctx,
+        title: dialog.title,
+        description: dialog.body,
+        primaryCta: dialog.cta,
+        destructive: false,
+        onPrimaryTap: () {},
+      );
+    });
   }
 }
