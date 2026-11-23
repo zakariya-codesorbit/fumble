@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../services/location/fumble_location_service.dart';
@@ -149,14 +150,24 @@ class FumbleCodeRepository {
     DateTime? createdAt,
   }) async {
     if (code.isEmpty) return;
-    final snap = await _codeRef(code).get();
-    if (!snap.exists) return;
-    if (snap.data()?['createdAt'] != null) return;
-    await _codeRef(code).set({
-      'createdAt': createdAt != null
-          ? Timestamp.fromDate(createdAt)
-          : FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    // Avoid Firestore reads after logout (in-flight bootstrap).
+    if (FirebaseAuth.instance.currentUser == null) return;
+    try {
+      final snap = await _codeRef(code).get();
+      if (FirebaseAuth.instance.currentUser == null) return;
+      if (!snap.exists) return;
+      if (snap.data()?['createdAt'] != null) return;
+      await _codeRef(code).set({
+        'createdAt': createdAt != null
+            ? Timestamp.fromDate(createdAt)
+            : FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied' || e.code == 'unauthenticated') {
+        return;
+      }
+      rethrow;
+    }
   }
 
   /// Publishes (or clears) meeting coordinates + place label on user + card.

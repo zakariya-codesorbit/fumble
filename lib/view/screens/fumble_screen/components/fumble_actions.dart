@@ -55,9 +55,15 @@ abstract final class FumbleActions {
     required UserProfile profile,
   }) async {
     if (profile.fumbleCode.isEmpty) return;
-    await ref.read(fumbleCodeRepositoryProvider).ensurePublicCreatedAt(
-          code: profile.fumbleCode,
-          createdAt: profile.createdAt,
-        );
+    final uid = ref.read(authServiceProvider).currentUser?.uid;
+    if (uid == null || uid != profile.uid) return;
+    try {
+      await ref.read(fumbleCodeRepositoryProvider).ensurePublicCreatedAt(
+            code: profile.fumbleCode,
+            createdAt: profile.createdAt,
+          );
+    } catch (_) {
+      // Non-blocking backfill — ignore after logout / permission errors.
+    }
   }
 }

@@ -67,6 +67,9 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
     ref.listen(currentUserProfileProvider, (_, next) {
       final profile = next.valueOrNull;
       if (profile == null || !mounted) return;
+      if (ref.read(authServiceProvider).currentUser?.uid != profile.uid) {
+        return;
+      }
       setState(() => _cached = profile);
       final override = ref.read(shareVisibilityProvider);
       if (override != null &&
