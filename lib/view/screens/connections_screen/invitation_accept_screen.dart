@@ -151,6 +151,12 @@ class _InvitationAcceptScreenState
                 : widget.token,
           );
       await ref.read(inviteLinkServiceProvider).clearPendingInvite();
+
+      // Accept writes Firestore only; Fumbled/All tabs read the local store.
+      final connections = ref.read(connectionRepositoryProvider);
+      await connections.syncConnections(profile.uid);
+      connections.refreshConnections(profile.uid);
+
       ref.invalidate(incomingInvitationsProvider);
       ref.invalidate(halfFumblesProvider);
       ref.invalidate(connectionsProvider);
