@@ -31,6 +31,8 @@ class CustomTextField extends StatefulWidget {
     this.onTap,
     this.onTapOutside,
     this.autofocus = false,
+    this.autovalidateMode,
+    this.formFieldKey,
   });
 
   final TextEditingController controller;
@@ -52,6 +54,8 @@ class CustomTextField extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onTapOutside;
   final bool autofocus;
+  final AutovalidateMode? autovalidateMode;
+  final GlobalKey<FormFieldState<String>>? formFieldKey;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -89,6 +93,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           8.height,
         ],
         TextFormField(
+          key: widget.formFieldKey,
           controller: widget.controller,
           focusNode: widget.focusNode,
           obscureText: _obscure,
@@ -97,6 +102,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           autofillHints: widget.autofillHints,
+          autovalidateMode: widget.autovalidateMode,
           validator: widget.validator,
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,
@@ -236,6 +242,8 @@ class BasePasswordField extends StatelessWidget {
     this.onChanged,
     this.requireStrongPassword = false,
     this.matchController,
+    this.autovalidateMode,
+    this.formFieldKey,
   });
 
   final TextEditingController controller;
@@ -251,6 +259,8 @@ class BasePasswordField extends StatelessWidget {
 
   /// When set, this field must match [matchController] (confirm password).
   final TextEditingController? matchController;
+  final AutovalidateMode? autovalidateMode;
+  final GlobalKey<FormFieldState<String>>? formFieldKey;
 
   @override
   Widget build(BuildContext context) {
@@ -270,6 +280,8 @@ class BasePasswordField extends StatelessWidget {
       autofillHints: autofillHints,
       onSubmitted: onSubmitted,
       onChanged: onChanged,
+      autovalidateMode: autovalidateMode,
+      formFieldKey: formFieldKey,
       validator: (value) {
         if (isConfirm) {
           return PasswordValidator.validateConfirm(

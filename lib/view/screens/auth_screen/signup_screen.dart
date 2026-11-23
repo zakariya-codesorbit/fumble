@@ -24,6 +24,7 @@ class SignupScreen extends ConsumerStatefulWidget {
 
 class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _confirmFieldKey = GlobalKey<FormFieldState<String>>();
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
@@ -37,6 +38,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _password.dispose();
     _confirmPassword.dispose();
     super.dispose();
+  }
+
+  void _revalidateConfirm() {
+    final field = _confirmFieldKey.currentState;
+    if (field == null) return;
+    if (_confirmPassword.text.isEmpty && !field.hasError) return;
+    field.validate();
   }
 
   Future<void> _submit() => AuthActions.signUp(
@@ -87,6 +95,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       autofillHints: const [AutofillHints.newPassword],
                       onChanged: (value) {
                         setState(() => _passwordDraft = value);
+                        _revalidateConfirm();
                       },
                     ),
                     PasswordRequirementsHint(password: _passwordDraft),
@@ -94,8 +103,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     BasePasswordField(
                       controller: _confirmPassword,
                       matchController: _password,
+                      formFieldKey: _confirmFieldKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.newPassword],
+                      onChanged: (_) => _revalidateConfirm(),
                       onSubmitted: (_) => _submit(),
                     ),
                     30.height,
