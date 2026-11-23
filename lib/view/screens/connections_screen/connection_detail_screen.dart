@@ -87,6 +87,7 @@ class _ConnectionDetailScreenState
     final voice = _voice;
     if (voice == null) return;
     final listening = await FumblePreviewActions.toggleVoiceMemory(
+      context: context,
       ref: ref,
       noteController: _note,
       onChanged: () {

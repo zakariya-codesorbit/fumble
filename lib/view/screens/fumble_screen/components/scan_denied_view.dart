@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -18,10 +19,19 @@ class ScanDeniedView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          AppConstant.cameraPermissionTitle.toText(
+            color: AppColors.white,
+            fontSize: 20,
+            fontWeight: AppStyle.w700,
+            textAlign: TextAlign.center,
+          ),
+          12.height,
           AppConstant.cameraPermissionSettings.toText(
             color: AppColors.softGray,
             fontSize: 15,
             textAlign: TextAlign.center,
+            maxLine: 5,
+            lineHeight: 1.35,
           ),
           24.height,
           PrimaryButton(

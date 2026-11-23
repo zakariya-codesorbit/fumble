@@ -42,17 +42,17 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Fumble needs camera access to scan Fumble QR codes and take profile photos.</string>
+	<string>Fumble uses the camera to scan Fumble QR codes when you meet someone and to take your profile photo for your Fumble card.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Fumble uses your location to record where you Fumbled and to set your phone country code.</string>
+	<string>Fumble uses your location while you use the app to save where you met someone and to suggest your phone country code.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Fumble needs the microphone to record voice memories when you Fumble someone.</string>
+	<string>Fumble uses the microphone so you can record a short voice memory about how you met after a Fumble.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Fumble may save photos you capture for your profile.</string>
+	<string>Fumble may save photos you capture so you can use them as your profile photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Fumble needs photo library access to update your profile photo.</string>
+	<string>Fumble uses your photo library so you can choose a profile photo for your Fumble card.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Fumble uses speech recognition to turn your voice memory into text.</string>
+	<string>Fumble uses speech recognition to turn your spoken memory into text you can keep on the connection.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

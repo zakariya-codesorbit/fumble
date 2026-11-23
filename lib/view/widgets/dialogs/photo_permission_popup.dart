@@ -31,7 +31,9 @@ Future<void> showPhotoPermissionPopup(
 }) {
   return SettingActions.showConfirmSheet(
     context: context,
-    title: AppConstant.photoPermissionTitle,
+    title: camera
+        ? AppConstant.cameraPermissionTitle
+        : AppConstant.galleryPermissionTitle,
     description: camera
         ? AppConstant.cameraPermissionSettings
         : AppConstant.galleryPermissionSettings,

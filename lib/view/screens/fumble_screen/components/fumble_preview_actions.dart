@@ -8,6 +8,8 @@ import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
+import 'package:fumble/utils/constant.dart';
+import 'package:fumble/view/screens/setting_screen/components/setting_actions.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 
 abstract final class FumblePreviewActions {
@@ -57,6 +59,7 @@ abstract final class FumblePreviewActions {
 
   /// Toggles voice listening. Returns whether listening is active after the call.
   static Future<bool> toggleVoiceMemory({
+    required BuildContext context,
     required WidgetRef ref,
     required TextEditingController noteController,
     required VoidCallback onChanged,
@@ -87,12 +90,24 @@ abstract final class FumblePreviewActions {
     );
 
     if (!result.isOk) {
-      showAppToast(result.message, isError: true);
       if (result.failure == VoiceMemoryFailure.microphoneDenied ||
           result.failure == VoiceMemoryFailure.speechDenied) {
-        // Offer settings when permanently blocked.
-        final mic = await Permission.microphone.status;
-        if (mic.isPermanentlyDenied) await openAppSettings();
+        if (context.mounted) {
+          final isMic =
+              result.failure == VoiceMemoryFailure.microphoneDenied;
+          await SettingActions.showConfirmSheet(
+            context: context,
+            title: isMic
+                ? AppConstant.micPermissionTitle
+                : AppConstant.speechPermissionTitle,
+            description: result.message,
+            primaryCta: AppConstant.openSettings,
+            destructive: false,
+            onPrimaryTap: openAppSettings,
+          );
+        }
+      } else {
+        showAppToast(result.message, isError: true);
       }
       onChanged();
       return false;

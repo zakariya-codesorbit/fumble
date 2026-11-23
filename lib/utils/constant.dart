@@ -141,10 +141,12 @@ abstract final class AppConstant {
   static const String typeMemoryHint = 'Or type a memory about how you met...';
   static const String speechUnavailable =
       'Speech recognition isn\'t available on this device.';
+  static const String micPermissionTitle = 'Microphone access needed';
   static const String micPermissionSettings =
-      'Microphone access is disabled. Please open Settings and allow Fumble to use your microphone.';
+      'Fumble uses your microphone to record a short voice memory when you meet someone. Open Settings and allow Microphone for Fumble.';
+  static const String speechPermissionTitle = 'Speech recognition needed';
   static const String speechPermissionSettings =
-      'Speech recognition is disabled. Please open Settings and allow Fumble to use speech recognition.';
+      'Fumble turns your voice memory into text so you can keep the moment. Open Settings and allow Speech Recognition for Fumble.';
 
   static const String connectionsTitle = 'CONNECTIONS';
   static const String connectionsTabFumbled = 'FUMBLED';
@@ -246,17 +248,18 @@ abstract final class AppConstant {
   static const String tapToCancel = 'Tap to cancel';
   static const String authenticating = 'Authenticating…';
   static const String openSettings = 'Open Settings';
+  static const String cameraPermissionTitle = 'Camera access needed';
   static const String cameraPermissionSettings =
-      'Camera access is disabled. Please open Settings and allow Fumble to use your camera.';
+      'Fumble needs the camera to scan someone’s Fumble QR code and to take a profile photo. Open Settings and allow Camera for Fumble.';
+  static const String galleryPermissionTitle = 'Photos access needed';
   static const String galleryPermissionSettings =
-      'Photo access is disabled. Please open Settings and allow Fumble to access your photos.';
-  static const String photoPermissionTitle = 'Permission needed';
-  static const String locationPermissionTitle = 'Permission needed';
+      'Fumble needs access to your photos so you can choose a profile picture for your Fumble card. Open Settings and allow Photos for Fumble.';
+  static const String locationPermissionTitle = 'Location access needed';
   static const String locationPermissionSettings =
-      'Location access is disabled. Please open Settings and allow Fumble to use your location.';
+      'Fumble uses your location to save where you met and to set your phone country code. Open Settings and allow Location While Using for Fumble.';
   static const String locationServicesTitle = 'Location is off';
   static const String locationServicesSettings =
-      'Device location is turned off. Turn it on so Fumble can fill the meeting place.';
+      'Location services are turned off on this device. Turn them on so Fumble can fill the meeting place when you Fumble someone.';
   static const String invalidQr = 'This isn\'t a valid Fumble code.';
   static const String malformedQr = 'This Fumble code is malformed.';
   static const String unsupportedQrVersion =
