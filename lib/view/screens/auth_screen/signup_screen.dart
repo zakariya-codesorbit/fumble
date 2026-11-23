@@ -5,6 +5,7 @@ import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/auth_screen/components/auth_actions.dart';
+import 'package:fumble/view/screens/auth_screen/components/password_requirements_hint.dart';
 import 'package:fumble/view/screens/auth_screen/components/top_view.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
@@ -26,12 +27,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
+  var _passwordDraft = '';
 
   @override
   void dispose() {
     _name.dispose();
     _email.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -77,7 +81,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     20.height,
                     BasePasswordField(
                       controller: _password,
-                      hintText: AppConstant.passwordCreateHint,
+                      hintText: AppConstant.passwordHint,
+                      requireStrongPassword: true,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.newPassword],
+                      onChanged: (value) {
+                        setState(() => _passwordDraft = value);
+                      },
+                    ),
+                    PasswordRequirementsHint(password: _passwordDraft),
+                    20.height,
+                    BasePasswordField(
+                      controller: _confirmPassword,
+                      matchController: _password,
+                      textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.newPassword],
                       onSubmitted: (_) => _submit(),
                     ),

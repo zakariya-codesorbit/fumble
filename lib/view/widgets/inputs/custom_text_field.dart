@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
+import 'package:fumble/utils/password_validator.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -227,34 +228,59 @@ class BasePasswordField extends StatelessWidget {
   const BasePasswordField({
     super.key,
     required this.controller,
+    this.label,
     this.hintText,
     this.textInputAction = TextInputAction.done,
     this.autofillHints = const [AutofillHints.password],
     this.onSubmitted,
+    this.onChanged,
+    this.requireStrongPassword = false,
+    this.matchController,
   });
 
   final TextEditingController controller;
+  final String? label;
   final String? hintText;
   final TextInputAction textInputAction;
   final Iterable<String>? autofillHints;
   final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String>? onChanged;
+
+  /// When true, applies signup password rules (8+ / upper / lower / digit / symbol).
+  final bool requireStrongPassword;
+
+  /// When set, this field must match [matchController] (confirm password).
+  final TextEditingController? matchController;
 
   @override
   Widget build(BuildContext context) {
+    final isConfirm = matchController != null;
     return CustomTextField(
       controller: controller,
-      label: AppConstant.passwordLabel,
-      hintText: hintText ?? AppConstant.passwordHint,
+      label: label ??
+          (isConfirm
+              ? AppConstant.confirmPasswordLabel
+              : AppConstant.passwordLabel),
+      hintText: hintText ??
+          (isConfirm
+              ? AppConstant.confirmPasswordHint
+              : AppConstant.passwordHint),
       isPassword: true,
       textInputAction: textInputAction,
       autofillHints: autofillHints,
       onSubmitted: onSubmitted,
+      onChanged: onChanged,
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return AppConstant.passwordRequired;
+        if (isConfirm) {
+          return PasswordValidator.validateConfirm(
+            value,
+            matchController!.text,
+          );
         }
-        if (value.length < 6) return AppConstant.passwordTooShort;
-        return null;
+        if (requireStrongPassword) {
+          return PasswordValidator.validateStrong(value);
+        }
+        return PasswordValidator.validateRequired(value);
       },
     );
   }

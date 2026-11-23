@@ -25,10 +25,18 @@ abstract final class AppConstant {
       'Join Fumble to exchange contact cards privately in person.';
   static const String emailLabel = 'Email';
   static const String passwordLabel = 'Password';
+  static const String confirmPasswordLabel = 'Confirm password';
   static const String nameLabel = 'Name';
   static const String emailHint = 'name@example.com';
   static const String passwordHint = 'Enter your password';
-  static const String passwordCreateHint = 'At least 6 characters';
+  static const String passwordCreateHint =
+      '8+ chars, upper, lower, number & symbol';
+  static const String confirmPasswordHint = 'Re-enter your password';
+  static const String passwordRuleMinLength = 'At least 8 characters';
+  static const String passwordRuleLetterCase =
+      'Uppercase and lowercase letters';
+  static const String passwordRuleNumber = 'At least one number';
+  static const String passwordRuleSymbol = 'At least one special character';
   static const String nameHint = 'Your full name';
   static const String bioHint = 'Filmmaker Creative Director. Love dogs!';
   static const String phoneHint = 'Phone number';
@@ -203,7 +211,7 @@ abstract final class AppConstant {
   static const String verifyEmailSignupTitle = 'Verify your email';
   static const String verifyEmailSignupBody =
       'A verification link has been sent to your email. Please verify your email, then log in to continue.';
-  static const String verifyEmailSignupCta = 'Go to login';
+  static const String verifyEmailSignupCta = 'Login';
   static const String authEmailNotVerified =
       'Please verify your email before logging in. Check your inbox for the link.';
   static const String fumbledOn = 'Fumbled';
@@ -304,8 +312,18 @@ abstract final class AppConstant {
   static const String emailRequired = 'Please enter your email';
   static const String emailInvalid = 'Enter a valid email';
   static const String passwordRequired = 'Please enter your password';
+  static const String confirmPasswordRequired =
+      'Please confirm your password';
   static const String passwordTooShort =
-      'Password must be at least 6 characters';
+      'Password must be at least 8 characters';
+  static const String passwordNeedsUppercase =
+      'Include at least one uppercase letter';
+  static const String passwordNeedsLowercase =
+      'Include at least one lowercase letter';
+  static const String passwordNeedsNumber = 'Include at least one number';
+  static const String passwordNeedsSymbol =
+      'Include at least one special character';
+  static const String passwordMismatch = 'Passwords do not match';
   static const String phoneRequired = 'Please enter your phone number';
   static const String phoneInvalid = 'Enter a valid phone number';
   static const String photoRequired = 'Please add a photo to continue';
@@ -334,7 +352,7 @@ abstract final class AppConstant {
       'An account already exists for this email. try logging in.';
   static const String authInvalidEmail = 'Enter a valid email address.';
   static const String authWeakPassword =
-      'Password must be at least 6 characters.';
+      'Use 8+ characters with upper, lower, number, and a symbol.';
   static const String authWrongCredentials = 'Incorrect email or password.';
   static const String authTooManyRequests =
       'Too many attempts. Try again later.';
