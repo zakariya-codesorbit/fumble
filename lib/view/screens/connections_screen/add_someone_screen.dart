@@ -12,6 +12,7 @@ import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_group_card.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
+import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
@@ -85,6 +86,8 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     }
 
     setState(() => _saving = true);
+    showLoadingDialog(message: AppConstant.loading);
+    var dialogOpen = true;
     try {
       final meetingLocation = await _currentMeetingLocation();
       final result =
@@ -98,6 +101,10 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                 meetingDate: DateTime.now(),
                 personalNote: _note.text,
               );
+
+      // Dismiss before the system share sheet so we don't pop this screen later.
+      hideLoadingDialog();
+      dialogOpen = false;
 
       await SharePlus.instance.share(
         ShareParams(
@@ -119,6 +126,7 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
       debugPrint('[AddSomeone] send invite failed: $e');
       showAppToast(AppConstant.somethingWrong, isError: true);
     } finally {
+      if (dialogOpen) hideLoadingDialog();
       if (mounted) setState(() => _saving = false);
     }
   }
@@ -203,7 +211,6 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                   24.height,
                   PrimaryButton(
                     buttonName: AppConstant.halfFumbleCta,
-                    isLoading: _saving,
                     radius: AppStyle.radiusMd,
                     onPressed: _saving ? null : _submit,
                   ),

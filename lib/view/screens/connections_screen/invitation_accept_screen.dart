@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
@@ -13,9 +14,9 @@ import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_moment_card.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
+import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
-import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/profile/profile_card.dart';
@@ -136,7 +137,9 @@ class _InvitationAcceptScreenState
       showAppToast(AppConstant.authPleaseLogIn, isError: true);
       return;
     }
+    if (_busy) return;
     setState(() => _busy = true);
+    showLoadingDialog(message: AppConstant.loading);
     try {
       await ref.read(authServiceProvider).reloadUser();
       if (!ref.read(authServiceProvider).isEmailVerified) {
@@ -168,14 +171,20 @@ class _InvitationAcceptScreenState
     } catch (_) {
       showAppToast(AppConstant.somethingWrong, isError: true);
     } finally {
+      hideLoadingDialog();
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _decline() async {
     final profile = ref.read(currentUserProfileProvider).valueOrNull;
-    if (profile == null) return;
+    if (profile == null) {
+      showAppToast(AppConstant.authPleaseLogIn, isError: true);
+      return;
+    }
+    if (_busy) return;
     setState(() => _busy = true);
+    showLoadingDialog(message: AppConstant.loading);
     try {
       await ref.read(halfFumbleRepositoryProvider).declineInvitation(
             acceptor: profile,
@@ -194,8 +203,54 @@ class _InvitationAcceptScreenState
     } catch (_) {
       showAppToast(AppConstant.somethingWrong, isError: true);
     } finally {
+      hideLoadingDialog();
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Widget _buildShimmerBody() {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const ProfileCardHeader(
+                  name: '',
+                  eyebrow: '',
+                  hideBioWhenEmpty: true,
+                  showEmail: false,
+                  showContact: true,
+                  showActions: true,
+                  avatarLoading: true,
+                  contactLoading: true,
+                  topSpacing: 8,
+                ),
+                24.height,
+                const FumblePreviewMomentCard(
+                  dateLabel: '',
+                  timeLabel: '',
+                  locationLabel: '',
+                  isLoading: true,
+                ),
+                40.height,
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(24, 8, 24, 24.h),
+          child: Column(
+            children: [
+              _ButtonShimmer(height: 52.h, radius: AppStyle.radiusMd),
+              12.height,
+              _ButtonShimmer(height: 52.h, radius: AppStyle.radiusMd),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -221,7 +276,7 @@ class _InvitationAcceptScreenState
           onBack: _busy ? null : pop,
         ),
         body: _loading
-            ? const AppLoader()
+            ? _buildShimmerBody()
             : _error != null
                 ? Center(
                     child: Padding(
@@ -308,7 +363,6 @@ class _InvitationAcceptScreenState
                           children: [
                             PrimaryButton(
                               buttonName: AppConstant.acceptFumble,
-                              isLoading: _busy,
                               radius: AppStyle.radiusMd,
                               onPressed: _busy ? null : _accept,
                             ),
@@ -324,6 +378,32 @@ class _InvitationAcceptScreenState
                       ),
                     ],
                   ),
+      ),
+    );
+  }
+}
+
+class _ButtonShimmer extends StatelessWidget {
+  const _ButtonShimmer({
+    required this.height,
+    required this.radius,
+  });
+
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.surfaceElevated,
+      highlightColor: AppColors.softGrayDim.withValues(alpha: 0.35),
+      child: Container(
+        width: double.infinity,
+        height: height,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceElevated,
+          borderRadius: BorderRadius.circular(radius),
+        ),
       ),
     );
   }

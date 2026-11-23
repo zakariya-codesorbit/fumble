@@ -20,6 +20,7 @@ import 'package:fumble/view/screens/connections_screen/invitation_accept_screen.
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
+import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
@@ -37,6 +38,7 @@ class ConnectionsScreen extends ConsumerStatefulWidget {
 
 class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
   _ConnectionsTab _tab = _ConnectionsTab.fumbled;
+  String? _busyInviteId;
 
   List<Connection> _fumbledConnections(List<Connection> connections) {
     return connections
@@ -105,9 +107,58 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     );
   }
 
+  Future<void> _acceptIncoming(HalfFumbleInvitation invite) async {
+    final profile = ref.read(currentUserProfileProvider).valueOrNull;
+    if (profile == null) {
+      showAppToast(AppConstant.authPleaseLogIn, isError: true);
+      return;
+    }
+    if (_busyInviteId != null) return;
+
+    setState(() => _busyInviteId = invite.id);
+    showLoadingDialog(message: AppConstant.loading);
+    try {
+      final auth = ref.read(authServiceProvider);
+      await auth.reloadUser();
+      if (!auth.isEmailVerified) {
+        showAppToast(AppConstant.verifyEmailBody, isError: true);
+        return;
+      }
+
+      await ref.read(halfFumbleRepositoryProvider).acceptInvitation(
+            acceptor: profile,
+            invitationId: invite.id,
+          );
+      await ref.read(inviteLinkServiceProvider).clearPendingInvite();
+
+      final connections = ref.read(connectionRepositoryProvider);
+      await connections.syncConnections(profile.uid);
+      connections.refreshConnections(profile.uid);
+
+      ref.invalidate(incomingInvitationsProvider);
+      ref.invalidate(halfFumblesProvider);
+      ref.invalidate(connectionsProvider);
+      showAppToast(AppConstant.halfFumbleAccepted);
+    } on HalfFumbleException catch (e) {
+      showAppToast(e.message, isError: true);
+    } catch (_) {
+      showAppToast(AppConstant.somethingWrong, isError: true);
+    } finally {
+      hideLoadingDialog();
+      if (mounted) setState(() => _busyInviteId = null);
+    }
+  }
+
   Future<void> _declineIncoming(HalfFumbleInvitation invite) async {
     final profile = ref.read(currentUserProfileProvider).valueOrNull;
-    if (profile == null) return;
+    if (profile == null) {
+      showAppToast(AppConstant.authPleaseLogIn, isError: true);
+      return;
+    }
+    if (_busyInviteId != null) return;
+
+    setState(() => _busyInviteId = invite.id);
+    showLoadingDialog(message: AppConstant.loading);
     try {
       await ref.read(halfFumbleRepositoryProvider).declineInvitation(
             acceptor: profile,
@@ -120,6 +171,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
       showAppToast(e.message, isError: true);
     } catch (_) {
       showAppToast(AppConstant.somethingWrong, isError: true);
+    } finally {
+      hideLoadingDialog();
+      if (mounted) setState(() => _busyInviteId = null);
     }
   }
 
@@ -248,7 +302,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                         for (final invite in visibleIncoming) ...[
                           IncomingInvitationTile(
                             invitation: invite,
-                            onAccept: () => _openIncoming(invite),
+                            isBusy: _busyInviteId == invite.id,
+                            onTap: () => _openIncoming(invite),
+                            onAccept: () => _acceptIncoming(invite),
                             onCancel: () => _declineIncoming(invite),
                           ),
                           12.height,
