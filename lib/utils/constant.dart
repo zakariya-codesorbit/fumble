@@ -130,8 +130,10 @@ abstract final class AppConstant {
       '$name fumbled you. Your shared memory.';
 
   static const String theMomentLabel = 'THE MOMENT';
+
   /// Placeholder on preview / detail when meeting place is empty.
   static const String enterFumbleLocation = 'Enter Fumble location';
+
   /// Shown on connection list cards when no place is saved.
   static const String fumbleLocationNotSet = 'Fumble location not set';
   static const String recordMemory = 'Record Memory';
@@ -152,6 +154,8 @@ abstract final class AppConstant {
   static const String connectionsEmptyBody =
       'Fumble someone to save the moment here.';
   static const String addSomeone = 'Add Someone';
+  static const String addSomeoneSubtitle =
+      'Invite someone who is not on Fumble yet. Send them an invite, when they join and verify, you will connect from Half Fumble.';
   static const String sendInvitation = 'Send Invitation';
   static const String halfFumbleCta = 'Fumble';
   static const String resendInvitation = 'Resend Invitation';
@@ -233,6 +237,7 @@ abstract final class AppConstant {
       'Want to fumble you, review and accept.';
   static const String metAtPrefix = 'Met at';
   static String metAt(String place) => '$metAtPrefix $place';
+
   /// Placeholder subtitle on connection tiles until place copy is finalized.
   static const String metAtCoffeeBar = 'Met at The Coffee Bar';
   static const String dataNotFound = 'No connections yet';
@@ -296,6 +301,7 @@ abstract final class AppConstant {
   static const String connectionRemoved = 'Connection removed';
   static const String removeConnectionFailed =
       'Couldn\'t remove connection. Try again.';
+
   /// Shown only if we need to explain deferred cloud delete (optional UX).
   static const String connectionRemovedOffline =
       'Connection removed. It will sync when you\'re back online.';
@@ -312,8 +318,7 @@ abstract final class AppConstant {
   static const String emailRequired = 'Please enter your email';
   static const String emailInvalid = 'Enter a valid email';
   static const String passwordRequired = 'Please enter your password';
-  static const String confirmPasswordRequired =
-      'Please confirm your password';
+  static const String confirmPasswordRequired = 'Please confirm your password';
   static const String passwordTooShort =
       'Password must be at least 8 characters';
   static const String passwordNeedsUppercase =
@@ -382,6 +387,8 @@ abstract final class AppConstant {
       '${AppConfig.displayName} $version ($build)';
 
   /// Fallback when PackageInfo is unavailable (matches pubspec Version 1).
-  static String get appVersionLabel =>
-      settingsAppVersionLabel(AppConfig.appVersionName, '${AppConfig.appBuildNumber}');
+  static String get appVersionLabel => settingsAppVersionLabel(
+    AppConfig.appVersionName,
+    '${AppConfig.appBuildNumber}',
+  );
 }

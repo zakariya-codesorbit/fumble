@@ -63,8 +63,9 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
   }
 
   String _fullPhone(GlobalKey<PhoneCountryFieldState> key, String dial) {
-    final national =
-        key == _phoneKey ? _phone.text.trim() : _whatsApp.text.trim();
+    final national = key == _phoneKey
+        ? _phone.text.trim()
+        : _whatsApp.text.trim();
     if (national.isEmpty) return '';
     return key.currentState?.fullNumber ??
         PhoneCountryField.formatFull(dialCode: dial, national: national);
@@ -90,17 +91,18 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     var dialogOpen = true;
     try {
       final meetingLocation = await _currentMeetingLocation();
-      final result =
-          await ref.read(halfFumbleRepositoryProvider).createAndInvite(
-                inviter: profile,
-                name: _name.text,
-                email: _email.text,
-                phone: _fullPhone(_phoneKey, _phoneDial),
-                whatsApp: _fullPhone(_whatsAppKey, _waDial),
-                meetingLocation: meetingLocation,
-                meetingDate: DateTime.now(),
-                personalNote: _note.text,
-              );
+      final result = await ref
+          .read(halfFumbleRepositoryProvider)
+          .createAndInvite(
+            inviter: profile,
+            name: _name.text,
+            email: _email.text,
+            phone: _fullPhone(_phoneKey, _phoneDial),
+            whatsApp: _fullPhone(_whatsAppKey, _waDial),
+            meetingLocation: meetingLocation,
+            meetingDate: DateTime.now(),
+            personalNote: _note.text,
+          );
 
       // Dismiss before the system share sheet so we don't pop this screen later.
       hideLoadingDialog();
@@ -146,76 +148,89 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: MyFumbleGroupCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _field(
-                    AppConstant.fullNameLabel,
-                    _EditBox(
-                      controller: _name,
-                      hint: AppConstant.nameHint,
-                      enabled: !_saving,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppConstant.addSomeoneSubtitle.toText(
+                  fontSize: 14,
+                  fontWeight: AppStyle.w500,
+                  color: AppColors.primaryText,
+                  maxLine: 4,
+                  lineHeight: 1.4,
+                ),
+                16.height,
+                MyFumbleGroupCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _field(
+                        AppConstant.fullNameLabel,
+                        _EditBox(
+                          controller: _name,
+                          hint: AppConstant.nameHint,
+                          enabled: !_saving,
+                        ),
+                      ),
+                      14.height,
+                      _field(
+                        AppConstant.emailAddressLabel,
+                        _EditBox(
+                          controller: _email,
+                          hint: AppConstant.emailHint,
+                          keyboardType: TextInputType.emailAddress,
+                          enabled: !_saving,
+                        ),
+                      ),
+                      14.height,
+                      _field(
+                        AppConstant.phoneNumberLabel,
+                        PhoneCountryField(
+                          key: _phoneKey,
+                          controller: _phone,
+                          initialDialCode: _phoneDial,
+                          initialCountryCode: _phoneCountry,
+                          showLabel: false,
+                          onCountryChanged: () {
+                            _phoneDial =
+                                _phoneKey.currentState?.dialCode ?? _phoneDial;
+                          },
+                        ),
+                      ),
+                      14.height,
+                      _field(
+                        AppConstant.whatsAppNumberLabel,
+                        PhoneCountryField(
+                          key: _whatsAppKey,
+                          controller: _whatsApp,
+                          initialDialCode: _waDial,
+                          initialCountryCode: _waCountry,
+                          showLabel: false,
+                          onCountryChanged: () {
+                            _waDial =
+                                _whatsAppKey.currentState?.dialCode ?? _waDial;
+                          },
+                        ),
+                      ),
+                      14.height,
+                      _field(
+                        AppConstant.personalNoteLabel,
+                        _EditBox(
+                          controller: _note,
+                          hint: AppConstant.optionalHint,
+                          maxLines: 4,
+                          enabled: !_saving,
+                        ),
+                      ),
+                      24.height,
+                      PrimaryButton(
+                        buttonName: AppConstant.halfFumbleCta,
+                        radius: AppStyle.radiusMd,
+                        onPressed: _saving ? null : _submit,
+                      ),
+                    ],
                   ),
-                  14.height,
-                  _field(
-                    AppConstant.emailAddressLabel,
-                    _EditBox(
-                      controller: _email,
-                      hint: AppConstant.emailHint,
-                      keyboardType: TextInputType.emailAddress,
-                      enabled: !_saving,
-                    ),
-                  ),
-                  14.height,
-                  _field(
-                    AppConstant.phoneNumberLabel,
-                    PhoneCountryField(
-                      key: _phoneKey,
-                      controller: _phone,
-                      initialDialCode: _phoneDial,
-                      initialCountryCode: _phoneCountry,
-                      showLabel: false,
-                      onCountryChanged: () {
-                        _phoneDial =
-                            _phoneKey.currentState?.dialCode ?? _phoneDial;
-                      },
-                    ),
-                  ),
-                  14.height,
-                  _field(
-                    AppConstant.whatsAppNumberLabel,
-                    PhoneCountryField(
-                      key: _whatsAppKey,
-                      controller: _whatsApp,
-                      initialDialCode: _waDial,
-                      initialCountryCode: _waCountry,
-                      showLabel: false,
-                      onCountryChanged: () {
-                        _waDial =
-                            _whatsAppKey.currentState?.dialCode ?? _waDial;
-                      },
-                    ),
-                  ),
-                  14.height,
-                  _field(
-                    AppConstant.personalNoteLabel,
-                    _EditBox(
-                      controller: _note,
-                      hint: AppConstant.optionalHint,
-                      maxLines: 4,
-                      enabled: !_saving,
-                    ),
-                  ),
-                  24.height,
-                  PrimaryButton(
-                    buttonName: AppConstant.halfFumbleCta,
-                    radius: AppStyle.radiusMd,
-                    onPressed: _saving ? null : _submit,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -279,8 +294,10 @@ class _EditBox extends StatelessWidget {
         ),
         filled: true,
         fillColor: AppColors.background,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: AppColors.border),
