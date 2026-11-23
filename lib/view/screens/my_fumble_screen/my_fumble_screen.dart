@@ -75,8 +75,11 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late final TextEditingController _phone;
   late final TextEditingController _whatsApp;
   final _phoneFieldKey = GlobalKey<PhoneCountryFieldState>();
+  final _whatsAppFieldKey = GlobalKey<PhoneCountryFieldState>();
   late String _phoneDialCode;
   late String _phoneCountryCode;
+  late String _whatsAppDialCode;
+  late String _whatsAppCountryCode;
 
   @override
   void initState() {
@@ -91,7 +94,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
       _syncPhoneFromProfile(widget.profile);
     }
     if (oldWidget.profile.whatsApp != widget.profile.whatsApp) {
-      _whatsApp.text = widget.profile.whatsApp ?? '';
+      _syncWhatsAppFromProfile(widget.profile);
     }
   }
 
@@ -123,9 +126,10 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   void _bindControllers(UserProfile profile) {
     _name = TextEditingController(text: profile.name);
     _bio = TextEditingController(text: profile.bio ?? '');
-    _whatsApp = TextEditingController(text: profile.whatsApp ?? '');
+    _whatsApp = TextEditingController();
     _phone = TextEditingController();
     _syncPhoneFromProfile(profile);
+    _syncWhatsAppFromProfile(profile);
   }
 
   void _syncPhoneFromProfile(UserProfile profile) {
@@ -134,6 +138,17 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     _phoneCountryCode = parsed.countryCode;
     _phone.text = parsed.national;
     _phoneFieldKey.currentState?.applyCountry(
+      countryCode: parsed.countryCode,
+      dialCode: parsed.dialCode,
+    );
+  }
+
+  void _syncWhatsAppFromProfile(UserProfile profile) {
+    final parsed = PhoneCountryField.parseStored(profile.whatsApp);
+    _whatsAppDialCode = parsed.dialCode;
+    _whatsAppCountryCode = parsed.countryCode;
+    _whatsApp.text = parsed.national;
+    _whatsAppFieldKey.currentState?.applyCountry(
       countryCode: parsed.countryCode,
       dialCode: parsed.dialCode,
     );
@@ -149,11 +164,21 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
         );
   }
 
+  String _fullWhatsApp() {
+    final national = _whatsApp.text.trim();
+    if (national.isEmpty) return '';
+    return _whatsAppFieldKey.currentState?.fullNumber ??
+        PhoneCountryField.formatFull(
+          dialCode: _whatsAppDialCode,
+          national: national,
+        );
+  }
+
   void _applyProfile(UserProfile profile) {
     _name.text = profile.name;
     _bio.text = profile.bio ?? '';
-    _whatsApp.text = profile.whatsApp ?? '';
     _syncPhoneFromProfile(profile);
+    _syncWhatsAppFromProfile(profile);
   }
 
   void _discardDraft() {
@@ -167,9 +192,10 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   bool get _textChanged {
     final profile = widget.profile;
     final savedPhone = (profile.phone ?? '').trim();
+    final savedWhatsApp = (profile.whatsApp ?? '').trim();
     return _name.text.trim() != profile.name.trim() ||
         _bio.text.trim() != (profile.bio ?? '').trim() ||
-        _whatsApp.text.trim() != (profile.whatsApp ?? '').trim() ||
+        _fullWhatsApp() != savedWhatsApp ||
         _fullPhone() != savedPhone;
   }
 
@@ -184,7 +210,8 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
       location: profile.location ?? '',
       phone: _fullPhone(),
       nationalPhone: _phone.text,
-      whatsApp: _whatsApp.text,
+      whatsApp: _fullWhatsApp(),
+      nationalWhatsApp: _whatsApp.text,
     );
     if (!mounted || !ok) return;
     setState(() {});
@@ -258,12 +285,23 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
             phoneDialCode: _phoneDialCode,
             phoneCountryCode: _phoneCountryCode,
             whatsAppController: _whatsApp,
+            whatsAppFieldKey: _whatsAppFieldKey,
+            whatsAppDialCode: _whatsAppDialCode,
+            whatsAppCountryCode: _whatsAppCountryCode,
             bioController: _bio,
             onPhoneChanged: (_) => setState(() {}),
             onPhoneCountryChanged: () {
               final state = _phoneFieldKey.currentState;
               if (state != null) {
                 _phoneDialCode = state.dialCode;
+              }
+              setState(() {});
+            },
+            onWhatsAppChanged: (_) => setState(() {}),
+            onWhatsAppCountryChanged: () {
+              final state = _whatsAppFieldKey.currentState;
+              if (state != null) {
+                _whatsAppDialCode = state.dialCode;
               }
               setState(() {});
             },

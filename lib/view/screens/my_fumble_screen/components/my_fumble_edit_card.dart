@@ -21,9 +21,14 @@ class MyFumbleEditCard extends StatelessWidget {
     required this.phoneDialCode,
     required this.phoneCountryCode,
     required this.whatsAppController,
+    required this.whatsAppFieldKey,
+    required this.whatsAppDialCode,
+    required this.whatsAppCountryCode,
     required this.bioController,
     required this.onPhoneChanged,
     required this.onPhoneCountryChanged,
+    required this.onWhatsAppChanged,
+    required this.onWhatsAppCountryChanged,
     required this.onChanged,
     required this.onChoosePhoto,
     required this.onSave,
@@ -39,9 +44,14 @@ class MyFumbleEditCard extends StatelessWidget {
   final String phoneDialCode;
   final String phoneCountryCode;
   final TextEditingController whatsAppController;
+  final GlobalKey<PhoneCountryFieldState> whatsAppFieldKey;
+  final String whatsAppDialCode;
+  final String whatsAppCountryCode;
   final TextEditingController bioController;
   final ValueChanged<String> onPhoneChanged;
   final VoidCallback onPhoneCountryChanged;
+  final ValueChanged<String> onWhatsAppChanged;
+  final VoidCallback onWhatsAppCountryChanged;
   final VoidCallback onChanged;
   final VoidCallback onChoosePhoto;
   final VoidCallback? onSave;
@@ -102,11 +112,18 @@ class MyFumbleEditCard extends StatelessWidget {
           16.height,
           _LabeledField(
             label: AppConstant.whatsAppNumberLabel,
-            child: _EditInput(
+            child: PhoneCountryField(
+              key: whatsAppFieldKey,
               controller: whatsAppController,
-              hint: AppConstant.optionalHint,
-              keyboardType: TextInputType.phone,
-              onChanged: (_) => onChanged(),
+              initialDialCode: whatsAppDialCode,
+              initialCountryCode: whatsAppCountryCode,
+              textInputAction: TextInputAction.next,
+              showLabel: false,
+              onChanged: (value) {
+                onWhatsAppChanged(value);
+                onChanged();
+              },
+              onCountryChanged: onWhatsAppCountryChanged,
             ),
           ),
           16.height,

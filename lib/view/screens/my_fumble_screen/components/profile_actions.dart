@@ -55,9 +55,15 @@ abstract final class ProfileActions {
     required String phone,
     required String nationalPhone,
     required String whatsApp,
+    required String nationalWhatsApp,
   }) async {
     if (nationalPhone.trim().isNotEmpty &&
         !PhoneCountryField.isValidNational(nationalPhone)) {
+      showAppToast(AppConstant.phoneInvalid, isError: true);
+      return false;
+    }
+    if (nationalWhatsApp.trim().isNotEmpty &&
+        !PhoneCountryField.isValidNational(nationalWhatsApp)) {
       showAppToast(AppConstant.phoneInvalid, isError: true);
       return false;
     }

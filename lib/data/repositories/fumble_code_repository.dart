@@ -11,7 +11,7 @@ import 'repo_utils.dart';
 /// Public `fumbleCodes` cards and live meeting place on the card.
 class FumbleCodeRepository {
   FumbleCodeRepository({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+    : _db = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _db;
   static const _uuid = Uuid();
