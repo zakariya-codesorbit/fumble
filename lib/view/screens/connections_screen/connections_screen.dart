@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 
 import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
@@ -9,6 +8,7 @@ import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/half_fumble.dart';
 import 'package:fumble/data/repositories/half_fumble_repository.dart';
+import 'package:fumble/services/half_fumble/half_fumble_invite_share.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
@@ -161,15 +161,14 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
       final shared = await ref
           .read(halfFumbleRepositoryProvider)
           .resendInvitation(inviter: profile, halfFumble: half);
-      await SharePlus.instance.share(
-        ShareParams(
-          text: AppConstant.halfFumbleShareMessage(
-            invitedEmail: shared.invitedEmail,
-            storeUrl: shared.storeUrl,
-            appLink: shared.appLink,
-          ),
-          subject: AppConstant.addSomeone,
-        ),
+      if (!mounted) return;
+      await HalfFumbleInviteShare.present(
+        context: context,
+        invitedEmail: shared.invitedEmail,
+        storeUrl: shared.storeUrl,
+        appLink: shared.appLink,
+        phone: half.phone,
+        whatsApp: half.whatsApp,
       );
       showAppToast(AppConstant.halfFumbleInviteShared);
     } on HalfFumbleException catch (e) {

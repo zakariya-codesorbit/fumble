@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/repositories/half_fumble_repository.dart';
+import 'package:fumble/services/half_fumble/half_fumble_invite_share.dart';
 import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
@@ -137,6 +137,9 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
       return;
     }
 
+    final phone = _fullPhone(_phoneKey, _phoneDial);
+    final whatsApp = _fullPhone(_whatsAppKey, _waDial);
+
     setState(() => _saving = true);
     showLoadingDialog(message: AppConstant.loading);
     var dialogOpen = true;
@@ -147,26 +150,25 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                 inviter: profile,
                 name: _name.text,
                 email: _email.text,
-                phone: _fullPhone(_phoneKey, _phoneDial),
-                whatsApp: _fullPhone(_whatsAppKey, _waDial),
+                phone: phone,
+                whatsApp: whatsApp,
                 meetingLocation: meetingLocation,
                 meetingDate: DateTime.now(),
                 personalNote: _note.text,
               );
 
-      // Dismiss before the system share sheet so we don't pop this screen later.
+      // Dismiss before share UI so we don't pop this screen later.
       hideLoadingDialog();
       dialogOpen = false;
 
-      await SharePlus.instance.share(
-        ShareParams(
-          text: AppConstant.halfFumbleShareMessage(
-            invitedEmail: result.invitedEmail,
-            storeUrl: result.storeUrl,
-            appLink: result.appLink,
-          ),
-          subject: AppConstant.addSomeone,
-        ),
+      if (!mounted) return;
+      await HalfFumbleInviteShare.present(
+        context: context,
+        invitedEmail: result.invitedEmail,
+        storeUrl: result.storeUrl,
+        appLink: result.appLink,
+        phone: phone,
+        whatsApp: whatsApp,
       );
 
       if (!mounted) return;

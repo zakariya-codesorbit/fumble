@@ -187,6 +187,16 @@ abstract final class AppConstant {
       'Couldn\'t save invitation (Firestore permission). Deploy the latest rules for project fumble-2026.';
   static const String halfFumbleInviteShared =
       'Invitation ready — share the link to invite them.';
+  static const String halfFumbleShareTitle = 'Send invitation';
+  static const String halfFumbleShareSms = 'Text Message';
+  static const String halfFumbleShareWhatsApp = 'WhatsApp';
+  static const String halfFumbleShareMore = 'Share elsewhere';
+  static const String halfFumbleShareMoreSubtitle =
+      'Email, AirDrop, or other apps';
+  static const String halfFumbleShareSmsFailed =
+      'Couldn\'t open Messages. Try Share elsewhere.';
+  static const String halfFumbleShareWhatsAppFailed =
+      'Couldn\'t open WhatsApp. Try Share elsewhere.';
   static const String halfFumbleInviteRevoked = 'Invitation cancelled';
   static const String halfFumbleAlreadyInvited =
       'You already have an open Half Fumble for this email.';
