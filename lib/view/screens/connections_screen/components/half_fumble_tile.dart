@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/half_fumble.dart';
+import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -23,12 +24,8 @@ class HalfFumbleTile extends StatelessWidget {
   final VoidCallback? onResend;
   final VoidCallback? onCancel;
 
-  String? get _statusText {
+  String get _statusText {
     switch (halfFumble.status) {
-      case HalfFumbleStatus.invitationSent:
-        return null;
-      case HalfFumbleStatus.pendingAcceptance:
-        return AppConstant.pendingAcceptanceLabel;
       case HalfFumbleStatus.declined:
         return 'Declined';
       case HalfFumbleStatus.expired:
@@ -37,28 +34,35 @@ class HalfFumbleTile extends StatelessWidget {
         return 'Cancelled';
       case HalfFumbleStatus.fumbled:
         return AppConstant.connectionsTabFumbled;
+      case HalfFumbleStatus.pendingAcceptance:
+      case HalfFumbleStatus.invitationSent:
       case HalfFumbleStatus.halfFumble:
-        return AppConstant.halfFumbleStatusLabel;
+        return AppConstant.youWantToFumble(halfFumble.firstName);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final meeting = halfFumble.meetingDate != null
-        ? DateFormat('d MMMM yyyy').format(halfFumble.meetingDate!)
-        : null;
+    final moment = halfFumble.meetingDate ?? halfFumble.createdAt;
+    final date = DateFormat('d MMMM yyyy').format(moment);
+    final time = DateFormat('HH:mm').format(moment);
     final place = halfFumble.meetingLocation?.trim();
+    final placeLabel =
+        (place != null && place.isNotEmpty) ? place : AppConstant.fumbleLocationNotSet;
+    final note = halfFumble.personalNote?.trim() ?? '';
+    final status = _statusText.toUpperCase();
 
     return Material(
-      color: AppColors.navBar,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(15),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(15),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: AppColors.border),
           ),
@@ -66,13 +70,14 @@ class HalfFumbleTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ProfileAvatar(
                     photoUrl: halfFumble.photoUrl,
                     name: halfFumble.name,
-                    size: 48,
+                    size: 45.w,
                   ),
-                  12.width,
+                  10.width,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,49 +85,75 @@ class HalfFumbleTile extends StatelessWidget {
                         halfFumble.name.toText(
                           fontSize: 16,
                           fontWeight: AppStyle.w600,
-                          color: AppColors.white,
                           maxLine: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         4.height,
-                        halfFumble.email.toText(
-                          fontSize: 13,
-                          color: AppColors.softGray,
+                        status.toText(
+                          fontSize: 11,
+                          fontWeight: AppStyle.w600,
+                          color: AppColors.gold,
+                          letterSpacing: 0.8,
                           maxLine: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  if (_statusText != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
+                  8.width,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      date.toText(
+                        fontSize: 12,
+                        fontWeight: AppStyle.w500,
+                        color: AppColors.tertiaryText,
                       ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(99),
-                        border: Border.all(
-                          color: AppColors.goldMuted.withValues(alpha: 0.5),
-                        ),
+                      2.height,
+                      time.toText(
+                        fontSize: 12,
+                        fontWeight: AppStyle.w500,
+                        color: AppColors.tertiaryText,
                       ),
-                      child: _statusText!.toText(
-                        fontSize: 10,
-                        fontWeight: AppStyle.w600,
-                        color: AppColors.gold,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
+                    ],
+                  ),
                 ],
               ),
-              if (meeting != null || (place != null && place.isNotEmpty)) ...[
+              10.height,
+              Row(
+                children: [
+                  const Icon(
+                    AppIcons.location,
+                    size: 14,
+                    color: AppColors.gold,
+                  ),
+                  6.width,
+                  Expanded(
+                    child: placeLabel.toText(
+                      fontSize: 12,
+                      fontWeight: AppStyle.w500,
+                      color: AppColors.tertiaryText,
+                      maxLine: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              if (note.isNotEmpty) ...[
+                12.height,
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColors.border,
+                ),
                 10.height,
-                (place != null && place.isNotEmpty
-                        ? (meeting != null ? '$meeting · $place' : place)
-                        : meeting!)
-                    .toText(
-                  fontSize: 12,
+                note.toText(
+                  fontSize: 13,
+                  fontWeight: AppStyle.w400,
                   color: AppColors.tertiaryText,
+                  maxLine: 3,
+                  overflow: TextOverflow.ellipsis,
+                  lineHeight: 1.35,
                 ),
               ],
               if (halfFumble.status.canResend || halfFumble.status.canCancel) ...[
