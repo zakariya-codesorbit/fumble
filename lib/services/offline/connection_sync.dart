@@ -13,11 +13,14 @@ class ConnectionSync with WidgetsBindingObserver {
   ConnectionSync({
     required ConnectionRepository repository,
     required String? Function() currentUid,
+    VoidCallback? onKick,
   }) : _repository = repository,
-       _currentUid = currentUid;
+       _currentUid = currentUid,
+       _onKick = onKick;
 
   final ConnectionRepository _repository;
   final String? Function() _currentUid;
+  final VoidCallback? _onKick;
   StreamSubscription<bool>? _connectivitySub;
 
   void start() {
@@ -34,6 +37,8 @@ class ConnectionSync with WidgetsBindingObserver {
     final uid = _currentUid();
     if (uid == null || uid.isEmpty) return;
     unawaited(_repository.syncConnections(uid));
+    // Also refresh Half Fumble inbound invites (one-shot FutureProvider).
+    _onKick?.call();
   }
 
   @override

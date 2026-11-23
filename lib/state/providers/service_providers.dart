@@ -86,10 +86,47 @@ final connectionSyncProvider = Provider<ConnectionSync>((ref) {
   final sync = ConnectionSync(
     repository: ref.read(connectionRepositoryProvider),
     currentUid: () => ref.read(authServiceProvider).currentUser?.uid,
+    onKick: () {
+      // Inbound Half Fumble invites are a one-shot Future — refresh with sync.
+      ref.invalidate(incomingInvitationsProvider);
+    },
   );
   ref.onDispose(sync.dispose);
   return sync;
 });
+
+void _refreshConnectionsLists({
+  required String? uid,
+  required ConnectionRepository connections,
+  required ConnectionSync sync,
+}) {
+  if (uid == null || uid.isEmpty) return;
+  connections.refreshConnections(uid);
+  sync.kick();
+}
+
+/// Fresh Fumbled list (local emit + cloud sync) and Half Fumble inbound invites.
+///
+/// Riverpod 2 keeps [Ref] and [WidgetRef] as separate types, so both get helpers.
+extension RefreshConnectionsListsRef on Ref {
+  void refreshConnectionsLists() {
+    _refreshConnectionsLists(
+      uid: read(authServiceProvider).currentUser?.uid,
+      connections: read(connectionRepositoryProvider),
+      sync: read(connectionSyncProvider),
+    );
+  }
+}
+
+extension RefreshConnectionsListsWidgetRef on WidgetRef {
+  void refreshConnectionsLists() {
+    _refreshConnectionsLists(
+      uid: read(authServiceProvider).currentUser?.uid,
+      connections: read(connectionRepositoryProvider),
+      sync: read(connectionSyncProvider),
+    );
+  }
+}
 
 /// Starts offline sync once the provider graph exists.
 /// The queue object is stable, so this does not need to rebuild [FumbleService].

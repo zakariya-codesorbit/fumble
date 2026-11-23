@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:fumble/core/navigation/app_nav_index.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
@@ -9,6 +10,7 @@ import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/half_fumble.dart';
 import 'package:fumble/data/repositories/half_fumble_repository.dart';
 import 'package:fumble/state/providers/app_providers.dart';
+import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
@@ -29,6 +31,25 @@ import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
 enum _ConnectionsTab { fumbled, halfFumble, all }
 
+sealed class _ConnectionsRow {
+  const _ConnectionsRow();
+}
+
+class _IncomingRow extends _ConnectionsRow {
+  const _IncomingRow(this.invite);
+  final HalfFumbleInvitation invite;
+}
+
+class _HalfRow extends _ConnectionsRow {
+  const _HalfRow(this.half);
+  final HalfFumble half;
+}
+
+class _FumbledRow extends _ConnectionsRow {
+  const _FumbledRow(this.connection);
+  final Connection connection;
+}
+
 class ConnectionsScreen extends ConsumerStatefulWidget {
   const ConnectionsScreen({super.key});
 
@@ -36,14 +57,90 @@ class ConnectionsScreen extends ConsumerStatefulWidget {
   ConsumerState<ConnectionsScreen> createState() => _ConnectionsScreenState();
 }
 
-class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
+class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
+    with WidgetsBindingObserver {
+  static const _pageSize = 20;
+
   _ConnectionsTab _tab = _ConnectionsTab.fumbled;
   String? _busyInviteId;
+  final _scrollController = ScrollController();
+  var _visibleCount = _pageSize;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.refreshConnectionsLists();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final onConnections =
+        ref.read(bottomNavProvider).index == AppNavIndex.connections;
+    if (onConnections) ref.refreshConnectionsLists();
+  }
+
+  void _resetPagination() {
+    _visibleCount = _pageSize;
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+    }
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels < position.maxScrollExtent - 240) return;
+    if (_visibleCount >= _lastTotalRows) return;
+    setState(() {
+      _visibleCount = (_visibleCount + _pageSize).clamp(0, _lastTotalRows);
+    });
+  }
+
+  /// Total rows for the current tab — updated each build for scroll paging.
+  var _lastTotalRows = 0;
+
+  void _onSubTabChanged(_ConnectionsTab tab) {
+    setState(() {
+      _tab = tab;
+      _resetPagination();
+    });
+    // Re-fetch the lists relevant to the visible tab.
+    ref.refreshConnectionsLists();
+  }
+
+  List<_ConnectionsRow> _buildRows({
+    required List<Connection> visibleFumbled,
+    required List<HalfFumble> visibleHalf,
+    required List<HalfFumbleInvitation> visibleIncoming,
+    required bool showFumbled,
+    required bool showHalf,
+  }) {
+    return [
+      if (showHalf) ...[
+        for (final invite in visibleIncoming) _IncomingRow(invite),
+        for (final item in visibleHalf) _HalfRow(item),
+      ],
+      if (showFumbled) ...[
+        for (final connection in visibleFumbled) _FumbledRow(connection),
+      ],
+    ];
+  }
 
   List<Connection> _fumbledConnections(List<Connection> connections) {
-    return connections
-        .where((c) => c.syncStatus == SyncStatus.synced)
-        .toList();
+    return connections.where((c) => c.syncStatus == SyncStatus.synced).toList();
   }
 
   List<Connection> _pendingSyncConnections(List<Connection> connections) {
@@ -61,11 +158,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     final profile = ref.read(currentUserProfileProvider).valueOrNull;
     if (profile == null) return;
     try {
-      final shared =
-          await ref.read(halfFumbleRepositoryProvider).resendInvitation(
-                inviter: profile,
-                halfFumble: half,
-              );
+      final shared = await ref
+          .read(halfFumbleRepositoryProvider)
+          .resendInvitation(inviter: profile, halfFumble: half);
       await SharePlus.instance.share(
         ShareParams(
           text: AppConstant.halfFumbleShareMessage(
@@ -88,10 +183,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     final uid = ref.read(authServiceProvider).currentUser?.uid;
     if (uid == null) return;
     try {
-      await ref.read(halfFumbleRepositoryProvider).revokeInvitation(
-            ownerUid: uid,
-            halfFumble: half,
-          );
+      await ref
+          .read(halfFumbleRepositoryProvider)
+          .revokeInvitation(ownerUid: uid, halfFumble: half);
       showAppToast(AppConstant.halfFumbleInviteRevoked);
     } on HalfFumbleException catch (e) {
       showAppToast(e.message, isError: true);
@@ -125,10 +219,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
         return;
       }
 
-      await ref.read(halfFumbleRepositoryProvider).acceptInvitation(
-            acceptor: profile,
-            invitationId: invite.id,
-          );
+      await ref
+          .read(halfFumbleRepositoryProvider)
+          .acceptInvitation(acceptor: profile, invitationId: invite.id);
       await ref.read(inviteLinkServiceProvider).clearPendingInvite();
 
       final connections = ref.read(connectionRepositoryProvider);
@@ -160,10 +253,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     setState(() => _busyInviteId = invite.id);
     showLoadingDialog(message: AppConstant.loading);
     try {
-      await ref.read(halfFumbleRepositoryProvider).declineInvitation(
-            acceptor: profile,
-            invitationId: invite.id,
-          );
+      await ref
+          .read(halfFumbleRepositoryProvider)
+          .declineInvitation(acceptor: profile, invitationId: invite.id);
       ref.invalidate(incomingInvitationsProvider);
       ref.invalidate(halfFumblesProvider);
       showAppToast(AppConstant.halfFumbleDeclined);
@@ -189,10 +281,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
-        appBar: AppAppBar(
-          title: AppConstant.brand,
-          brandTitle: true,
-        ),
+        appBar: AppAppBar(title: AppConstant.brand, brandTitle: true),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -233,10 +322,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                 ],
               ),
             ),
-            _ConnectionsTabs(
-              selected: _tab,
-              onChanged: (tab) => setState(() => _tab = tab),
-            ),
+            _ConnectionsTabs(selected: _tab, onChanged: _onSubTabChanged),
             if (!emailVerified &&
                 (_tab == _ConnectionsTab.halfFumble ||
                     _tab == _ConnectionsTab.all))
@@ -261,7 +347,8 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                   final halfFumbles =
                       halfAsync.valueOrNull ?? const <HalfFumble>[];
                   final incoming =
-                      incomingAsync.valueOrNull ?? const <HalfFumbleInvitation>[];
+                      incomingAsync.valueOrNull ??
+                      const <HalfFumbleInvitation>[];
                   // Fumbled tab: synced + offline unsynced QR fumbles.
                   final fumbledItems = [
                     ..._fumbledConnections(connections),
@@ -270,24 +357,54 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                   // Half Fumble tab: outbound invites + inbound invitations.
                   final halfItems = halfFumbles;
 
-                  final showFumbled = _tab == _ConnectionsTab.fumbled ||
+                  final showFumbled =
+                      _tab == _ConnectionsTab.fumbled ||
                       _tab == _ConnectionsTab.all;
-                  final showHalf = _tab == _ConnectionsTab.halfFumble ||
+                  final showHalf =
+                      _tab == _ConnectionsTab.halfFumble ||
                       _tab == _ConnectionsTab.all;
 
-                  final visibleFumbled =
-                      showFumbled ? fumbledItems : const <Connection>[];
-                  final visibleHalf =
-                      showHalf ? halfItems : const <HalfFumble>[];
-                  final visibleIncoming =
-                      showHalf ? incoming : const <HalfFumbleInvitation>[];
+                  final visibleFumbled = showFumbled
+                      ? fumbledItems
+                      : const <Connection>[];
+                  final visibleHalf = showHalf
+                      ? halfItems
+                      : const <HalfFumble>[];
+                  final visibleIncoming = showHalf
+                      ? incoming
+                      : const <HalfFumbleInvitation>[];
 
-                  if (visibleFumbled.isEmpty &&
-                      visibleHalf.isEmpty &&
-                      visibleIncoming.isEmpty) {
+                  final rows = _buildRows(
+                    visibleFumbled: visibleFumbled,
+                    visibleHalf: visibleHalf,
+                    visibleIncoming: visibleIncoming,
+                    showFumbled: showFumbled,
+                    showHalf: showHalf,
+                  );
+                  _lastTotalRows = rows.length;
+                  final pageCount = _visibleCount > rows.length
+                      ? rows.length
+                      : _visibleCount;
+
+                  if (rows.isEmpty) {
                     if ((halfAsync.isLoading || incomingAsync.isLoading) &&
                         _tab != _ConnectionsTab.fumbled) {
                       return const AppLoader();
+                    }
+                    if (profile != null && _tab == _ConnectionsTab.halfFumble) {
+                      return ListView(
+                        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
+                        children: [
+                          const NoDataFound(
+                            title: AppConstant.connectionsEmptyTitle,
+                            subtitle: AppConstant.connectionsEmptyBody,
+                          ),
+                          16.height,
+                          PrimaryAddSomeoneButton(
+                            onPressed: () => push(AppRoutes.addSomeone),
+                          ),
+                        ],
+                      );
                     }
                     return const NoDataFound(
                       title: AppConstant.connectionsEmptyTitle,
@@ -295,54 +412,89 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                     );
                   }
 
-                  return ListView(
+                  final hasMore = pageCount < rows.length;
+                  final showAddSomeone =
+                      profile != null && _tab == _ConnectionsTab.halfFumble;
+                  final itemCount =
+                      pageCount + (hasMore ? 1 : 0) + (showAddSomeone ? 1 : 0);
+
+                  return ListView.builder(
+                    controller: _scrollController,
                     padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 24.h),
-                    children: [
-                      if (showHalf) ...[
-                        for (final invite in visibleIncoming) ...[
-                          IncomingInvitationTile(
-                            invitation: invite,
-                            isBusy: _busyInviteId == invite.id,
-                            onTap: () => _openIncoming(invite),
-                            onAccept: () => _acceptIncoming(invite),
-                            onCancel: () => _declineIncoming(invite),
-                          ),
-                          12.height,
-                        ],
-                        for (final item in visibleHalf) ...[
-                          HalfFumbleTile(
-                            halfFumble: item,
-                            onResend: () => _resend(item),
-                            onCancel: () => _cancel(item),
-                          ),
-                          12.height,
-                        ],
-                      ],
-                      if (showFumbled) ...[
-                        for (final connection in visibleFumbled) ...[
-                          ConnectionTile(
-                            connection: connection,
-                            ownerUid: ownerUid,
-                            onTap: () => ConnectionActions.openDetail(
-                              connection.peerUid,
+                    itemCount: itemCount,
+                    itemBuilder: (context, index) {
+                      if (index < pageCount) {
+                        final row = rows[index];
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 12.h),
+                          child: switch (row) {
+                            _IncomingRow(:final invite) =>
+                              IncomingInvitationTile(
+                                invitation: invite,
+                                isBusy: _busyInviteId == invite.id,
+                                onTap: () => _openIncoming(invite),
+                                onAccept: () => _acceptIncoming(invite),
+                                onCancel: () => _declineIncoming(invite),
+                              ),
+                            _HalfRow(:final half) => HalfFumbleTile(
+                              halfFumble: half,
+                              onResend: () => _resend(half),
+                              onCancel: () => _cancel(half),
                             ),
-                            onDeleteTap: () => ConnectionActions.confirmRemove(
-                              context: context,
-                              ref: ref,
+                            _FumbledRow(:final connection) => ConnectionTile(
                               connection: connection,
+                              ownerUid: ownerUid,
+                              onTap: () => ConnectionActions.openDetail(
+                                connection.peerUid,
+                              ),
+                              onDeleteTap: () =>
+                                  ConnectionActions.confirmRemove(
+                                    context: context,
+                                    ref: ref,
+                                    connection: connection,
+                                  ),
+                            ),
+                          },
+                        );
+                      }
+
+                      var cursor = pageCount;
+                      if (hasMore && index == cursor) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          if (_visibleCount >= _lastTotalRows) return;
+                          setState(() {
+                            _visibleCount = (_visibleCount + _pageSize).clamp(
+                              0,
+                              _lastTotalRows,
+                            );
+                          });
+                        });
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
+                          child: const Center(
+                            child: SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.gold,
+                              ),
                             ),
                           ),
-                          12.height,
-                        ],
-                      ],
-                      if (profile != null &&
-                          _tab == _ConnectionsTab.halfFumble) ...[
-                        8.height,
-                        PrimaryAddSomeoneButton(
-                          onPressed: () => push(AppRoutes.addSomeone),
-                        ),
-                      ],
-                    ],
+                        );
+                      }
+                      if (hasMore) cursor += 1;
+                      if (showAddSomeone && index == cursor) {
+                        return Padding(
+                          padding: EdgeInsets.only(top: 8.h),
+                          child: PrimaryAddSomeoneButton(
+                            onPressed: () => push(AppRoutes.addSomeone),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   );
                 },
               ),
@@ -384,10 +536,7 @@ class PrimaryAddSomeoneButton extends StatelessWidget {
 }
 
 class _ConnectionsTabs extends StatelessWidget {
-  const _ConnectionsTabs({
-    required this.selected,
-    required this.onChanged,
-  });
+  const _ConnectionsTabs({required this.selected, required this.onChanged});
 
   final _ConnectionsTab selected;
   final ValueChanged<_ConnectionsTab> onChanged;
@@ -441,11 +590,7 @@ class _ConnectionsTabs extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          height: 1,
-          width: double.infinity,
-          color: AppColors.border,
-        ),
+        Container(height: 1, width: double.infinity, color: AppColors.border),
       ],
     );
   }

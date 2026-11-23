@@ -45,28 +45,42 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = buttonColor ?? (filled ? AppColors.gold : AppColors.clear);
-    final border =
-        borderColor ??
+    final enabledBg = buttonColor ?? (filled ? AppColors.gold : AppColors.clear);
+    final enabledBorder = borderColor ??
         (filled ? (buttonColor ?? AppColors.gold) : AppColors.border);
-    final fg =
+    final enabledFg =
         buttonTextColor ?? (filled ? AppColors.background : AppColors.white);
+    final disabledBg = AppColors.surfaceElevated;
+    final disabledFg = AppColors.softGrayDim;
+    final disabledBorder = AppColors.border;
     final br = borderRadiusCircular(radius);
+    final fg = _enabled ? enabledFg : disabledFg;
 
     return SizedBox(
       width: _effectiveWidth,
       height: _effectiveHeight,
       child: ElevatedButton(
         onPressed: _enabled ? onPressed : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: filled || buttonColor != null
-              ? bg
-              : AppColors.white.withValues(alpha: 0.06),
-          foregroundColor: fg,
-          disabledBackgroundColor: AppColors.goldMuted,
-          elevation: 0,
-          side: BorderSide(color: border),
-          shape: RoundedRectangleBorder(borderRadius: br),
+        style: ButtonStyle(
+          elevation: const WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) return disabledBg;
+            if (filled || buttonColor != null) return enabledBg;
+            return AppColors.white.withValues(alpha: 0.06);
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) return disabledFg;
+            return enabledFg;
+          }),
+          side: WidgetStateProperty.resolveWith((states) {
+            final color = states.contains(WidgetState.disabled)
+                ? disabledBorder
+                : enabledBorder;
+            return BorderSide(color: color);
+          }),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: br),
+          ),
         ),
         child: isLoading
             ? SizedBox(

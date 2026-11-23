@@ -318,8 +318,13 @@ abstract final class AppConstant {
   static const String logoutConfirm = 'Log out of Fumble?';
 
   static const String nameRequired = 'Please enter your name';
+  static const String inviteeNameRequired = 'Please enter their full name';
   static const String emailRequired = 'Please enter your email';
+  static const String inviteeEmailRequired =
+      'Please enter their email address';
   static const String emailInvalid = 'Enter a valid email';
+  static const String inviteeEmailInvalid =
+      'Enter a valid email address for the invitation';
   static const String passwordRequired = 'Please enter your password';
   static const String confirmPasswordRequired = 'Please confirm your password';
   static const String passwordTooShort =

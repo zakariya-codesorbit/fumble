@@ -50,10 +50,18 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     _phoneCountry = device.countryCode;
     _waDial = device.dialCode;
     _waCountry = device.countryCode;
+    _name.addListener(_onRequiredChanged);
+    _email.addListener(_onRequiredChanged);
+  }
+
+  void _onRequiredChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _name.removeListener(_onRequiredChanged);
+    _email.removeListener(_onRequiredChanged);
     _name.dispose();
     _email.dispose();
     _phone.dispose();
@@ -62,10 +70,13 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     super.dispose();
   }
 
+  bool get _canSubmit {
+    return _name.text.trim().isNotEmpty && _email.text.trim().isNotEmpty;
+  }
+
   String _fullPhone(GlobalKey<PhoneCountryFieldState> key, String dial) {
-    final national = key == _phoneKey
-        ? _phone.text.trim()
-        : _whatsApp.text.trim();
+    final national =
+        key == _phoneKey ? _phone.text.trim() : _whatsApp.text.trim();
     if (national.isEmpty) return '';
     return key.currentState?.fullNumber ??
         PhoneCountryField.formatFull(dialCode: dial, national: national);
@@ -78,8 +89,48 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     return FumbleLocationService.placeLabel(coords);
   }
 
+  static bool _isValidInviteEmail(String email) {
+    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
+  }
+
+  bool _validateBeforeSubmit() {
+    final name = _name.text.trim();
+    final email = _email.text.trim();
+
+    if (name.isEmpty) {
+      showAppToast(AppConstant.inviteeNameRequired, isError: true);
+      return false;
+    }
+    if (email.isEmpty) {
+      showAppToast(AppConstant.inviteeEmailRequired, isError: true);
+      return false;
+    }
+    if (!_isValidInviteEmail(email)) {
+      showAppToast(AppConstant.inviteeEmailInvalid, isError: true);
+      return false;
+    }
+
+    final phoneNational = _phone.text.trim();
+    if (phoneNational.isNotEmpty &&
+        !PhoneCountryField.isValidNational(phoneNational)) {
+      showAppToast(AppConstant.phoneInvalid, isError: true);
+      return false;
+    }
+
+    final waNational = _whatsApp.text.trim();
+    if (waNational.isNotEmpty &&
+        !PhoneCountryField.isValidNational(waNational)) {
+      showAppToast(AppConstant.phoneInvalid, isError: true);
+      return false;
+    }
+
+    return true;
+  }
+
   Future<void> _submit() async {
     if (_saving) return;
+    if (!_validateBeforeSubmit()) return;
+
     final profile = ref.read(currentUserProfileProvider).valueOrNull;
     if (profile == null) {
       showAppToast(AppConstant.authPleaseLogIn, isError: true);
@@ -91,18 +142,17 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     var dialogOpen = true;
     try {
       final meetingLocation = await _currentMeetingLocation();
-      final result = await ref
-          .read(halfFumbleRepositoryProvider)
-          .createAndInvite(
-            inviter: profile,
-            name: _name.text,
-            email: _email.text,
-            phone: _fullPhone(_phoneKey, _phoneDial),
-            whatsApp: _fullPhone(_whatsAppKey, _waDial),
-            meetingLocation: meetingLocation,
-            meetingDate: DateTime.now(),
-            personalNote: _note.text,
-          );
+      final result =
+          await ref.read(halfFumbleRepositoryProvider).createAndInvite(
+                inviter: profile,
+                name: _name.text,
+                email: _email.text,
+                phone: _fullPhone(_phoneKey, _phoneDial),
+                whatsApp: _fullPhone(_whatsAppKey, _waDial),
+                meetingLocation: meetingLocation,
+                meetingDate: DateTime.now(),
+                personalNote: _note.text,
+              );
 
       // Dismiss before the system share sheet so we don't pop this screen later.
       hideLoadingDialog();
@@ -135,6 +185,8 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final canFumble = _canSubmit && !_saving;
+
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
         appBar: AppAppBar(
@@ -225,7 +277,7 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                       PrimaryButton(
                         buttonName: AppConstant.halfFumbleCta,
                         radius: AppStyle.radiusMd,
-                        onPressed: _saving ? null : _submit,
+                        onPressed: canFumble ? _submit : null,
                       ),
                     ],
                   ),

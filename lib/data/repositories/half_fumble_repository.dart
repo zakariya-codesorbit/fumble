@@ -79,14 +79,20 @@ class HalfFumbleRepository {
   Future<List<HalfFumbleInvitation>> pendingInvitationsForEmail(
     String normalizedEmail,
   ) async {
-    final snap = await _invitations
+    final query = _invitations
         .where('normalizedEmail', isEqualTo: normalizedEmail)
         .where('status', whereIn: [
           HalfFumbleStatus.invitationSent.firestoreValue,
           HalfFumbleStatus.pendingAcceptance.firestoreValue,
         ])
-        .limit(20)
-        .get();
+        .limit(20);
+    // Prefer server so invites appear after relaunch / accept without stale cache.
+    QuerySnapshot<Map<String, dynamic>> snap;
+    try {
+      snap = await query.get(const GetOptions(source: Source.server));
+    } catch (_) {
+      snap = await query.get();
+    }
     return snap.docs
         .map((d) => HalfFumbleInvitation.fromMap(d.id, d.data()))
         .where((i) => i.canAccept)
