@@ -43,10 +43,9 @@ class InviteLinkService {
   Future<({String invitationId, String token})?> loadPendingInvite() async {
     final prefs = await SharedPreferences.getInstance();
     final id = prefs.getString(_prefsInvitationId);
-    final token = prefs.getString(_prefsToken);
-    if (id == null || id.isEmpty || token == null || token.isEmpty) {
-      return null;
-    }
+    if (id == null || id.isEmpty) return null;
+    // Token may be empty when deferred from verified-email recovery.
+    final token = prefs.getString(_prefsToken) ?? '';
     return (invitationId: id, token: token);
   }
 

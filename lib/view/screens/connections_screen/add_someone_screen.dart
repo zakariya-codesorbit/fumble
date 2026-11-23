@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,15 +12,11 @@ import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_group_card.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
-import 'package:fumble/view/widgets/dialogs/photo_permission_popup.dart';
-import 'package:fumble/view/widgets/dialogs/photo_source_sheet.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
-import 'package:fumble/view/widgets/layout/profile_avatar.dart';
-import 'package:fumble/services/storage/profile_photo_service.dart';
 
 class AddSomeoneScreen extends ConsumerStatefulWidget {
   const AddSomeoneScreen({super.key});
@@ -45,7 +39,6 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
   late String _waDial;
   late String _waCountry;
 
-  File? _localPhoto;
   var _saving = false;
 
   @override
@@ -69,51 +62,11 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
   }
 
   String _fullPhone(GlobalKey<PhoneCountryFieldState> key, String dial) {
-    final national = key == _phoneKey ? _phone.text.trim() : _whatsApp.text.trim();
+    final national =
+        key == _phoneKey ? _phone.text.trim() : _whatsApp.text.trim();
     if (national.isEmpty) return '';
     return key.currentState?.fullNumber ??
         PhoneCountryField.formatFull(dialCode: dial, national: national);
-  }
-
-  Future<void> _pickPhoto() async {
-    final choice = await showPhotoSourceSheet(
-      context,
-      showRemove: _localPhoto != null,
-    );
-    if (choice == null || !mounted) return;
-
-    if (choice == PhotoSourceChoice.remove) {
-      setState(() => _localPhoto = null);
-      return;
-    }
-    if (choice == PhotoSourceChoice.avatar) return;
-
-    final fromCamera = choice == PhotoSourceChoice.camera;
-    if (!await ensurePhotoSourcePermission(context, camera: fromCamera)) {
-      return;
-    }
-    if (!mounted) return;
-
-    final photos = ref.read(profilePhotoServiceProvider);
-    try {
-      final file = fromCamera
-          ? await photos.pickFromCamera()
-          : await photos.pickFromGallery();
-      if (!mounted || file == null) return;
-      setState(() => _localPhoto = file);
-    } catch (e) {
-      if (!mounted) return;
-      if (isPhotoPermissionError(e)) {
-        await showPhotoPermissionPopup(context, camera: fromCamera);
-        return;
-      }
-      if (e is PhotoTooLargeException) {
-        showAppToast(AppConstant.photoTooLarge, isError: true);
-        return;
-      }
-      debugPrint('[AddSomeone] photo pick failed: $e');
-      showAppToast(AppConstant.photoUploadFailed, isError: true);
-    }
   }
 
   Future<String?> _currentMeetingLocation() async {
@@ -134,17 +87,17 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
     setState(() => _saving = true);
     try {
       final meetingLocation = await _currentMeetingLocation();
-      final result = await ref.read(halfFumbleRepositoryProvider).createAndInvite(
-            inviter: profile,
-            name: _name.text,
-            email: _email.text,
-            phone: _fullPhone(_phoneKey, _phoneDial),
-            whatsApp: _fullPhone(_whatsAppKey, _waDial),
-            meetingLocation: meetingLocation,
-            meetingDate: DateTime.now(),
-            personalNote: _note.text,
-            localPhoto: _localPhoto,
-          );
+      final result =
+          await ref.read(halfFumbleRepositoryProvider).createAndInvite(
+                inviter: profile,
+                name: _name.text,
+                email: _email.text,
+                phone: _fullPhone(_phoneKey, _phoneDial),
+                whatsApp: _fullPhone(_whatsAppKey, _waDial),
+                meetingLocation: meetingLocation,
+                meetingDate: DateTime.now(),
+                personalNote: _note.text,
+              );
 
       await SharePlus.instance.share(
         ShareParams(
@@ -189,22 +142,6 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: ProfileAvatar(
-                      localFile: _localPhoto,
-                      name: _name.text,
-                      size: 100,
-                      onTap: _saving ? null : _pickPhoto,
-                    ),
-                  ),
-                  8.height,
-                  Center(
-                    child: AppConstant.profilePhotoLabel.toText(
-                      fontSize: 12,
-                      color: AppColors.softGray,
-                    ),
-                  ),
-                  20.height,
                   _field(
                     AppConstant.fullNameLabel,
                     _EditBox(
@@ -233,7 +170,8 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                       initialCountryCode: _phoneCountry,
                       showLabel: false,
                       onCountryChanged: () {
-                        _phoneDial = _phoneKey.currentState?.dialCode ?? _phoneDial;
+                        _phoneDial =
+                            _phoneKey.currentState?.dialCode ?? _phoneDial;
                       },
                     ),
                   ),
@@ -247,7 +185,8 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                       initialCountryCode: _waCountry,
                       showLabel: false,
                       onCountryChanged: () {
-                        _waDial = _whatsAppKey.currentState?.dialCode ?? _waDial;
+                        _waDial =
+                            _whatsAppKey.currentState?.dialCode ?? _waDial;
                       },
                     ),
                   ),
@@ -263,7 +202,7 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                   ),
                   24.height,
                   PrimaryButton(
-                    buttonName: AppConstant.sendInvitation,
+                    buttonName: AppConstant.halfFumbleCta,
                     isLoading: _saving,
                     radius: AppStyle.radiusMd,
                     onPressed: _saving ? null : _submit,
@@ -333,7 +272,8 @@ class _EditBox extends StatelessWidget {
         ),
         filled: true,
         fillColor: AppColors.background,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: AppColors.border),

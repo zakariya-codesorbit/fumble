@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/half_fumble.dart';
+import 'package:fumble/data/models/public_fumble_profile.dart';
 import 'package:fumble/data/repositories/half_fumble_repository.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
-import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_group_card.dart';
+import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_moment_card.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -16,7 +18,7 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
-import 'package:fumble/view/widgets/layout/profile_avatar.dart';
+import 'package:fumble/view/widgets/profile/profile_card.dart';
 
 class InvitationAcceptArgs {
   const InvitationAcceptArgs({
@@ -48,6 +50,7 @@ class InvitationAcceptScreen extends ConsumerStatefulWidget {
 class _InvitationAcceptScreenState
     extends ConsumerState<InvitationAcceptScreen> {
   HalfFumbleInvitation? _invitation;
+  PublicFumbleProfile? _publicInviter;
   String? _error;
   var _loading = true;
   var _busy = false;
@@ -105,12 +108,17 @@ class _InvitationAcceptScreenState
         return;
       }
 
+      final publicInviter = await ref
+          .read(fumbleCodeRepositoryProvider)
+          .loadPublicProfile(invite.inviterUserId);
+
       await ref
           .read(halfFumbleRepositoryProvider)
           .markPendingAcceptance(widget.invitationId);
       if (!mounted) return;
       setState(() {
         _invitation = invite;
+        _publicInviter = publicInviter;
         _loading = false;
       });
     } catch (_) {
@@ -143,6 +151,9 @@ class _InvitationAcceptScreenState
                 : widget.token,
           );
       await ref.read(inviteLinkServiceProvider).clearPendingInvite();
+      ref.invalidate(incomingInvitationsProvider);
+      ref.invalidate(halfFumblesProvider);
+      ref.invalidate(connectionsProvider);
       if (!mounted) return;
       showAppToast(AppConstant.halfFumbleAccepted);
       pop();
@@ -168,6 +179,7 @@ class _InvitationAcceptScreenState
                 : widget.token,
           );
       await ref.read(inviteLinkServiceProvider).clearPendingInvite();
+      ref.invalidate(incomingInvitationsProvider);
       if (!mounted) return;
       showAppToast(AppConstant.halfFumbleDeclined);
       pop();
@@ -183,11 +195,22 @@ class _InvitationAcceptScreenState
   @override
   Widget build(BuildContext context) {
     final invite = _invitation;
+    final public = _publicInviter;
+    final name = public?.name.trim().isNotEmpty == true
+        ? public!.name.trim()
+        : (invite?.inviterName ?? '');
+    final moment = invite?.meetingDate ?? invite?.createdAt ?? DateTime.now();
+    final dateLabel = DateFormat('d MMMM yyyy').format(moment);
+    final timeLabel = DateFormat('HH:mm').format(moment);
+    final place = invite?.meetingLocation?.trim();
+    final locationLabel =
+        (place != null && place.isNotEmpty) ? place : AppConstant.fumbleLocationNotSet;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
         appBar: AppAppBar(
-          title: AppConstant.halfFumbleStatusLabel,
+          title: AppConstant.brand,
+          brandTitle: true,
           showBack: true,
           onBack: _busy ? null : pop,
         ),
@@ -226,54 +249,74 @@ class _InvitationAcceptScreenState
                       ),
                     ),
                   )
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-                    child: MyFumbleGroupCard(
-                      child: Column(
-                        children: [
-                          ProfileAvatar(
-                            photoUrl: invite?.inviterPhotoUrl,
-                            name: invite?.inviterName ?? '',
-                            size: 96,
+                : Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            children: [
+                              ProfileCardHeader(
+                                name: name,
+                                eyebrow:
+                                    AppConstant.halfFumbleStatusLabel.toUpperCase(),
+                                photoUrl: public?.photoUrl ??
+                                    invite?.inviterPhotoUrl,
+                                bio: public?.bio,
+                                phone: public?.sharePhone == true
+                                    ? public?.phone
+                                    : null,
+                                hideBioWhenEmpty: true,
+                                showEmail: false,
+                                showContact: true,
+                                showActions: public?.phone?.trim().isNotEmpty ==
+                                    true,
+                                emptyPhoneLabel: 'No phone number',
+                                topSpacing: 8,
+                              ),
+                              24.height,
+                              FumblePreviewMomentCard(
+                                dateLabel: dateLabel,
+                                timeLabel: timeLabel,
+                                locationLabel: locationLabel,
+                                locationPlaceholder:
+                                    place == null || place.isEmpty,
+                              ),
+                              if (invite?.personalNote?.trim().isNotEmpty ==
+                                  true) ...[
+                                16.height,
+                                invite!.personalNote!.toText(
+                                  fontSize: 14,
+                                  color: AppColors.tertiaryText,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                              40.height,
+                            ],
                           ),
-                          16.height,
-                          (invite?.inviterName ?? '').toText(
-                            fontSize: 24,
-                            fontWeight: AppStyle.w700,
-                            textAlign: TextAlign.center,
-                          ),
-                          8.height,
-                          'wants to connect with you on Fumble'.toText(
-                            fontSize: 14,
-                            color: AppColors.softGray,
-                            textAlign: TextAlign.center,
-                          ),
-                          if (invite?.personalNote?.trim().isNotEmpty ==
-                              true) ...[
-                            16.height,
-                            invite!.personalNote!.toText(
-                              fontSize: 14,
-                              color: AppColors.tertiaryText,
-                              textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(24, 8, 24, 24.h),
+                        child: Column(
+                          children: [
+                            PrimaryButton(
+                              buttonName: AppConstant.acceptFumble,
+                              isLoading: _busy,
+                              radius: AppStyle.radiusMd,
+                              onPressed: _busy ? null : _accept,
+                            ),
+                            12.height,
+                            PrimaryButton(
+                              buttonName: AppConstant.cancel,
+                              filled: false,
+                              radius: AppStyle.radiusMd,
+                              onPressed: _busy ? null : _decline,
                             ),
                           ],
-                          28.height,
-                          PrimaryButton(
-                            buttonName: AppConstant.acceptConnection,
-                            isLoading: _busy,
-                            radius: AppStyle.radiusMd,
-                            onPressed: _busy ? null : _accept,
-                          ),
-                          12.height,
-                          PrimaryButton(
-                            buttonName: AppConstant.declineInvitation,
-                            filled: false,
-                            radius: AppStyle.radiusMd,
-                            onPressed: _busy ? null : _decline,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
       ),
     );

@@ -145,10 +145,16 @@ abstract final class AppConstant {
       'Fumble someone to save the moment here.';
   static const String addSomeone = 'Add Someone';
   static const String sendInvitation = 'Send Invitation';
+  static const String halfFumbleCta = 'Fumble';
   static const String resendInvitation = 'Resend Invitation';
+  static const String resendFumble = 'Resend Fumble';
   static const String cancelInvitation = 'Cancel Invitation';
+  static const String cancelFumble = 'Cancel Fumble';
   static const String acceptConnection = 'Accept Connection';
+  static const String acceptFumble = 'Accept Fumble';
   static const String declineInvitation = 'Decline';
+  static const String halfFumbleWantToFumbleYou =
+      'Want to fumble you, review and accept.';
   static const String halfFumbleStatusLabel = 'Half Fumble';
   static const String invitationSentLabel = 'Invitation sent';
   static const String pendingAcceptanceLabel = 'Pending acceptance';
@@ -206,12 +212,12 @@ abstract final class AppConstant {
       'memories together.\n\n'
       '1) Download Fumble (if you don\'t have it):\n$storeUrl\n\n'
       '2) Sign up with this email (required): $invitedEmail\n\n'
-      '3) Verify your email, then log in — your invitation will appear in Connections.\n\n'
+      '3) Verify your email, then log in — open Connections → Half Fumble to review invitations.\n\n'
       'Already have Fumble? Open this link:\n$appLink';
 
   static const String halfFumblePendingInviteTitle = 'Fumble invitation';
   static const String halfFumblePendingInviteBody =
-      'Someone invited you on Fumble. Review and accept to connect.';
+      'Want to fumble you, review and accept.';
   static const String metAtPrefix = 'Met at';
   static String metAt(String place) => '$metAtPrefix $place';
   /// Placeholder subtitle on connection tiles until place copy is finalized.

@@ -13,11 +13,13 @@ class IncomingInvitationTile extends StatelessWidget {
   const IncomingInvitationTile({
     super.key,
     required this.invitation,
-    this.onTap,
+    this.onAccept,
+    this.onCancel,
   });
 
   final HalfFumbleInvitation invitation;
-  final VoidCallback? onTap;
+  final VoidCallback? onAccept;
+  final VoidCallback? onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class IncomingInvitationTile extends StatelessWidget {
       color: AppColors.navBar,
       borderRadius: BorderRadius.circular(15),
       child: InkWell(
-        onTap: onTap,
+        onTap: onAccept,
         borderRadius: BorderRadius.circular(15),
         child: Container(
           width: double.infinity,
@@ -34,38 +36,79 @@ class IncomingInvitationTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: AppColors.gold.withValues(alpha: 0.45)),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProfileAvatar(
-                photoUrl: invitation.inviterPhotoUrl,
-                name: invitation.inviterName,
-                size: 48,
-              ),
-              12.width,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    invitation.inviterName.toText(
-                      fontSize: 16,
-                      fontWeight: AppStyle.w600,
-                      color: AppColors.white,
+              Row(
+                children: [
+                  ProfileAvatar(
+                    photoUrl: invitation.inviterPhotoUrl,
+                    name: invitation.inviterName,
+                    size: 48,
+                  ),
+                  12.width,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        invitation.inviterName.toText(
+                          fontSize: 16,
+                          fontWeight: AppStyle.w600,
+                          color: AppColors.white,
+                          maxLine: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        4.height,
+                        AppConstant.halfFumbleWantToFumbleYou.toText(
+                          fontSize: 13,
+                          color: AppColors.softGray,
+                          maxLine: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    4.height,
-                    AppConstant.halfFumblePendingInviteBody.toText(
-                      fontSize: 13,
-                      color: AppColors.softGray,
-                      maxLine: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              8.width,
-              AppConstant.acceptConnection.toText(
-                fontSize: 12,
-                fontWeight: AppStyle.w600,
-                color: AppColors.gold,
+              12.height,
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onAccept,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.gold,
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: AppConstant.acceptFumble.toText(
+                        fontSize: 12,
+                        fontWeight: AppStyle.w600,
+                        color: AppColors.gold,
+                      ),
+                    ),
+                  ),
+                  8.width,
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onCancel,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.error,
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: AppConstant.cancel.toText(
+                        fontSize: 12,
+                        fontWeight: AppStyle.w600,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

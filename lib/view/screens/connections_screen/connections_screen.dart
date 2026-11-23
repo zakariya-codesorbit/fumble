@@ -105,6 +105,24 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
     );
   }
 
+  Future<void> _declineIncoming(HalfFumbleInvitation invite) async {
+    final profile = ref.read(currentUserProfileProvider).valueOrNull;
+    if (profile == null) return;
+    try {
+      await ref.read(halfFumbleRepositoryProvider).declineInvitation(
+            acceptor: profile,
+            invitationId: invite.id,
+          );
+      ref.invalidate(incomingInvitationsProvider);
+      ref.invalidate(halfFumblesProvider);
+      showAppToast(AppConstant.halfFumbleDeclined);
+    } on HalfFumbleException catch (e) {
+      showAppToast(e.message, isError: true);
+    } catch (_) {
+      showAppToast(AppConstant.somethingWrong, isError: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final connectionsAsync = ref.watch(connectionsProvider);
@@ -230,7 +248,8 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen> {
                         for (final invite in visibleIncoming) ...[
                           IncomingInvitationTile(
                             invitation: invite,
-                            onTap: () => _openIncoming(invite),
+                            onAccept: () => _openIncoming(invite),
+                            onCancel: () => _declineIncoming(invite),
                           ),
                           12.height,
                         ],

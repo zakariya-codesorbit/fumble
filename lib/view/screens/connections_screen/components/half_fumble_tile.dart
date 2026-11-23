@@ -23,10 +23,10 @@ class HalfFumbleTile extends StatelessWidget {
   final VoidCallback? onResend;
   final VoidCallback? onCancel;
 
-  String get _statusText {
+  String? get _statusText {
     switch (halfFumble.status) {
       case HalfFumbleStatus.invitationSent:
-        return AppConstant.invitationSentLabel;
+        return null;
       case HalfFumbleStatus.pendingAcceptance:
         return AppConstant.pendingAcceptanceLabel;
       case HalfFumbleStatus.declined:
@@ -94,24 +94,25 @@ class HalfFumbleTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(99),
-                      border: Border.all(
-                        color: AppColors.goldMuted.withValues(alpha: 0.5),
+                  if (_statusText != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(99),
+                        border: Border.all(
+                          color: AppColors.goldMuted.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: _statusText!.toText(
+                        fontSize: 10,
+                        fontWeight: AppStyle.w600,
+                        color: AppColors.gold,
+                        letterSpacing: 0.4,
                       ),
                     ),
-                    child: _statusText.toText(
-                      fontSize: 10,
-                      fontWeight: AppStyle.w600,
-                      color: AppColors.gold,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
                 ],
               ),
               if (meeting != null || (place != null && place.isNotEmpty)) ...[
@@ -139,7 +140,7 @@ class HalfFumbleTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: AppConstant.resendInvitation.toText(
+                          child: AppConstant.resendFumble.toText(
                             fontSize: 12,
                             fontWeight: AppStyle.w600,
                             color: AppColors.gold,
@@ -160,7 +161,7 @@ class HalfFumbleTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: AppConstant.cancelInvitation.toText(
+                          child: AppConstant.cancelFumble.toText(
                             fontSize: 12,
                             fontWeight: AppStyle.w600,
                             color: AppColors.error,

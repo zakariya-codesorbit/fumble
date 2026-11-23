@@ -49,8 +49,7 @@ class HalfFumbleRepository {
         .map((snap) {
       return snap.docs
           .map((doc) => HalfFumble.fromMap(doc.id, doc.data()))
-          .where((h) => h.status != HalfFumbleStatus.fumbled)
-          .where((h) => h.status != HalfFumbleStatus.revoked)
+          .where((h) => h.status.isActive)
           .toList();
     });
   }
@@ -127,12 +126,6 @@ class HalfFumbleRepository {
     }
     if (!_isValidEmail(normalized)) {
       throw HalfFumbleException(AppConstant.emailInvalid);
-    }
-    if (phone.trim().isEmpty) {
-      throw HalfFumbleException(AppConstant.phoneRequired);
-    }
-    if (whatsApp.trim().isEmpty) {
-      throw HalfFumbleException(AppConstant.whatsAppRequired);
     }
     if (normalized == HalfFumble.normalizeEmail(inviter.email)) {
       throw HalfFumbleException(AppConstant.halfFumbleCannotInviteSelf);
