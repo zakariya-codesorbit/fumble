@@ -7,12 +7,15 @@ import '../../data/db/connection_local_store.dart';
 import '../../data/db/local_prefs.dart';
 import '../../data/db/pending_fumble_local_store.dart';
 import '../../data/models/connection.dart';
+import '../../data/models/half_fumble.dart';
 import '../../data/models/user_profile.dart';
 import '../../data/repositories/connection_repository.dart';
 import '../../data/repositories/fumble_code_repository.dart';
+import '../../data/repositories/half_fumble_repository.dart';
 import '../../data/repositories/user_repository.dart';
 import '../../services/auth/auth_service.dart';
 import '../../services/fumble/fumble_service.dart';
+import '../../services/half_fumble/invite_link_service.dart';
 import '../../services/offline/connection_sync.dart';
 import '../../services/offline/offline_fumble_queue.dart';
 import '../../services/speech/voice_memory_service.dart';
@@ -124,4 +127,33 @@ final connectionsProvider = StreamProvider<List<Connection>>((ref) {
   final auth = ref.watch(authStateProvider).valueOrNull;
   if (auth == null) return Stream<List<Connection>>.value(const []);
   return ref.watch(connectionRepositoryProvider).watchConnections(auth.uid);
+});
+
+final halfFumbleRepositoryProvider = Provider<HalfFumbleRepository>((ref) {
+  return HalfFumbleRepository();
+});
+
+final inviteLinkServiceProvider = Provider<InviteLinkService>((ref) {
+  return InviteLinkService();
+});
+
+final halfFumblesProvider = StreamProvider<List<HalfFumble>>((ref) {
+  final auth = ref.watch(authStateProvider).valueOrNull;
+  if (auth == null) return Stream<List<HalfFumble>>.value(const []);
+  return ref.watch(halfFumbleRepositoryProvider).watchHalfFumbles(auth.uid);
+});
+
+/// Inbound Half Fumble invitations for the signed-in user's verified email.
+final incomingInvitationsProvider =
+    FutureProvider.autoDispose<List<HalfFumbleInvitation>>((ref) async {
+  final auth = ref.watch(authServiceProvider);
+  final user = auth.currentUser;
+  if (user == null) return const [];
+  await auth.reloadUser();
+  if (!auth.isEmailVerified) return const [];
+  final email = (auth.currentUser?.email ?? '').trim();
+  if (email.isEmpty) return const [];
+  return ref
+      .read(halfFumbleRepositoryProvider)
+      .pendingInvitationsForEmail(HalfFumble.normalizeEmail(email));
 });

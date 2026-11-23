@@ -134,7 +134,8 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         showAppToast(AppConstant.photoTooLarge, isError: true);
         return;
       }
-      showAppToast(AppConstant.somethingWrong, isError: true);
+      debugPrint('[Profile] photo pick failed: $e');
+      showAppToast(AppConstant.photoUploadFailed, isError: true);
     }
   }
 

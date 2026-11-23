@@ -42,14 +42,21 @@ dependencies:
   cached_network_image: ^4.0.7
   share_plus: ^13.3.1
   image_picker: ^1.2.4
-  flutter_image_compress: ^2.5.1
   country_code_picker: ^3.4.1
   pretty_qr_code: ^3.6.0
   encrypt: ^5.0.3
   geolocator: ^14.1.2
   geocoding: ^5.0.1
   speech_to_text: ^7.5.0
-  image_cropper: ^13.0.0
+  crypto: ^3.0.8
+  app_links: ^7.2.2
+
+# path_provider_android 2.3.1 + jni 1.2.0 crashes with:
+# ClassNotFoundException: Landroid/content/Context;
+# (breaks getTemporaryDirectory after camera/gallery returns).
+dependency_overrides:
+  jni: 1.1.2
+  jni_flutter: 1.0.4+1
 
 dev_dependencies:
   flutter_test:

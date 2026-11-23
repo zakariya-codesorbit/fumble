@@ -14,6 +14,24 @@ abstract final class AppUrls {
 
   /// Replace with the published App Store ID when available.
   static const String iosAppId = '0000000000';
+  static String get appStoreUrl =>
+      'https://apps.apple.com/app/id$iosAppId';
   static String get appStoreReviewUrl =>
       'https://apps.apple.com/app/id$iosAppId?action=write-review';
+
+  /// Custom scheme — opens Fumble when already installed (no website).
+  static const String inviteScheme = 'fumble';
+  static const String inviteHost = 'invite';
+
+  /// Both store listings — share text must not assume invitee OS.
+  static String get halfFumbleBothStoresText =>
+      'Android: $playStoreWebUrl\niOS: $appStoreUrl';
+
+  /// Deep link used only when Fumble is already installed.
+  static String halfFumbleAppInviteUrl({
+    required String invitationId,
+    required String token,
+  }) {
+    return '$inviteScheme://$inviteHost/$invitationId?t=$token';
+  }
 }

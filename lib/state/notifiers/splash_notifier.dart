@@ -8,6 +8,7 @@ import 'package:fumble/core/config/app_config.dart';
 import 'package:fumble/core/navigation/app_routes.dart';
 import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/state/notifiers/onboarding_notifier.dart';
+import 'package:fumble/state/providers/service_providers.dart';
 
 class SplashState {
   const SplashState({this.navigated = false});
@@ -42,6 +43,15 @@ class SplashNotifier extends Notifier<SplashState> {
     state = const SplashState(navigated: true);
     await Future<void>.delayed(AppConfig.splashMinDuration);
     if (!authenticated) {
+      pushAndClearAll(AppRoutes.login);
+      return;
+    }
+    final auth = ref.read(authServiceProvider);
+    await auth.reloadUser();
+    if (!auth.isEmailVerified) {
+      try {
+        await auth.logout();
+      } catch (_) {/* ignore */}
       pushAndClearAll(AppRoutes.login);
       return;
     }

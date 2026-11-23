@@ -134,7 +134,8 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
         showAppToast(AppConstant.photoTooLarge, isError: true);
         return;
       }
-      showAppToast(AppConstant.somethingWrong, isError: true);
+      debugPrint('[Onboarding] photo pick failed: $e');
+      showAppToast(AppConstant.photoUploadFailed, isError: true);
     }
   }
 

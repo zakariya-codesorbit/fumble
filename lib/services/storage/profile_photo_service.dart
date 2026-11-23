@@ -3,42 +3,33 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
-import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/app_avatars.dart';
 import 'package:fumble/utils/constant.dart';
 
-/// Thrown when a photo cannot be compressed under the Storage size limit.
+/// Thrown when a photo cannot be kept under the Storage size limit.
 class PhotoTooLargeException implements Exception {
   @override
   String toString() => AppConstant.photoTooLarge;
 }
 
-/// Gallery/camera pick + compress, then upload profile photos/avatars to
-/// Firebase Storage. Firestore only stores the download URL in `photoUrl`.
+/// Gallery/camera pick, then upload profile photos/avatars to Firebase Storage.
+/// Firestore only stores the download URL in `photoUrl`.
 class ProfilePhotoService {
   ProfilePhotoService({
     ImagePicker? picker,
-    ImageCropper? cropper,
     FirebaseStorage? storage,
   })  : _picker = picker ?? ImagePicker(),
-        _cropper = cropper ?? ImageCropper(),
         _storage = storage ?? FirebaseStorage.instance;
 
   final ImagePicker _picker;
-  final ImageCropper _cropper;
   final FirebaseStorage _storage;
 
   /// Must stay in sync with `storage/storage.rules`.
   static const int maxBytes = 2 * 1024 * 1024;
-  static const int _outputSize = 512;
-  static const int _pickMaxDimension = 2048;
-  static const int _minQuality = 40;
+  static const int _pickMaxDimension = 1024;
 
   Future<File?> pickFromGallery() => _pick(ImageSource.gallery);
 
@@ -49,105 +40,22 @@ class ProfilePhotoService {
       source: source,
       maxWidth: _pickMaxDimension.toDouble(),
       maxHeight: _pickMaxDimension.toDouble(),
-      imageQuality: 95,
+      imageQuality: 85,
     );
     if (picked == null) return null;
 
-    // Let the user manually position / zoom / rotate before we compress.
-    final cropped = await _cropManually(picked.path);
-    if (cropped == null) return null;
-
-    return _compressUnderLimit(File(cropped.path));
-  }
-
-  /// Manual circle crop (1:1) so profile photos match avatar size (512×512).
-  Future<CroppedFile?> _cropManually(String sourcePath) {
-    return _cropper.cropImage(
-      sourcePath: sourcePath,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      maxWidth: _outputSize,
-      maxHeight: _outputSize,
-      compressFormat: ImageCompressFormat.jpg,
-      compressQuality: 90,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: AppConstant.cropPhoto,
-          toolbarColor: AppColors.background,
-          toolbarWidgetColor: AppColors.white,
-          backgroundColor: AppColors.background,
-          activeControlsWidgetColor: AppColors.gold,
-          statusBarLight: false,
-          navBarLight: false,
-          initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: true,
-          hideBottomControls: false,
-          showCropGrid: true,
-          cropStyle: CropStyle.circle,
-          aspectRatioPresets: const [CropAspectRatioPreset.square],
-        ),
-        IOSUiSettings(
-          title: AppConstant.cropPhoto,
-          aspectRatioLockEnabled: true,
-          resetAspectRatioEnabled: false,
-          aspectRatioPickerButtonHidden: true,
-          rotateButtonsHidden: false,
-          cropStyle: CropStyle.circle,
-          aspectRatioPresets: const [CropAspectRatioPreset.square],
-        ),
-      ],
+    // Use dart:io temp (not path_provider) — avoids the jni 1.2.0
+    // ClassNotFoundException: Landroid/content/Context; crash on Android.
+    final dest = File(
+      p.join(
+        Directory.systemTemp.path,
+        'avatar_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      ),
     );
-  }
-
-  /// Compresses until the file is ≤ [maxBytes], or throws [PhotoTooLargeException].
-  Future<File> _compressUnderLimit(File input) async {
-    var quality = 85;
-    var dimension = _outputSize;
-    File? best;
-
-    while (quality >= _minQuality) {
-      final compressed = await _compressOnce(
-        input,
-        quality: quality,
-        dimension: dimension,
-      );
-      if (compressed != null) {
-        best = compressed;
-        if (await compressed.length() <= maxBytes) return compressed;
-      }
-
-      quality -= 15;
-      if (quality < 55 && dimension > 384) {
-        dimension = 384;
-      } else if (quality < 45 && dimension > 256) {
-        dimension = 256;
-      }
-    }
-
-    if (best != null && await best.length() <= maxBytes) return best;
-    throw PhotoTooLargeException();
-  }
-
-  Future<File?> _compressOnce(
-    File input, {
-    required int quality,
-    required int dimension,
-  }) async {
-    final dir = await getTemporaryDirectory();
-    final target = p.join(
-      dir.path,
-      'avatar_${DateTime.now().millisecondsSinceEpoch}_q$quality.jpg',
-    );
-
-    final result = await FlutterImageCompress.compressAndGetFile(
-      input.absolute.path,
-      target,
-      quality: quality,
-      minWidth: dimension,
-      minHeight: dimension,
-      format: CompressFormat.jpeg,
-    );
-    if (result == null) return null;
-    return File(result.path);
+    final bytes = await picked.readAsBytes();
+    await dest.writeAsBytes(bytes, flush: true);
+    await _ensureUnderLimit(dest);
+    return dest;
   }
 
   Future<void> _ensureUnderLimit(File file) async {

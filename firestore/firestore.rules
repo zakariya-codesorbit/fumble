@@ -1,12 +1,22 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() { 
+    function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(uid) {
       return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function authEmail() {
+      return isSignedIn() && request.auth.token.email is string
+        ? request.auth.token.email.lower()
+        : '';
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
     }
 
     function isValidConnectionPayload(peerId) {
@@ -55,10 +65,23 @@ service cloud.firestore {
 
         allow delete: if isOwner(userId) || request.auth.uid == peerId;
       }
+
+      match /halfFumbles/{halfId} {
+        // Owner can list/query their own half-fumbles (incl. by email).
+        allow get, list, create, delete: if isOwner(userId);
+
+        allow update: if isOwner(userId);
+
+        // Invitee may finalize conversion onto the inviter's half-fumble doc.
+        allow update: if isSignedIn()
+          && isEmailVerified()
+          && request.resource.data.connectedUserId == request.auth.uid
+          && request.resource.data.status == 'fumbled'
+          && resource.data.normalizedEmail == authEmail();
+      }
     }
 
     // Public fumble identity cards used for QR resolve.
-    // Authenticated users can read cards; only the card owner can write.
     match /fumbleCodes/{code} {
       allow read: if isSignedIn();
 
@@ -72,6 +95,37 @@ service cloud.firestore {
 
       allow delete: if isSignedIn()
         && resource.data.uid == request.auth.uid;
+    }
+
+    // Half Fumble invitations — token hash never grants access alone.
+    match /invitations/{invitationId} {
+      allow create: if isSignedIn()
+        && request.resource.data.inviterUserId == request.auth.uid
+        && request.resource.data.normalizedEmail is string
+        && request.resource.data.tokenHash is string
+        && request.resource.data.halfFumbleId is string;
+
+      // Invitee may see/act only after verifying ownership of invited email.
+      allow read: if isSignedIn() && (
+        resource.data.inviterUserId == request.auth.uid ||
+        (isEmailVerified() && resource.data.normalizedEmail == authEmail())
+      );
+
+      allow update: if isSignedIn() && (
+        resource.data.inviterUserId == request.auth.uid ||
+        (
+          isEmailVerified()
+          && resource.data.normalizedEmail == authEmail()
+          && (
+            request.resource.data.status == 'pendingAcceptance' ||
+            request.resource.data.status == 'declined' ||
+            (
+              request.resource.data.status == 'fumbled'
+              && request.resource.data.acceptedByUserId == request.auth.uid
+            )
+          )
+        )
+      );
     }
   }
 }

@@ -4,7 +4,8 @@ export '../notifiers/auth_notifier.dart'
         AuthNotifier,
         AuthUiState,
         AuthToast,
-        AuthNavigation;
+        AuthNavigation,
+        AuthDialog;
 export '../notifiers/onboarding_notifier.dart'
     show onboardingNotifierProvider, OnboardingNotifier, OnboardingState;
 export '../notifiers/fumble_notifier.dart'

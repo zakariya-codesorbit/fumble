@@ -6,8 +6,10 @@ import 'package:fumble/view/screens/auth_screen/login_screen.dart';
 import 'package:fumble/view/screens/auth_screen/signup_screen.dart';
 import 'package:fumble/view/screens/onboarding_screen/phone_number_screen.dart';
 import 'package:fumble/view/screens/onboarding_screen/upload_photo_screen.dart';
+import 'package:fumble/view/screens/connections_screen/add_someone_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connection_detail_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connections_screen.dart';
+import 'package:fumble/view/screens/connections_screen/invitation_accept_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_scanner_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_preview_screen.dart';
@@ -30,6 +32,8 @@ abstract final class AppRoutes {
   static const String myfumble = '/my-fumble';
   static const String connections = '/connections';
   static const String connectionDetail = '/connection-detail';
+  static const String addSomeone = '/add-someone';
+  static const String invitationAccept = '/invitation-accept';
   static const String fumbleScanner = '/fumble-scanner';
   static const String fumblePreview = '/fumble-preview';
   static const String settings = '/settings';
@@ -52,6 +56,15 @@ abstract final class AppRoutes {
     connectionDetail: (context) {
       final peerUid = ModalRoute.of(context)?.settings.arguments as String?;
       return ConnectionDetailScreen(peerUid: peerUid ?? '');
+    },
+    addSomeone: (_) => const AddSomeoneScreen(),
+    invitationAccept: (context) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as InvitationAcceptArgs?;
+      return InvitationAcceptScreen(
+        invitationId: args?.invitationId ?? '',
+        token: args?.token,
+      );
     },
     fumbleScanner: (_) => const FumbleScannerScreen(),
     fumblePreview: (_) => const FumblePreviewScreen(),

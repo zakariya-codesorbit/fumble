@@ -75,10 +75,9 @@ abstract final class AppConstant {
   static const String removePhoto = 'Remove photo';
   static const String photoUpdated = 'Photo updated';
   static const String photoUploadFailed =
-      'Couldn\'t save photo. Try a smaller image.';
+      'Couldn\'t process that photo. Please try again.';
   static const String photoTooLarge =
       'Please choose an image smaller than 2 MB.';
-  static const String cropPhoto = 'Crop photo';
   static const String save = 'Save';
   static const String cancel = 'Cancel';
   static const String logout = 'Log out';
@@ -144,7 +143,75 @@ abstract final class AppConstant {
   static const String connectionsEmptyTitle = 'No fumbles yet';
   static const String connectionsEmptyBody =
       'Fumble someone to save the moment here.';
+  static const String addSomeone = 'Add Someone';
+  static const String sendInvitation = 'Send Invitation';
+  static const String resendInvitation = 'Resend Invitation';
+  static const String cancelInvitation = 'Cancel Invitation';
+  static const String acceptConnection = 'Accept Connection';
+  static const String declineInvitation = 'Decline';
+  static const String halfFumbleStatusLabel = 'Half Fumble';
+  static const String invitationSentLabel = 'Invitation sent';
+  static const String pendingAcceptanceLabel = 'Pending acceptance';
+  static const String whatsAppRequired = 'Please enter a WhatsApp number';
+  static const String meetingLocationLabel = 'Meeting location';
+  static const String meetingDateLabel = 'Meeting date';
+  static const String personalNoteLabel = 'Personal note';
+  static const String fullNameLabel = 'Full name';
+  static const String emailAddressLabel = 'Email address';
+  static const String halfFumblePermissionDenied =
+      'Couldn\'t save invitation (Firestore permission). Deploy the latest rules for project fumble-2026.';
+  static const String halfFumbleInviteShared =
+      'Invitation ready — share the link to invite them.';
+  static const String halfFumbleInviteRevoked = 'Invitation cancelled';
+  static const String halfFumbleAlreadyInvited =
+      'You already have an open Half Fumble for this email.';
+  static const String halfFumbleAlreadyConnected =
+      'You\'re already connected with this email.';
+  static const String halfFumbleCannotInviteSelf =
+      'You can\'t invite yourself.';
+  static const String halfFumbleCannotResend =
+      'This invitation can\'t be resent.';
+  static const String halfFumbleCannotCancel =
+      'This invitation can\'t be cancelled.';
+  static const String halfFumbleInviteExpired = 'This invitation has expired.';
+  static const String halfFumbleInviteNotFound = 'Invitation not found.';
+  static const String halfFumbleInviteInvalid = 'This invitation is invalid.';
+  static const String halfFumbleInviteUnavailable =
+      'This invitation is no longer available.';
+  static const String halfFumbleEmailMismatch =
+      'Sign in with the invited email address to accept.';
+  static const String halfFumbleEmailRequired =
+      'Verify your email to accept this invitation.';
+  static const String halfFumbleInviterMissing =
+      'The person who invited you is no longer available.';
+  static const String halfFumbleAccepted = 'You\'re now connected on Fumble.';
+  static const String halfFumbleDeclined = 'Invitation declined.';
+  static const String verifyEmailTitle = 'Verify your email';
+  static const String verifyEmailBody =
+      'Check your inbox and verify your email before accepting invitations.';
+  static const String verifyEmailSignupTitle = 'Verify your email';
+  static const String verifyEmailSignupBody =
+      'A verification link has been sent to your email. Please verify your email, then log in to continue.';
+  static const String verifyEmailSignupCta = 'Go to login';
+  static const String authEmailNotVerified =
+      'Please verify your email before logging in. Check your inbox for the link.';
   static const String fumbledOn = 'Fumbled';
+
+  static String halfFumbleShareMessage({
+    required String invitedEmail,
+    required String storeUrl,
+    required String appLink,
+  }) =>
+      'Hey! I\'ve added you on Fumble. Join me so we can connect and keep our '
+      'memories together.\n\n'
+      '1) Download Fumble (if you don\'t have it):\n$storeUrl\n\n'
+      '2) Sign up with this email (required): $invitedEmail\n\n'
+      '3) Verify your email, then log in — your invitation will appear in Connections.\n\n'
+      'Already have Fumble? Open this link:\n$appLink';
+
+  static const String halfFumblePendingInviteTitle = 'Fumble invitation';
+  static const String halfFumblePendingInviteBody =
+      'Someone invited you on Fumble. Review and accept to connect.';
   static const String metAtPrefix = 'Met at';
   static String metAt(String place) => '$metAtPrefix $place';
   /// Placeholder subtitle on connection tiles until place copy is finalized.

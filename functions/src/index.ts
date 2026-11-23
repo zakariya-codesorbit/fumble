@@ -221,3 +221,70 @@ export const rotateFumbleCode = onCall(
     return { fumbleCode: code };
   }
 );
+
+/**
+ * Server-authoritative Half Fumble acceptance (preferred when Blaze + Functions are enabled).
+ * Client currently performs an equivalent batch with Firestore rules; keep this for production hardening.
+ */
+export const acceptHalfFumble = onCall(
+  { enforceAppCheck: false },
+  async (request) => {
+    const uid = requireAuth(request);
+    const invitationId = String(request.data?.invitationId ?? "").trim();
+    const rawToken = String(request.data?.token ?? "").trim();
+    if (!invitationId || !rawToken) {
+      throw new HttpsError("invalid-argument", "Missing invitation credentials.");
+    }
+
+    const user = await admin.auth().getUser(uid);
+    if (!user.emailVerified || !user.email) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Verify your email before accepting."
+      );
+    }
+
+    const inviteRef = db.collection("invitations").doc(invitationId);
+    const inviteSnap = await inviteRef.get();
+    if (!inviteSnap.exists) {
+      throw new HttpsError("not-found", "Invitation not found.");
+    }
+    const invite = inviteSnap.data()!;
+    const tokenHash = require("crypto")
+      .createHash("sha256")
+      .update(rawToken, "utf8")
+      .digest("hex");
+    if (tokenHash !== invite.tokenHash) {
+      throw new HttpsError("permission-denied", "Invalid invitation token.");
+    }
+
+    const normalized = String(user.email).trim().toLowerCase();
+    if (normalized !== String(invite.normalizedEmail || "").toLowerCase()) {
+      throw new HttpsError(
+        "failed-precondition",
+        "Sign in with the invited email address."
+      );
+    }
+
+    const status = String(invite.status || "");
+    if (status === "fumbled") {
+      return { ok: true, alreadyConnected: true };
+    }
+    if (status === "revoked" || status === "declined" || status === "expired") {
+      throw new HttpsError("failed-precondition", "Invitation unavailable.");
+    }
+
+    const inviterUid = String(invite.inviterUserId);
+    if (inviterUid === uid) {
+      throw new HttpsError("failed-precondition", "You can't accept your own invite.");
+    }
+
+    // Defer full dual-write to the Flutter client rules path for now;
+    // this callable validates token + email and marks pendingAcceptance.
+    await inviteRef.set(
+      { status: "pendingAcceptance" },
+      { merge: true }
+    );
+    return { ok: true, validated: true };
+  }
+);

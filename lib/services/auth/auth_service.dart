@@ -25,9 +25,28 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  /// Fires when the ID token changes (incl. after email verify + refresh).
+  Stream<User?> get idTokenChanges => _auth.idTokenChanges();
+
   User? get currentUser => _auth.currentUser;
 
   bool get isAuthenticated => currentUser != null;
+
+  bool get isEmailVerified => currentUser?.emailVerified == true;
+
+  Future<void> reloadUser() async {
+    final user = currentUser;
+    if (user == null) return;
+    await user.reload();
+    // Force a fresh JWT so Firestore rules see email_verified == true.
+    await _auth.currentUser?.getIdToken(true);
+  }
+
+  Future<void> sendEmailVerification() async {
+    final user = currentUser;
+    if (user == null || user.emailVerified) return;
+    await user.sendEmailVerification();
+  }
 
   Future<UserProfile> signUp({
     required String name,
@@ -47,6 +66,11 @@ class AuthService {
         );
       }
       await user.updateDisplayName(name.trim());
+      try {
+        await user.sendEmailVerification();
+      } catch (_) {
+        // Non-fatal — invite acceptance still checks emailVerified.
+      }
       final profile = await _users.createUserProfile(
         uid: user.uid,
         name: name,
@@ -90,22 +114,33 @@ class AuthService {
           message: AppConstant.authLoginFailed,
         );
       }
-      await _crashlytics.setUserId(user.uid);
+      await user.reload();
+      final refreshed = _auth.currentUser ?? user;
+      if (!refreshed.emailVerified) {
+        await _auth.signOut();
+        throw FirebaseAuthException(
+          code: 'email-not-verified',
+          message: AppConstant.authEmailNotVerified,
+        );
+      }
+      await refreshed.getIdToken(true);
+      await _crashlytics.setUserId(refreshed.uid);
       // If Auth succeeded earlier but profile write failed, create it now.
-      final existing = await _users.loadUserProfile(user.uid);
+      final existing = await _users.loadUserProfile(refreshed.uid);
       if (existing == null) {
         await _users.createUserProfile(
-          uid: user.uid,
-          name: user.displayName?.trim().isNotEmpty == true
-              ? user.displayName!.trim()
-              : (user.email?.split('@').first ?? AppConstant.defaultUserName),
-          email: user.email ?? email,
+          uid: refreshed.uid,
+          name: refreshed.displayName?.trim().isNotEmpty == true
+              ? refreshed.displayName!.trim()
+              : (refreshed.email?.split('@').first ??
+                  AppConstant.defaultUserName),
+          email: refreshed.email ?? email,
         );
       } else {
-        await _users.updateUserLastActive(user.uid);
+        await _users.updateUserLastActive(refreshed.uid);
       }
       await _analytics.logLogin();
-      return user;
+      return refreshed;
     } catch (e, st) {
       await _crashlytics.recordError(e, st, reason: 'auth_login_failed');
       rethrow;
@@ -169,6 +204,7 @@ class AuthService {
         'too-many-requests' => AppConstant.authTooManyRequests,
         'network-request-failed' => AppConstant.authNetworkError,
         'requires-recent-login' => AppConstant.authRequiresRecentLogin,
+        'email-not-verified' => AppConstant.authEmailNotVerified,
         'firestore-unavailable' =>
           error.message ?? AppConstant.firestoreUnavailableShort,
         _ => error.message ?? AppConstant.authFailed,

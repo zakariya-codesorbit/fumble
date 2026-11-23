@@ -10,9 +10,11 @@ import 'core/navigation/router_navigator.dart';
 import 'core/theme/app_theme.dart';
 import 'core/ui/scroll_behaviour.dart';
 import 'services/analytics/analytics_service.dart';
+import 'services/half_fumble/invite_link_bootstrap.dart';
 import 'state/providers/app_providers.dart';
 import 'core/theme/colors.dart';
 import 'utils/constant.dart';
+import 'view/screens/setting_screen/components/setting_actions.dart';
 import 'view/widgets/dialogs/loading_dialog.dart';
 import 'view/widgets/feedback/custom_snackbar.dart';
 
@@ -24,34 +26,36 @@ class FumbleApp extends ConsumerWidget {
     ref.watch(appStartupProvider);
     ref.listen(authNotifierProvider, _onAuthUi);
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: AppConfig.displayName,
-      navigatorKey: navigatorKey,
-      theme: AppTheme.dark,
-      themeMode: ThemeMode.dark,
-      localizationsDelegates: const [CountryLocalizations.delegate],
-      builder: (context, child) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: AppColors.statusBar,
-          child: ScrollConfiguration(
-            behavior: MyBehavior(),
-            child: MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: const TextScaler.linear(1)),
-              child: child ?? const SizedBox.shrink(),
+    return InviteLinkBootstrap(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: AppConfig.displayName,
+        navigatorKey: navigatorKey,
+        theme: AppTheme.dark,
+        themeMode: ThemeMode.dark,
+        localizationsDelegates: const [CountryLocalizations.delegate],
+        builder: (context, child) {
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: AppColors.statusBar,
+            child: ScrollConfiguration(
+              behavior: MyBehavior(),
+              child: MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: const TextScaler.linear(1)),
+                child: child ?? const SizedBox.shrink(),
+              ),
             ),
-          ),
-        );
-      },
-      initialRoute: AppRoutes.initial,
-      routes: AppRoutes.routes,
-      navigatorObservers: [
-        routeObserver,
-        if (AnalyticsService.instance.navigatorObserver != null)
-          AnalyticsService.instance.navigatorObserver!,
-      ],
+          );
+        },
+        initialRoute: AppRoutes.initial,
+        routes: AppRoutes.routes,
+        navigatorObservers: [
+          routeObserver,
+          if (AnalyticsService.instance.navigatorObserver != null)
+            AnalyticsService.instance.navigatorObserver!,
+        ],
+      ),
     );
   }
 }
@@ -75,6 +79,26 @@ void _onAuthUi(AuthUiState? previous, AuthUiState next) {
       pop();
     } else if (navigation.route != null) {
       pushAndClearAll(navigation.route!);
+    }
+  }
+
+  final dialog = next.dialog;
+  if (dialog != null && dialog.id != previous?.dialog?.id) {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      // Defer so navigation to login can settle first.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = navigatorKey.currentContext;
+        if (ctx == null || !ctx.mounted) return;
+        SettingActions.showConfirmSheet(
+          context: ctx,
+          title: dialog.title,
+          description: dialog.body,
+          primaryCta: dialog.cta,
+          destructive: false,
+          onPrimaryTap: () {},
+        );
+      });
     }
   }
 }

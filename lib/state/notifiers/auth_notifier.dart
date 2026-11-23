@@ -26,26 +26,44 @@ class AuthNavigation {
   final bool pop;
 }
 
+class AuthDialog {
+  const AuthDialog({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.cta,
+  });
+
+  final int id;
+  final String title;
+  final String body;
+  final String cta;
+}
+
 class AuthUiState {
   const AuthUiState({
     this.isLoading = false,
     this.toast,
     this.navigation,
+    this.dialog,
   });
 
   final bool isLoading;
   final AuthToast? toast;
   final AuthNavigation? navigation;
+  final AuthDialog? dialog;
 
   AuthUiState copyWith({
     bool? isLoading,
     AuthToast? toast,
     AuthNavigation? navigation,
+    AuthDialog? dialog,
   }) {
     return AuthUiState(
       isLoading: isLoading ?? this.isLoading,
       toast: toast ?? this.toast,
       navigation: navigation ?? this.navigation,
+      dialog: dialog ?? this.dialog,
     );
   }
 }
@@ -68,15 +86,39 @@ class AuthNotifier extends Notifier<AuthUiState> {
     );
   }
 
+  /// Creates the account, sends verification email, signs out, then prompts
+  /// the user to verify and log in (same for normal + Half Fumble signup).
   Future<void> signUp({
     required String name,
     required String email,
     required String password,
-  }) {
-    return _run(
-      action: () => _auth.signUp(name: name, email: email, password: password),
-      onSuccess: _goToNextRoute,
-    );
+  }) async {
+    if (state.isLoading) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      await _auth.signUp(name: name, email: email, password: password);
+      try {
+        await _auth.logout();
+      } catch (_) {
+        /* still send them to login */
+      }
+      _resetSessionState();
+      state = state.copyWith(
+        isLoading: false,
+        dialog: AuthDialog(
+          id: ++_eventId,
+          title: AppConstant.verifyEmailSignupTitle,
+          body: AppConstant.verifyEmailSignupBody,
+          cta: AppConstant.verifyEmailSignupCta,
+        ),
+        navigation: _clearTo(AppRoutes.login),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        toast: _toastMessage(_auth.messageForAuthError(e), isError: true),
+      );
+    }
   }
 
   Future<void> sendPasswordReset({required String email}) {
