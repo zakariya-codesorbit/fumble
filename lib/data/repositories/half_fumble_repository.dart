@@ -389,8 +389,12 @@ class HalfFumbleRepository {
     final inviterPhone = publicInviter == null
         ? null
         : (publicInviter.sharePhone ? publicInviter.phone : null);
+    final inviterWhatsApp = publicInviter == null
+        ? null
+        : (publicInviter.shareWhatsApp ? publicInviter.whatsApp : null);
     final inviterSharePhone = publicInviter?.sharePhone ?? true;
     final inviterShareEmail = publicInviter?.shareEmail ?? true;
+    final inviterShareWhatsApp = publicInviter?.shareWhatsApp ?? true;
 
     final now = DateTime.now();
     final fumbledAt = invitation.meetingDate ?? now;
@@ -411,8 +415,10 @@ class HalfFumbleRepository {
         'bio': publicInviter?.bio,
         'location': publicInviter?.location,
         'phone': inviterPhone,
+        'whatsApp': inviterWhatsApp,
         'sharePhone': inviterSharePhone,
         'shareEmail': inviterShareEmail,
+        'shareWhatsApp': inviterShareWhatsApp,
         'note': invitation.personalNote,
         'noteUpdatedAt': invitation.personalNote == null
             ? null
@@ -439,8 +445,10 @@ class HalfFumbleRepository {
         'bio': acceptor.bio,
         'location': acceptor.location,
         'phone': acceptor.publicPhone,
+        'whatsApp': acceptor.publicWhatsApp,
         'sharePhone': acceptor.sharePhone,
         'shareEmail': acceptor.shareEmail,
+        'shareWhatsApp': acceptor.shareWhatsApp,
         'note': invitation.personalNote,
         'noteUpdatedAt': invitation.personalNote == null
             ? null

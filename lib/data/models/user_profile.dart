@@ -14,6 +14,7 @@ class UserProfile {
     this.whatsApp,
     this.sharePhone = true,
     this.shareEmail = true,
+    this.shareWhatsApp = true,
     this.createdAt,
     this.lastActiveAt,
   });
@@ -30,6 +31,7 @@ class UserProfile {
   final String? whatsApp;
   final bool sharePhone;
   final bool shareEmail;
+  final bool shareWhatsApp;
   final DateTime? createdAt;
   final DateTime? lastActiveAt;
 
@@ -41,6 +43,8 @@ class UserProfile {
   bool get hasPhoto => _filled(photoUrl);
 
   bool get hasPhone => _filled(phone);
+
+  bool get hasWhatsApp => _filled(whatsApp);
 
   bool get hasBio => _filled(bio);
 
@@ -54,6 +58,9 @@ class UserProfile {
   String get publicEmail => shareEmail ? email.trim() : '';
 
   String? get publicPhone => sharePhone && _filled(phone) ? phone!.trim() : null;
+
+  String? get publicWhatsApp =>
+      shareWhatsApp && _filled(whatsApp) ? whatsApp!.trim() : null;
 
   static bool _filled(String? value) =>
       value != null && value.trim().isNotEmpty;
@@ -72,6 +79,7 @@ class UserProfile {
       whatsApp: (data['whatsApp'] as String?)?.trim(),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
+      shareWhatsApp: data['shareWhatsApp'] as bool? ?? true,
       createdAt: _asDateTime(data['createdAt']),
       lastActiveAt: _asDateTime(data['lastActiveAt']),
     );
@@ -90,6 +98,7 @@ class UserProfile {
       'whatsApp': whatsApp,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
+      'shareWhatsApp': shareWhatsApp,
       'createdAt': FieldValue.serverTimestamp(),
       'lastActiveAt': FieldValue.serverTimestamp(),
     };
@@ -107,6 +116,7 @@ class UserProfile {
     String? whatsApp,
     bool? sharePhone,
     bool? shareEmail,
+    bool? shareWhatsApp,
     DateTime? createdAt,
     DateTime? lastActiveAt,
   }) {
@@ -123,6 +133,7 @@ class UserProfile {
       whatsApp: whatsApp ?? this.whatsApp,
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
+      shareWhatsApp: shareWhatsApp ?? this.shareWhatsApp,
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
     );
@@ -142,6 +153,7 @@ class UserProfile {
       'whatsApp': whatsApp,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
+      'shareWhatsApp': shareWhatsApp,
       'createdAt': createdAt?.millisecondsSinceEpoch,
     };
   }
@@ -161,6 +173,7 @@ class UserProfile {
       whatsApp: (json['whatsApp'] as String?)?.trim(),
       sharePhone: json['sharePhone'] as bool? ?? true,
       shareEmail: json['shareEmail'] as bool? ?? true,
+      shareWhatsApp: json['shareWhatsApp'] as bool? ?? true,
       createdAt: createdAtMs is int
           ? DateTime.fromMillisecondsSinceEpoch(createdAtMs)
           : null,

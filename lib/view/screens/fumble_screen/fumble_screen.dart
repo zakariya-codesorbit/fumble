@@ -74,7 +74,8 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
       final override = ref.read(shareVisibilityProvider);
       if (override != null &&
           profile.sharePhone == override.sharePhone &&
-          profile.shareEmail == override.shareEmail) {
+          profile.shareEmail == override.shareEmail &&
+          profile.shareWhatsApp == override.shareWhatsApp) {
         ref.read(shareVisibilityProvider.notifier).state = null;
       }
       unawaited(
@@ -87,6 +88,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
       profile = profile.copyWith(
         sharePhone: shareOverride.sharePhone,
         shareEmail: shareOverride.shareEmail,
+        shareWhatsApp: shareOverride.shareWhatsApp,
       );
     }
     final payload = FumbleActions.qrPayload(profile);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fumble/core/navigation/app_routes.dart';
+import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
@@ -25,6 +27,8 @@ class SettingScreen extends ConsumerWidget {
         shareOverride?.sharePhone ?? profile?.sharePhone ?? true;
     final shareEmail =
         shareOverride?.shareEmail ?? profile?.shareEmail ?? true;
+    final shareWhatsApp =
+        shareOverride?.shareWhatsApp ?? profile?.shareWhatsApp ?? true;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -52,6 +56,31 @@ class SettingScreen extends ConsumerWidget {
                     ref: ref,
                     value: value,
                   ),
+                ),
+                SettingToggleItem(
+                  label: AppConstant.shareWhatsAppSetting,
+                  icon: AppIcons.chat,
+                  value: shareWhatsApp,
+                  onChanged: (value) => SettingActions.updateShareWhatsApp(
+                    ref: ref,
+                    value: value,
+                  ),
+                ),
+              ],
+            ),
+            24.height,
+            SettingActionGroup(
+              title: AppConstant.legalGroup,
+              items: [
+                SettingActionItem(
+                  label: AppConstant.privacyPolicy,
+                  icon: AppIcons.privacy,
+                  onTap: () => push(AppRoutes.privacyPolicy),
+                ),
+                SettingActionItem(
+                  label: AppConstant.termsAndConditions,
+                  icon: AppIcons.terms,
+                  onTap: () => push(AppRoutes.terms),
                 ),
               ],
             ),

@@ -241,7 +241,7 @@ class _ConnectionDetailScreenState
                             connection.visiblePhone,
                           ),
                           onWhatsApp: () => ConnectionDetailActions.whatsApp(
-                            connection.visiblePhone,
+                            connection.visibleWhatsApp,
                           ),
                         ),
                         24.height,

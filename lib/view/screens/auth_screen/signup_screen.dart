@@ -1,6 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:fumble/core/navigation/app_routes.dart';
+import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
@@ -13,6 +16,7 @@ import 'package:fumble/view/widgets/buttons/text_button_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/inputs/custom_text_field.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -30,9 +34,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
   var _passwordDraft = '';
+  var _agreedToLegal = false;
+  late final TapGestureRecognizer _privacyTap;
+  late final TapGestureRecognizer _termsTap;
+
+  @override
+  void initState() {
+    super.initState();
+    _privacyTap = TapGestureRecognizer()
+      ..onTap = () => push(AppRoutes.privacyPolicy);
+    _termsTap = TapGestureRecognizer()..onTap = () => push(AppRoutes.terms);
+  }
 
   @override
   void dispose() {
+    _privacyTap.dispose();
+    _termsTap.dispose();
     _name.dispose();
     _email.dispose();
     _password.dispose();
@@ -47,13 +64,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     field.validate();
   }
 
-  Future<void> _submit() => AuthActions.signUp(
-        ref: ref,
-        formKey: _formKey,
-        name: _name.text,
-        email: _email.text,
-        password: _password.text,
-      );
+  Future<void> _submit() async {
+    if (!_agreedToLegal) {
+      showAppToast(AppConstant.agreeLegalRequired, isError: true);
+      return;
+    }
+    await AuthActions.signUp(
+      ref: ref,
+      formKey: _formKey,
+      name: _name.text,
+      email: _email.text,
+      password: _password.text,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +133,70 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       onChanged: (_) => _revalidateConfirm(),
                       onSubmitted: (_) => _submit(),
                     ),
-                    30.height,
+                    20.height,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: Checkbox(
+                            value: _agreedToLegal,
+                            activeColor: AppColors.gold,
+                            checkColor: AppColors.background,
+                            side: const BorderSide(color: AppColors.softGray),
+                            onChanged: (value) {
+                              setState(() => _agreedToLegal = value ?? false);
+                            },
+                          ),
+                        ),
+                        10.width,
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              style: TextStyle(
+                                color: AppColors.softGray,
+                                fontSize: 13,
+                                fontFamily: AppStyle.fontFamily,
+                                fontFamilyFallback: AppStyle.fontFamilyFallback,
+                                height: 1.4,
+                              ),
+                              children: [
+                                const TextSpan(
+                                  text: AppConstant.agreeLegalPrefix,
+                                ),
+                                TextSpan(
+                                  text: AppConstant.privacyPolicy,
+                                  style: const TextStyle(
+                                    color: AppColors.gold,
+                                    fontWeight: AppStyle.w600,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.gold,
+                                  ),
+                                  recognizer: _privacyTap,
+                                ),
+                                const TextSpan(text: AppConstant.agreeLegalAnd),
+                                TextSpan(
+                                  text: AppConstant.termsAndConditions,
+                                  style: const TextStyle(
+                                    color: AppColors.gold,
+                                    fontWeight: AppStyle.w600,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.gold,
+                                  ),
+                                  recognizer: _termsTap,
+                                ),
+                                const TextSpan(text: '.'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    24.height,
                     PrimaryButton(
                       buttonName: AppConstant.signupCta,
-                      onPressed: _submit,
+                      onPressed: _agreedToLegal ? _submit : null,
                     ),
                     24.height,
                     Row(

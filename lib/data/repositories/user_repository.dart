@@ -66,6 +66,7 @@ class UserRepository {
     String? whatsApp,
     bool? sharePhone,
     bool? shareEmail,
+    bool? shareWhatsApp,
   }) async {
     final userSnap = await _userRef(uid).get();
     if (!userSnap.exists || userSnap.data() == null) return;
@@ -85,6 +86,7 @@ class UserRepository {
     if (whatsApp != null) data['whatsApp'] = whatsApp.trim();
     if (sharePhone != null) data['sharePhone'] = sharePhone;
     if (shareEmail != null) data['shareEmail'] = shareEmail;
+    if (shareWhatsApp != null) data['shareWhatsApp'] = shareWhatsApp;
 
     final nextName = name?.trim() ?? current.name;
     final nextPhoto = photoUrl != null
@@ -94,13 +96,20 @@ class UserRepository {
     final nextAboutMe = aboutMe?.trim() ?? current.aboutMe;
     final nextLocation = location?.trim() ?? current.location;
     final nextPhone = phone?.trim() ?? current.phone;
+    final nextWhatsApp = whatsApp?.trim() ?? current.whatsApp;
     final nextSharePhone = sharePhone ?? current.sharePhone;
     final nextShareEmail = shareEmail ?? current.shareEmail;
+    final nextShareWhatsApp = shareWhatsApp ?? current.shareWhatsApp;
     final publicEmail = nextShareEmail ? current.email.trim() : '';
     final publicPhone =
         nextSharePhone && nextPhone != null && nextPhone.trim().isNotEmpty
             ? nextPhone.trim()
             : null;
+    final publicWhatsApp = nextShareWhatsApp &&
+            nextWhatsApp != null &&
+            nextWhatsApp.trim().isNotEmpty
+        ? nextWhatsApp.trim()
+        : null;
 
     final batch = _db.batch();
     batch.update(_userRef(uid), data);
@@ -118,8 +127,10 @@ class UserRepository {
         'aboutMe': nextAboutMe,
         'location': nextLocation,
         'phone': publicPhone,
+        'whatsApp': publicWhatsApp,
         'sharePhone': nextSharePhone,
         'shareEmail': nextShareEmail,
+        'shareWhatsApp': nextShareWhatsApp,
       }, SetOptions(merge: true));
     }
     await batch.commit();
@@ -134,8 +145,10 @@ class UserRepository {
       aboutMe: nextAboutMe,
       location: nextLocation,
       phone: publicPhone,
+      whatsApp: publicWhatsApp,
       sharePhone: nextSharePhone,
       shareEmail: nextShareEmail,
+      shareWhatsApp: nextShareWhatsApp,
       createdAt: current.createdAt,
     );
   }

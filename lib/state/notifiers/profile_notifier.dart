@@ -142,24 +142,35 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
   Future<void> updateShareVisibility({
     bool? sharePhone,
     bool? shareEmail,
+    bool? shareWhatsApp,
   }) async {
     final profile = _currentProfile;
     if (profile == null) return;
-    if (sharePhone == null && shareEmail == null) return;
+    if (sharePhone == null && shareEmail == null && shareWhatsApp == null) {
+      return;
+    }
 
     final nextPhone = sharePhone ?? profile.sharePhone;
     final nextEmail = shareEmail ?? profile.shareEmail;
-    if (nextPhone == profile.sharePhone && nextEmail == profile.shareEmail) {
+    final nextWhatsApp = shareWhatsApp ?? profile.shareWhatsApp;
+    if (nextPhone == profile.sharePhone &&
+        nextEmail == profile.shareEmail &&
+        nextWhatsApp == profile.shareWhatsApp) {
       return;
     }
 
     ref.read(shareVisibilityProvider.notifier).state = (
       sharePhone: nextPhone,
       shareEmail: nextEmail,
+      shareWhatsApp: nextWhatsApp,
     );
     unawaited(
       LocalPrefs.saveUserProfile(
-        profile.copyWith(sharePhone: nextPhone, shareEmail: nextEmail),
+        profile.copyWith(
+          sharePhone: nextPhone,
+          shareEmail: nextEmail,
+          shareWhatsApp: nextWhatsApp,
+        ),
       ),
     );
 
@@ -168,6 +179,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         uid: profile.uid,
         sharePhone: nextPhone,
         shareEmail: nextEmail,
+        shareWhatsApp: nextWhatsApp,
       );
     } catch (e) {
       ref.read(shareVisibilityProvider.notifier).state = null;
@@ -219,6 +231,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
       ref.read(shareVisibilityProvider.notifier).state = (
         sharePhone: sharePhone,
         shareEmail: shareEmail,
+        shareWhatsApp: profile.shareWhatsApp,
       );
       unawaited(
         LocalPrefs.saveUserProfile(
@@ -249,6 +262,7 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
         whatsApp: whatsApp,
         sharePhone: sharePhone,
         shareEmail: shareEmail,
+        shareWhatsApp: profile.shareWhatsApp,
       );
 
       state = const ProfileEditState();

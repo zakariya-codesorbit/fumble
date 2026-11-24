@@ -21,10 +21,12 @@ class Connection {
     this.bio,
     this.location,
     this.phone,
+    this.whatsApp,
     this.note,
     this.noteUpdatedAt,
     this.sharePhone = true,
     this.shareEmail = true,
+    this.shareWhatsApp = true,
     this.fumbleLocation,
     this.fumblePlace,
     this.initiatedBy,
@@ -42,12 +44,14 @@ class Connection {
   /// Peer's profile location (city / place text).
   final String? location;
   final String? phone;
+  final String? whatsApp;
   /// Shared memory note for this fumble (same text on both users' cards).
   final String? note;
   /// When [note] was last changed — used for last-write-wins sync.
   final DateTime? noteUpdatedAt;
   final bool sharePhone;
   final bool shareEmail;
+  final bool shareWhatsApp;
   final FumbleLocation? fumbleLocation;
   /// Human-readable place (street/city) saved with the connection.
   final String? fumblePlace;
@@ -66,11 +70,16 @@ class Connection {
 
   bool get hasPhone => phone != null && phone!.trim().isNotEmpty;
 
+  bool get hasWhatsApp => whatsApp != null && whatsApp!.trim().isNotEmpty;
+
   /// Contact shown in the connections UI (respects peer share toggles).
   String get visibleEmail => shareEmail ? email.trim() : '';
 
   String? get visiblePhone =>
       sharePhone && hasPhone ? phone!.trim() : null;
+
+  String? get visibleWhatsApp =>
+      shareWhatsApp && hasWhatsApp ? whatsApp!.trim() : null;
 
   /// True when this owner started the fumble (or legacy rows with no initiator).
   bool youInitiated(String ownerUid) {
@@ -90,10 +99,12 @@ class Connection {
       bio: _blankToNull(data['bio'] as String?),
       location: _blankToNull(data['location'] as String?),
       phone: _blankToNull(data['phone'] as String?),
+      whatsApp: _blankToNull(data['whatsApp'] as String?),
       note: _blankToNull(data['note'] as String?),
       noteUpdatedAt: _asDateTime(data['noteUpdatedAt']),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
+      shareWhatsApp: data['shareWhatsApp'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
       fumblePlace: _blankToNull(data['fumblePlace'] as String?),
       initiatedBy: _blankToNull(data['initiatedBy'] as String?),
@@ -118,12 +129,14 @@ class Connection {
       bio: _blankToNull(row['bio'] as String?),
       location: _blankToNull(row['location'] as String?),
       phone: _blankToNull(row['phone'] as String?),
+      whatsApp: _blankToNull(row['whatsapp'] as String?),
       note: _blankToNull(row['note'] as String?),
       noteUpdatedAt: row['note_updated_at'] is int
           ? DateTime.fromMillisecondsSinceEpoch(row['note_updated_at'] as int)
           : null,
       sharePhone: _boolFromSql(row['share_phone']),
       shareEmail: _boolFromSql(row['share_email']),
+      shareWhatsApp: _boolFromSql(row['share_whatsapp']),
       fumbleLocation: lat is num && lng is num
           ? FumbleLocation(
               latitude: lat.toDouble(),
@@ -151,10 +164,12 @@ class Connection {
       'bio': bio,
       'location': location,
       'phone': phone,
+      'whatsapp': whatsApp,
       'note': note,
       'note_updated_at': noteUpdatedAt?.millisecondsSinceEpoch,
       'share_phone': sharePhone ? 1 : 0,
       'share_email': shareEmail ? 1 : 0,
+      'share_whatsapp': shareWhatsApp ? 1 : 0,
       'fumble_lat': fumbleLocation?.latitude,
       'fumble_lng': fumbleLocation?.longitude,
       'fumble_place': fumblePlace,
@@ -174,12 +189,15 @@ class Connection {
     bool clearLocation = false,
     String? phone,
     bool clearPhone = false,
+    String? whatsApp,
+    bool clearWhatsApp = false,
     String? note,
     bool clearNote = false,
     DateTime? noteUpdatedAt,
     bool clearNoteUpdatedAt = false,
     bool? sharePhone,
     bool? shareEmail,
+    bool? shareWhatsApp,
     FumbleLocation? fumbleLocation,
     bool clearFumbleLocation = false,
     String? fumblePlace,
@@ -199,12 +217,14 @@ class Connection {
       bio: bio ?? this.bio,
       location: clearLocation ? null : (location ?? this.location),
       phone: clearPhone ? null : (phone ?? this.phone),
+      whatsApp: clearWhatsApp ? null : (whatsApp ?? this.whatsApp),
       note: clearNote ? null : (note ?? this.note),
       noteUpdatedAt: clearNoteUpdatedAt
           ? null
           : (noteUpdatedAt ?? this.noteUpdatedAt),
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
+      shareWhatsApp: shareWhatsApp ?? this.shareWhatsApp,
       fumbleLocation: clearFumbleLocation
           ? null
           : (fumbleLocation ?? this.fumbleLocation),
@@ -228,10 +248,12 @@ class Connection {
         bio == other.bio &&
         location == other.location &&
         phone == other.phone &&
+        whatsApp == other.whatsApp &&
         note == other.note &&
         noteUpdatedAt == other.noteUpdatedAt &&
         sharePhone == other.sharePhone &&
         shareEmail == other.shareEmail &&
+        shareWhatsApp == other.shareWhatsApp &&
         fumbleLocation?.latitude == other.fumbleLocation?.latitude &&
         fumbleLocation?.longitude == other.fumbleLocation?.longitude &&
         fumblePlace == other.fumblePlace &&

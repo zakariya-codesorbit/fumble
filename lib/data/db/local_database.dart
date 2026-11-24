@@ -65,8 +65,10 @@ class LocalDatabase {
         bio TEXT,
         location TEXT,
         phone TEXT,
+        whatsapp TEXT,
         share_phone INTEGER NOT NULL DEFAULT 1,
         share_email INTEGER NOT NULL DEFAULT 1,
+        share_whatsapp INTEGER NOT NULL DEFAULT 1,
         fumble_lat REAL,
         fumble_lng REAL,
         fumble_place TEXT,
@@ -108,6 +110,14 @@ class LocalDatabase {
     }
     if (!names.contains('location')) {
       await db.execute('ALTER TABLE connections ADD COLUMN location TEXT');
+    }
+    if (!names.contains('whatsapp')) {
+      await db.execute('ALTER TABLE connections ADD COLUMN whatsapp TEXT');
+    }
+    if (!names.contains('share_whatsapp')) {
+      await db.execute(
+        'ALTER TABLE connections ADD COLUMN share_whatsapp INTEGER NOT NULL DEFAULT 1',
+      );
     }
   }
 

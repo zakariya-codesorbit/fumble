@@ -220,7 +220,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                       onCall: () => FumblePreviewActions.call(preview.phone),
                       onText: () => FumblePreviewActions.text(preview.phone),
                       onWhatsApp: () =>
-                          FumblePreviewActions.whatsApp(preview.phone),
+                          FumblePreviewActions.whatsApp(preview.whatsApp),
                     ),
                     24.height,
                     if (_editingLocation)

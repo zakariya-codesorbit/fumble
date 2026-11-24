@@ -2,9 +2,11 @@
 abstract final class AppUrls {
   AppUrls._();
 
-  static const String privacyPolicyUrl = '';
-  static const String termsOfServiceUrl = '';
-  static const String supportEmail = '';
+  static const String websiteOrigin = 'https://myfumble.com';
+  static const String privacyPolicyUrl = '$websiteOrigin/privacy/';
+  static const String termsOfServiceUrl = '$websiteOrigin/terms/';
+  static const String deleteAccountUrl = '$websiteOrigin/delete-account/';
+  static const String supportEmail = 'hello@myfumble.com';
 
   static const String playStorePackageId = 'com.olivermann.fumble';
   static const String playStoreWebUrl =
@@ -13,7 +15,7 @@ abstract final class AppUrls {
       'market://details?id=$playStorePackageId';
 
   /// Replace with the published App Store ID when available.
-  static const String iosAppId = '0000000000';
+  static const String iosAppId = '6838681831';
   static String get appStoreUrl =>
       'https://apps.apple.com/app/id$iosAppId';
   static String get appStoreReviewUrl =>

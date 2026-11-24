@@ -44,8 +44,10 @@ class FumbleCodeRepository {
       aboutMe: RepoUtils.blankToNull(data['aboutMe'] as String?),
       location: RepoUtils.blankToNull(data['location'] as String?),
       phone: RepoUtils.blankToNull(data['phone'] as String?),
+      whatsApp: RepoUtils.blankToNull(data['whatsApp'] as String?),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
+      shareWhatsApp: data['shareWhatsApp'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
       fumblePlace: RepoUtils.blankToNull(data['fumblePlace'] as String?),
       createdAt: _asDateTime(data['createdAt']),
@@ -70,8 +72,10 @@ class FumbleCodeRepository {
       aboutMe: RepoUtils.blankToNull(data['aboutMe'] as String?),
       location: RepoUtils.blankToNull(data['location'] as String?),
       phone: RepoUtils.blankToNull(data['phone'] as String?),
+      whatsApp: RepoUtils.blankToNull(data['whatsApp'] as String?),
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
+      shareWhatsApp: data['shareWhatsApp'] as bool? ?? true,
       fumbleLocation: FumbleLocation.fromFirestore(data['fumbleLocation']),
       fumblePlace: RepoUtils.blankToNull(data['fumblePlace'] as String?),
       createdAt: _asDateTime(data['createdAt']),
@@ -89,8 +93,10 @@ class FumbleCodeRepository {
       'aboutMe': null,
       'location': null,
       'phone': profile.publicPhone,
+      'whatsApp': profile.publicWhatsApp,
       'sharePhone': profile.sharePhone,
       'shareEmail': profile.shareEmail,
+      'shareWhatsApp': profile.shareWhatsApp,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -107,8 +113,10 @@ class FumbleCodeRepository {
     String? aboutMe,
     String? location,
     String? phone,
+    String? whatsApp,
     required bool sharePhone,
     required bool shareEmail,
+    required bool shareWhatsApp,
     DateTime? createdAt,
   }) async {
     final data = <String, dynamic>{
@@ -120,8 +128,10 @@ class FumbleCodeRepository {
       'aboutMe': aboutMe,
       'location': location,
       'phone': phone,
+      'whatsApp': whatsApp,
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
+      'shareWhatsApp': shareWhatsApp,
       'updatedAt': FieldValue.serverTimestamp(),
     };
     if (createdAt != null) {
@@ -223,8 +233,10 @@ class FumbleCodeRepository {
       'aboutMe': current.aboutMe,
       'location': current.location,
       'phone': current.publicPhone,
+      'whatsApp': current.publicWhatsApp,
       'sharePhone': current.sharePhone,
       'shareEmail': current.shareEmail,
+      'shareWhatsApp': current.shareWhatsApp,
       'createdAt': current.createdAt == null
           ? FieldValue.serverTimestamp()
           : Timestamp.fromDate(current.createdAt!),

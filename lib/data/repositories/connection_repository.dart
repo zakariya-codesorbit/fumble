@@ -142,10 +142,12 @@ class ConnectionRepository {
       bio: RepoUtils.blankToNull(preview.bio),
       location: RepoUtils.blankToNull(preview.location),
       phone: RepoUtils.blankToNull(preview.phone),
+      whatsApp: RepoUtils.blankToNull(preview.whatsApp),
       note: initialNote,
       noteUpdatedAt: initialNote != null ? now : null,
       sharePhone: RepoUtils.filled(preview.phone),
       shareEmail: RepoUtils.filled(preview.email),
+      shareWhatsApp: RepoUtils.filled(preview.whatsApp),
       fumbleLocation: coords,
       fumblePlace: RepoUtils.blankToNull(placeLabel),
       initiatedBy: ownerUid,
@@ -244,8 +246,11 @@ class ConnectionRepository {
       bio: RepoUtils.blankToNull(preview.bio) ?? existing.bio,
       location: RepoUtils.blankToNull(preview.location) ?? existing.location,
       phone: RepoUtils.blankToNull(preview.phone) ?? existing.phone,
+      whatsApp: RepoUtils.blankToNull(preview.whatsApp) ?? existing.whatsApp,
       sharePhone: RepoUtils.filled(preview.phone) || existing.sharePhone,
       shareEmail: RepoUtils.filled(preview.email) || existing.shareEmail,
+      shareWhatsApp:
+          RepoUtils.filled(preview.whatsApp) || existing.shareWhatsApp,
       updatedAt: DateTime.now(),
       syncStatus: SyncStatus.pending,
     );
@@ -458,8 +463,10 @@ class ConnectionRepository {
         aboutMe: card.aboutMe,
         location: card.location,
         phone: card.sharePhone ? card.phone : null,
+        whatsApp: card.shareWhatsApp ? card.whatsApp : null,
         sharePhone: card.sharePhone,
         shareEmail: card.shareEmail,
+        shareWhatsApp: card.shareWhatsApp,
         fumbleLocation: card.fumbleLocation ?? row.fumbleLocation,
         fumblePlace: RepoUtils.filled(card.fumblePlace)
             ? card.fumblePlace
@@ -479,8 +486,10 @@ class ConnectionRepository {
       photoUrl: row.photoUrl,
       bio: row.bio,
       phone: row.sharePhone ? row.phone : null,
+      whatsApp: row.shareWhatsApp ? row.whatsApp : null,
       sharePhone: row.sharePhone,
       shareEmail: row.shareEmail,
+      shareWhatsApp: row.shareWhatsApp,
       fumbleLocation: row.fumbleLocation,
       fumblePlace: row.fumblePlace,
     );
@@ -500,8 +509,11 @@ class ConnectionRepository {
       clearLocation: !RepoUtils.filled(card.location),
       phone: card.sharePhone ? card.phone : null,
       clearPhone: !card.sharePhone || !RepoUtils.filled(card.phone),
+      whatsApp: card.shareWhatsApp ? card.whatsApp : null,
+      clearWhatsApp: !card.shareWhatsApp || !RepoUtils.filled(card.whatsApp),
       sharePhone: card.sharePhone,
       shareEmail: card.shareEmail,
+      shareWhatsApp: card.shareWhatsApp,
       fumbleLocation: row.fumbleLocation ?? card.fumbleLocation,
       clearFumbleLocation:
           row.fumbleLocation == null && card.fumbleLocation == null,
@@ -524,8 +536,10 @@ class ConnectionRepository {
         a.bio == b.bio &&
         a.location == b.location &&
         a.phone == b.phone &&
+        a.whatsApp == b.whatsApp &&
         a.sharePhone == b.sharePhone &&
         a.shareEmail == b.shareEmail &&
+        a.shareWhatsApp == b.shareWhatsApp &&
         a.fumbleLocation?.latitude == b.fumbleLocation?.latitude &&
         a.fumbleLocation?.longitude == b.fumbleLocation?.longitude &&
         a.fumblePlace == b.fumblePlace;
@@ -563,6 +577,9 @@ class ConnectionRepository {
             !RepoUtils.filled(local.location),
         phone: remote.sharePhone ? remote.phone : null,
         clearPhone: !remote.sharePhone || !RepoUtils.filled(remote.phone),
+        whatsApp: remote.shareWhatsApp ? remote.whatsApp : null,
+        clearWhatsApp:
+            !remote.shareWhatsApp || !RepoUtils.filled(remote.whatsApp),
         // Shared note: last-write-wins by noteUpdatedAt (never clobber newer local).
         note: _preferRemoteNote(local, remote) ? remote.note : local.note,
         clearNote: _preferRemoteNote(local, remote)
@@ -576,6 +593,7 @@ class ConnectionRepository {
             : local.noteUpdatedAt == null && remote.noteUpdatedAt == null,
         sharePhone: remote.sharePhone,
         shareEmail: remote.shareEmail,
+        shareWhatsApp: remote.shareWhatsApp,
         fumbleLocation: remote.fumbleLocation ?? local.fumbleLocation,
         clearFumbleLocation:
             remote.fumbleLocation == null && local.fumbleLocation == null,
@@ -851,8 +869,10 @@ class ConnectionRepository {
       'bio': peer.bio,
       'location': peer.location,
       'phone': peer.sharePhone ? peer.phone : null,
+      'whatsApp': peer.shareWhatsApp ? peer.whatsApp : null,
       'sharePhone': peer.sharePhone,
       'shareEmail': peer.shareEmail,
+      'shareWhatsApp': peer.shareWhatsApp,
       'fumbleLocation': placeValue,
       'fumblePlace': placeLabel,
       'fumbledAt': at,
@@ -869,8 +889,10 @@ class ConnectionRepository {
       'bio': scanner.bio,
       'location': scanner.location,
       'phone': scanner.publicPhone,
+      'whatsApp': scanner.publicWhatsApp,
       'sharePhone': scanner.sharePhone,
       'shareEmail': scanner.shareEmail,
+      'shareWhatsApp': scanner.shareWhatsApp,
       'fumbleLocation': placeValue,
       'fumblePlace': placeLabel,
       'fumbledAt': at,

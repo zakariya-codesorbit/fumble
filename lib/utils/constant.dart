@@ -92,10 +92,17 @@ abstract final class AppConstant {
   static const String deleteAccount = 'Delete account';
   static const String privacyPolicy = 'Privacy Policy';
   static const String termsOfService = 'Terms of Service';
+  static const String termsAndConditions = 'Terms & Conditions';
+  static const String legalGroup = 'LEGAL';
+  static const String agreeLegalPrefix = 'I agree to the ';
+  static const String agreeLegalAnd = ' and ';
+  static const String agreeLegalRequired =
+      'Please agree to the Privacy Policy and Terms & Conditions to continue.';
   static const String settings = 'Settings';
   static const String shareContactGroup = 'SHARE ON FUMBLE';
   static const String sharePhoneSetting = 'Phone number';
   static const String shareEmailSetting = 'Email';
+  static const String shareWhatsAppSetting = 'WhatsApp number';
   static const String accountGroup = 'ACCOUNT';
   static const String completeProfile =
       'Complete your profile to get a Fumble code.';

@@ -74,7 +74,7 @@ abstract final class AppRoutes {
       isPrivacy: true,
     ),
     terms: (_) => const LegalWebViewScreen(
-      title: AppConstant.termsOfService,
+      title: AppConstant.termsAndConditions,
       isPrivacy: false,
     ),
   };

@@ -32,6 +32,15 @@ abstract final class SettingActions {
         .updateShareVisibility(shareEmail: value);
   }
 
+  static Future<void> updateShareWhatsApp({
+    required WidgetRef ref,
+    required bool value,
+  }) {
+    return ref
+        .read(profileNotifierProvider.notifier)
+        .updateShareVisibility(shareWhatsApp: value);
+  }
+
   static Future<void> logout({
     required BuildContext context,
     required WidgetRef ref,

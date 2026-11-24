@@ -9,6 +9,7 @@ class FumblePreview {
     this.aboutMe,
     this.location,
     this.phone,
+    this.whatsApp,
     this.createdAt,
     this.enriched = false,
   });
@@ -24,6 +25,7 @@ class FumblePreview {
   final String? aboutMe;
   final String? location;
   final String? phone;
+  final String? whatsApp;
   final DateTime? createdAt;
   /// True after online public-card fields were merged in.
   final bool enriched;
@@ -34,7 +36,9 @@ class FumblePreview {
   factory FumblePreview.fromMap(Map<String, dynamic> data) {
     final sharePhone = data['sharePhone'] as bool? ?? true;
     final shareEmail = data['shareEmail'] as bool? ?? true;
+    final shareWhatsApp = data['shareWhatsApp'] as bool? ?? true;
     final phone = (data['phone'] as String?)?.trim();
+    final whatsApp = (data['whatsApp'] as String?)?.trim();
     final email = (data['email'] as String?)?.trim();
     final rawCreated = data['createdAt'];
     DateTime? createdAt;
@@ -55,6 +59,9 @@ class FumblePreview {
       aboutMe: _blankToNull(data['aboutMe'] as String?),
       location: _blankToNull(data['location'] as String?),
       phone: sharePhone && phone != null && phone.isNotEmpty ? phone : null,
+      whatsApp: shareWhatsApp && whatsApp != null && whatsApp.isNotEmpty
+          ? whatsApp
+          : null,
       createdAt: createdAt,
       enriched: true,
     );
@@ -75,6 +82,8 @@ class FumblePreview {
 
   bool get hasPhone => _filled(phone);
 
+  bool get hasWhatsApp => _filled(whatsApp);
+
   bool get hasBio => _filled(bio);
 
   bool get hasAboutMe => _filled(aboutMe);
@@ -94,6 +103,7 @@ class FumblePreview {
     String? aboutMe,
     String? location,
     String? phone,
+    String? whatsApp,
     DateTime? createdAt,
     bool? enriched,
     bool clearEmail = false,
@@ -102,6 +112,7 @@ class FumblePreview {
     bool clearAboutMe = false,
     bool clearLocation = false,
     bool clearPhone = false,
+    bool clearWhatsApp = false,
     bool clearCreatedAt = false,
   }) {
     return FumblePreview(
@@ -114,6 +125,7 @@ class FumblePreview {
       aboutMe: clearAboutMe ? null : (aboutMe ?? this.aboutMe),
       location: clearLocation ? null : (location ?? this.location),
       phone: clearPhone ? null : (phone ?? this.phone),
+      whatsApp: clearWhatsApp ? null : (whatsApp ?? this.whatsApp),
       createdAt: clearCreatedAt ? null : (createdAt ?? this.createdAt),
       enriched: enriched ?? this.enriched,
     );

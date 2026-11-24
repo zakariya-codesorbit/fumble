@@ -11,8 +11,10 @@ class PublicFumbleProfile {
     this.aboutMe,
     this.location,
     this.phone,
+    this.whatsApp,
     this.sharePhone = true,
     this.shareEmail = true,
+    this.shareWhatsApp = true,
     this.fumbleLocation,
     this.fumblePlace,
     this.createdAt,
@@ -26,8 +28,10 @@ class PublicFumbleProfile {
   final String? aboutMe;
   final String? location;
   final String? phone;
+  final String? whatsApp;
   final bool sharePhone;
   final bool shareEmail;
+  final bool shareWhatsApp;
   final FumbleLocation? fumbleLocation;
   final String? fumblePlace;
   final DateTime? createdAt;
