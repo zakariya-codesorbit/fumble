@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/user_profile.dart';
@@ -111,29 +112,9 @@ class UserRepository {
         ? nextWhatsApp.trim()
         : null;
 
-    final batch = _db.batch();
-    batch.update(_userRef(uid), data);
-
-    // Keep existing connections in sync with visibility preferences.
-    final connections = await _userRef(uid).collection('connections').get();
-    for (final doc in connections.docs) {
-      final peerUid = doc.id;
-      batch.set(_userRef(peerUid).collection('connections').doc(uid), {
-        'peerUid': uid,
-        'name': nextName,
-        'email': publicEmail,
-        'photoUrl': nextPhoto,
-        'bio': nextBio,
-        'aboutMe': nextAboutMe,
-        'location': nextLocation,
-        'phone': publicPhone,
-        'whatsApp': publicWhatsApp,
-        'sharePhone': nextSharePhone,
-        'shareEmail': nextShareEmail,
-        'shareWhatsApp': nextShareWhatsApp,
-      }, SetOptions(merge: true));
-    }
-    await batch.commit();
+    // Save the owner profile first so a peer fan-out failure cannot
+    // roll back the photo / profile update.
+    await _userRef(uid).update(data);
 
     await _codes.updatePublicProfile(
       code: current.fumbleCode,
@@ -151,6 +132,34 @@ class UserRepository {
       shareWhatsApp: nextShareWhatsApp,
       createdAt: current.createdAt,
     );
+
+    // Best-effort: sync visible card fields onto peers' connection docs.
+    try {
+      final connections = await _userRef(uid).collection('connections').get();
+      if (connections.docs.isEmpty) return;
+
+      final batch = _db.batch();
+      for (final doc in connections.docs) {
+        final peerUid = doc.id;
+        batch.set(_userRef(peerUid).collection('connections').doc(uid), {
+          'peerUid': uid,
+          'name': nextName,
+          'email': publicEmail,
+          'photoUrl': nextPhoto,
+          'bio': nextBio,
+          'aboutMe': nextAboutMe,
+          'location': nextLocation,
+          'phone': publicPhone,
+          'whatsApp': publicWhatsApp,
+          'sharePhone': nextSharePhone,
+          'shareEmail': nextShareEmail,
+          'shareWhatsApp': nextShareWhatsApp,
+        }, SetOptions(merge: true));
+      }
+      await batch.commit();
+    } catch (e, st) {
+      debugPrint('[UserRepository] peer card sync failed: $e\n$st');
+    }
   }
 
   Future<void> updateUserLastActive(String uid) async {

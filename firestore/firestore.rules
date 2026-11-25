@@ -28,6 +28,14 @@ service cloud.firestore {
         ]);
     }
 
+    // Peer updating their own card fields on someone else's connections list
+    // (name/photo/share toggles). Does not require re-sending fumbledAt.
+    function isValidConnectionProfileSync(peerId) {
+      return request.resource.data.peerUid == peerId
+        && request.resource.data.name is string
+        && request.resource.data.email is string;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
@@ -46,8 +54,11 @@ service cloud.firestore {
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 80;
 
+      // Owner may update profile fields but cannot change email identity.
       allow update: if isOwner(userId)
-        && request.resource.data.email == resource.data.email;
+        && request.resource.data.email == resource.data.email
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['email', 'fumbleCode', 'createdAt']);
 
       allow delete: if isOwner(userId);
 
@@ -58,10 +69,15 @@ service cloud.firestore {
         allow create, update: if isOwner(userId)
           && isValidConnectionPayload(peerId);
 
-        // Peer writes their own card into the owner's list.
-        allow create, update: if isSignedIn()
+        // Peer creates their card on the owner's list (full fumble payload).
+        allow create: if isSignedIn()
           && request.auth.uid == peerId
           && isValidConnectionPayload(peerId);
+
+        // Peer updates their own card fields (photo, share toggles, etc.).
+        allow update: if isSignedIn()
+          && request.auth.uid == peerId
+          && isValidConnectionProfileSync(peerId);
 
         allow delete: if isOwner(userId) || request.auth.uid == peerId;
       }
