@@ -78,6 +78,9 @@ abstract final class AppConstant {
   static const String sharefumble = 'Share Fumble';
   static const String changePhoto = 'Change photo';
   static const String takePhoto = 'Take photo';
+  static const String cropPhotoTitle = 'Crop photo';
+  static const String cropPhotoDone = 'Done';
+  static const String cropPhotoCancel = 'Cancel';
   static const String chooseFromLibrary = 'Choose from library';
   static const String avatars = 'Avatars';
   static const String removePhoto = 'Remove photo';

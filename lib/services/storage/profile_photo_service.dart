@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/utils/app_avatars.dart';
 import 'package:fumble/utils/constant.dart';
 
@@ -15,16 +17,19 @@ class PhotoTooLargeException implements Exception {
   String toString() => AppConstant.photoTooLarge;
 }
 
-/// Gallery/camera pick, then upload profile photos/avatars to Firebase Storage.
+/// Gallery/camera pick, crop, then upload profile photos/avatars to Firebase Storage.
 /// Firestore only stores the download URL in `photoUrl`.
 class ProfilePhotoService {
   ProfilePhotoService({
     ImagePicker? picker,
+    ImageCropper? cropper,
     FirebaseStorage? storage,
   })  : _picker = picker ?? ImagePicker(),
+        _cropper = cropper ?? ImageCropper(),
         _storage = storage ?? FirebaseStorage.instance;
 
   final ImagePicker _picker;
+  final ImageCropper _cropper;
   final FirebaseStorage _storage;
 
   /// Must stay in sync with `storage/storage.rules`.
@@ -38,11 +43,13 @@ class ProfilePhotoService {
   Future<File?> _pick(ImageSource source) async {
     final picked = await _picker.pickImage(
       source: source,
-      maxWidth: _pickMaxDimension.toDouble(),
-      maxHeight: _pickMaxDimension.toDouble(),
-      imageQuality: 85,
+      // Keep source large enough for a clean crop; we resize after crop.
+      imageQuality: 95,
     );
     if (picked == null) return null;
+
+    final cropped = await _crop(picked.path);
+    if (cropped == null) return null;
 
     // Use dart:io temp (not path_provider) — avoids the jni 1.2.0
     // ClassNotFoundException: Landroid/content/Context; crash on Android.
@@ -52,10 +59,49 @@ class ProfilePhotoService {
         'avatar_${DateTime.now().millisecondsSinceEpoch}.jpg',
       ),
     );
-    final bytes = await picked.readAsBytes();
-    await dest.writeAsBytes(bytes, flush: true);
+    await File(cropped.path).copy(dest.path);
     await _ensureUnderLimit(dest);
     return dest;
+  }
+
+  Future<CroppedFile?> _crop(String sourcePath) {
+    return _cropper.cropImage(
+      sourcePath: sourcePath,
+      maxWidth: _pickMaxDimension,
+      maxHeight: _pickMaxDimension,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      compressFormat: ImageCompressFormat.jpg,
+      compressQuality: 85,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: AppConstant.cropPhotoTitle,
+          toolbarColor: AppColors.background,
+          statusBarLight: false,
+          navBarLight: false,
+          toolbarWidgetColor: AppColors.gold,
+          activeControlsWidgetColor: AppColors.gold,
+          backgroundColor: AppColors.background,
+          dimmedLayerColor: const Color(0xCC000000),
+          cropFrameColor: AppColors.gold,
+          cropGridColor: AppColors.goldMuted,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true,
+          hideBottomControls: false,
+          cropStyle: CropStyle.circle,
+          aspectRatioPresets: const [CropAspectRatioPreset.square],
+        ),
+        IOSUiSettings(
+          title: AppConstant.cropPhotoTitle,
+          doneButtonTitle: AppConstant.cropPhotoDone,
+          cancelButtonTitle: AppConstant.cropPhotoCancel,
+          aspectRatioLockEnabled: true,
+          resetAspectRatioEnabled: false,
+          aspectRatioPickerButtonHidden: true,
+          cropStyle: CropStyle.circle,
+          aspectRatioPresets: const [CropAspectRatioPreset.square],
+        ),
+      ],
+    );
   }
 
   Future<void> _ensureUnderLimit(File file) async {
