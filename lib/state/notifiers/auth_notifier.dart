@@ -156,8 +156,12 @@ class AuthNotifier extends Notifier<AuthUiState> {
     }
   }
 
-  Future<void> deleteAccount({required String password}) {
+  Future<void> deleteAccount({
+    required String password,
+    bool manageLoading = true,
+  }) {
     return _run(
+      manageLoading: manageLoading,
       action: () async {
         await _auth.deleteAccount(password: password);
         _resetSessionState();
@@ -198,16 +202,21 @@ class AuthNotifier extends Notifier<AuthUiState> {
   Future<void> _run({
     required Future<void> Function() action,
     void Function()? onSuccess,
+    bool manageLoading = true,
   }) async {
-    if (state.isLoading) return;
-    state = state.copyWith(isLoading: true);
+    if (manageLoading) {
+      if (state.isLoading) return;
+      state = state.copyWith(isLoading: true);
+    }
     try {
       await action();
-      state = state.copyWith(isLoading: false);
+      if (manageLoading) {
+        state = state.copyWith(isLoading: false);
+      }
       onSuccess?.call();
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        isLoading: manageLoading ? false : state.isLoading,
         toast: _toastMessage(_auth.messageForAuthError(e), isError: true),
       );
     }
