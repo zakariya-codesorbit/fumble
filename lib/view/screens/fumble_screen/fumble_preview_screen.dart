@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fumble/core/theme/colors.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
@@ -41,6 +42,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
   var _editingLocation = false;
   var _locationSeeded = false;
   var _listening = false;
+  FumbleLocation? _mapLocation;
   /// Baseline after scanner GPS auto-fill — Done enables when user edits.
   var _baselineLocation = '';
 
@@ -80,21 +82,21 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
     final codes = ref.read(fumbleCodeRepositoryProvider);
 
     // Scanner GPS first; if off, geocode peer coords (same as Firebase save).
-    final place = await FumblePreviewActions.resolveMeetingPlaceForPreview(
+    final resolved = await FumblePreviewActions.resolveMeetingPlaceForPreview(
       peerUid: peerUid,
       codes: codes,
     );
 
     if (!mounted || requestId != _placeRequestId) return;
-    if (place != null && place.isNotEmpty) {
-      setState(() {
+    final place = resolved.label?.trim();
+    setState(() {
+      if (place != null && place.isNotEmpty) {
         _location.text = place;
-        _locationSeeded = true;
         _baselineLocation = place;
-      });
-    } else {
-      setState(() => _locationSeeded = true);
-    }
+      }
+      _mapLocation = resolved.location;
+      _locationSeeded = true;
+    });
   }
 
   void _onNoteChanged() {
@@ -235,6 +237,7 @@ class _FumblePreviewScreenState extends ConsumerState<FumblePreviewScreen> {
                         timeLabel: timeLabel,
                         locationLabel: locationLabel,
                         locationPlaceholder: !hasLocation,
+                        mapLocation: _mapLocation,
                         onLocationTap: fumble.isSavingNote
                             ? null
                             : () => setState(() => _editingLocation = true),

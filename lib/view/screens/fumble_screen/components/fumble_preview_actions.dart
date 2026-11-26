@@ -121,13 +121,14 @@ abstract final class FumblePreviewActions {
     await ref.read(voiceMemoryServiceProvider).stop();
   }
 
-  /// Label for the preview location field.
+  /// Meeting place for the preview location field + map pin.
   /// 1) Scanner GPS → geocode
   /// 2) Else peer published coords → geocode (same place saved to Firebase)
   ///
   /// Pass [peerUid] / [codes] before any `await` so [WidgetRef] is not used
   /// after dispose.
-  static Future<String?> resolveMeetingPlaceForPreview({
+  static Future<({String? label, FumbleLocation? location})>
+      resolveMeetingPlaceForPreview({
     required String peerUid,
     required FumbleCodeRepository codes,
   }) async {
@@ -137,26 +138,27 @@ abstract final class FumblePreviewActions {
       final trimmed = label?.trim();
       if (trimmed != null && trimmed.isNotEmpty) {
         debugPrint('[FumblePreview] meeting place from OWN GPS: $trimmed');
-        return trimmed;
+        return (label: trimmed, location: ownCoords);
       }
-      debugPrint('[FumblePreview] own GPS ok but geocode empty');
+      debugPrint('[FumblePreview] own GPS ok but geocode empty — still pin map');
+      return (label: null, location: ownCoords);
     }
 
     if (!ConnectionManager().isConnected) {
       debugPrint('[FumblePreview] offline — no peer location fallback');
-      return null;
+      return (label: null, location: null);
     }
     final uid = peerUid.trim();
     if (uid.isEmpty) {
       debugPrint('[FumblePreview] peerUid empty — no peer location fallback');
-      return null;
+      return (label: null, location: null);
     }
 
     try {
       final card = await codes.loadPublicProfile(uid);
       if (card == null) {
         debugPrint('[FumblePreview] peer profile null for $uid');
-        return null;
+        return (label: null, location: null);
       }
 
       final peerCoords = card.fumbleLocation;
@@ -165,9 +167,10 @@ abstract final class FumblePreviewActions {
         final trimmed = label?.trim();
         if (trimmed != null && trimmed.isNotEmpty) {
           debugPrint('[FumblePreview] meeting place from PEER GPS: $trimmed');
-          return trimmed;
+          return (label: trimmed, location: peerCoords);
         }
-        debugPrint('[FumblePreview] peer GPS ok but geocode empty');
+        debugPrint('[FumblePreview] peer GPS ok but geocode empty — still pin map');
+        return (label: null, location: peerCoords);
       } else {
         debugPrint('[FumblePreview] peer has no fumbleLocation');
       }
@@ -175,12 +178,12 @@ abstract final class FumblePreviewActions {
       final published = card.fumblePlace?.trim();
       if (published != null && published.isNotEmpty) {
         debugPrint('[FumblePreview] meeting place from peer fumblePlace: $published');
-        return published;
+        return (label: published, location: null);
       }
       debugPrint('[FumblePreview] peer has no fumblePlace either');
     } catch (e) {
       debugPrint('[FumblePreview] peer location load failed → $e');
     }
-    return null;
+    return (label: null, location: null);
   }
 }

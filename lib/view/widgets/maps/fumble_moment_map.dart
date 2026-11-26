@@ -13,7 +13,7 @@ import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
 
 /// Compact OpenStreetMap preview with a pin for a saved fumble meeting place.
-class FumbleMomentMap extends StatelessWidget {
+class FumbleMomentMap extends StatefulWidget {
   const FumbleMomentMap({
     super.key,
     required this.location,
@@ -36,8 +36,46 @@ class FumbleMomentMap extends StatelessWidget {
   }
 
   @override
+  State<FumbleMomentMap> createState() => _FumbleMomentMapState();
+}
+
+class _FumbleMomentMapState extends State<FumbleMomentMap> {
+  late final MapController _mapController;
+
+  LatLng get _point =>
+      LatLng(widget.location.latitude, widget.location.longitude);
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+  }
+
+  @override
+  void didUpdateWidget(covariant FumbleMomentMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.location.latitude != widget.location.latitude ||
+        oldWidget.location.longitude != widget.location.longitude) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _mapController.move(_point, _mapController.camera.zoom);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  void _centerOnPin() {
+    _mapController.move(_point, _mapController.camera.zoom);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final point = LatLng(location.latitude, location.longitude);
+    final point = _point;
 
     return Container(
       width: double.infinity,
@@ -54,45 +92,49 @@ class FumbleMomentMap extends StatelessWidget {
               topRight: Radius.circular(AppStyle.radiusMd),
             ),
             child: SizedBox(
-              height: height,
+              height: widget.height,
               width: double.infinity,
-              child: FlutterMap(
-                options: MapOptions(
-                  initialCenter: point,
-                  initialZoom: 15,
-                  interactionOptions: const InteractionOptions(
-                    flags:
-                        InteractiveFlag.drag |
-                        InteractiveFlag.pinchZoom |
-                        InteractiveFlag.doubleTapZoom,
-                  ),
-                ),
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: AppConfig.androidApplicationId,
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: point,
-                        width: 40,
-                        height: 40,
-                        alignment: Alignment.topCenter,
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Color(0xFFE53935),
-                          size: 36,
-                        ),
+                  FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: point,
+                      initialZoom: 15,
+                      // Re-center after layout — iOS often misses initialCenter.
+                      onMapReady: _centerOnPin,
+                      interactionOptions: const InteractionOptions(
+                        // No drag: fixed overlay pin stays on the meeting point.
+                        flags: InteractiveFlag.pinchZoom |
+                            InteractiveFlag.doubleTapZoom,
+                      ),
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: AppConfig.androidApplicationId,
                       ),
                     ],
+                  ),
+                  // Overlay pin — always visually centered (reliable on iOS).
+                  // Shift up so the tip sits on the map center, not the icon body.
+                  const IgnorePointer(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 36),
+                      child: Icon(
+                        Icons.location_on,
+                        color: Color(0xFFE53935),
+                        size: 40,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          if (showOpenInMaps) ...[
+          if (widget.showOpenInMaps) ...[
             12.height,
             Row(
                   children: [
@@ -110,7 +152,7 @@ class FumbleMomentMap extends StatelessWidget {
                     ),
                   ],
                 )
-                .onPress(() => openInMaps(location))
+                .onPress(() => FumbleMomentMap.openInMaps(widget.location))
                 .paddingOnly(left: 5.w, right: 5.w, bottom: 10.h),
           ],
         ],
