@@ -292,7 +292,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                     child: AppConstant.connectionsTitle.toText(
                       fontSize: 24,
                       fontWeight: AppStyle.w600,
-                      color: AppColors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   IconButton(
@@ -308,13 +308,13 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                       height: 34.w,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.gold,
+                        color: AppColors.primary,
                       ),
                       alignment: Alignment.center,
                       child: Icon(
                         AppIcons.add,
                         size: 20.w,
-                        color: AppColors.black,
+                        color: AppColors.onPrimary,
                       ),
                     ),
                   ),
@@ -329,7 +329,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                 padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 8.h),
                 child: AppConstant.verifyEmailBody.toText(
                   fontSize: 13,
-                  color: AppColors.softGray,
+                  color: AppColors.textSecondary,
                 ),
               ),
             Expanded(
@@ -477,7 +477,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                               height: 22,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: AppColors.gold,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -516,11 +516,11 @@ class PrimaryAddSomeoneButton extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: const Icon(AppIcons.add, color: AppColors.gold, size: 18),
+        icon: const Icon(AppIcons.add, color: AppColors.primary, size: 18),
         label: AppConstant.addSomeone.toText(
           fontSize: 14,
           fontWeight: AppStyle.w600,
-          color: AppColors.gold,
+          color: AppColors.primary,
         ),
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: AppColors.border),
@@ -568,8 +568,8 @@ class _ConnectionsTabs extends StatelessWidget {
                             letterSpacing: 0.6,
                             textAlign: TextAlign.center,
                             color: selected == entry.$1
-                                ? AppColors.gold
-                                : AppColors.softGray,
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -579,7 +579,7 @@ class _ConnectionsTabs extends StatelessWidget {
                           height: 2,
                           width: double.infinity,
                           color: selected == entry.$1
-                              ? AppColors.gold
+                              ? AppColors.primary
                               : AppColors.clear,
                         ),
                       ],

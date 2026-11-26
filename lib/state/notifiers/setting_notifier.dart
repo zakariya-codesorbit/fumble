@@ -97,7 +97,7 @@ class _DeleteAccountSheetBodyState extends State<_DeleteAccountSheetBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppConstant.deleteAccountConfirm.toText(
-            color: AppColors.secondaryText,
+            color: AppColors.textSecondary,
             fontSize: 13,
             fontWeight: AppStyle.w500,
             maxLine: 4,
@@ -116,15 +116,15 @@ class _DeleteAccountSheetBodyState extends State<_DeleteAccountSheetBody> {
             buttonName: AppConstant.delete,
             buttonColor: AppColors.error,
             borderColor: AppColors.error,
-            buttonTextColor: AppColors.white,
+            buttonTextColor: AppColors.textPrimary,
             onPressed: _confirm,
           ),
           8.height,
           SecondaryButton(
             buttonName: AppConstant.cancel,
-            buttonColor: AppColors.white.withValues(alpha: 0.06),
-            borderColor: AppColors.white.withValues(alpha: 0.06),
-            buttonTextColor: AppColors.primaryText,
+            buttonColor: AppColors.textPrimary.withValues(alpha: 0.06),
+            borderColor: AppColors.textPrimary.withValues(alpha: 0.06),
+            buttonTextColor: AppColors.textPrimary,
             fontWeight: AppStyle.w600,
             onPressed: () => Navigator.pop(context),
           ),

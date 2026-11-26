@@ -208,7 +208,7 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
                 AppConstant.addSomeoneSubtitle.toText(
                   fontSize: 14,
                   fontWeight: AppStyle.w500,
-                  color: AppColors.primaryText,
+                  color: AppColors.textPrimary,
                   maxLine: 4,
                   lineHeight: 1.4,
                 ),
@@ -299,7 +299,7 @@ class _AddSomeoneScreenState extends ConsumerState<AddSomeoneScreen> {
         label.toText(
           fontSize: 13,
           fontWeight: AppStyle.w500,
-          color: AppColors.softGray,
+          color: AppColors.textSecondary,
         ),
         8.height,
         child,
@@ -330,11 +330,11 @@ class _EditBox extends StatelessWidget {
       maxLines: maxLines,
       enabled: enabled,
       keyboardType: keyboardType,
-      cursorColor: AppColors.gold,
+      cursorColor: AppColors.primary,
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(
         fontSize: 16,
-        color: AppColors.white,
+        color: AppColors.textPrimary,
         fontFamily: AppStyle.fontFamily,
         fontFamilyFallback: AppStyle.fontFamilyFallback,
       ),
@@ -342,7 +342,7 @@ class _EditBox extends StatelessWidget {
         hintText: hint,
         hintStyle: TextStyle(
           fontSize: 14,
-          color: AppColors.softGrayDim,
+          color: AppColors.textDisabled,
           fontFamily: AppStyle.fontFamily,
           fontFamilyFallback: AppStyle.fontFamilyFallback,
         ),

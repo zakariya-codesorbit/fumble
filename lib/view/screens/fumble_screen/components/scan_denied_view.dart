@@ -20,14 +20,14 @@ class ScanDeniedView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           AppConstant.cameraPermissionTitle.toText(
-            color: AppColors.white,
+            color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: AppStyle.w700,
             textAlign: TextAlign.center,
           ),
           12.height,
           AppConstant.cameraPermissionSettings.toText(
-            color: AppColors.softGray,
+            color: AppColors.textSecondary,
             fontSize: 15,
             textAlign: TextAlign.center,
             maxLine: 5,
@@ -41,7 +41,7 @@ class ScanDeniedView extends StatelessWidget {
           12.height,
           TextButton(
             onPressed: onRetry,
-            child: AppConstant.retry.toText(color: AppColors.gold),
+            child: AppConstant.retry.toText(color: AppColors.primary),
           ),
         ],
       ),

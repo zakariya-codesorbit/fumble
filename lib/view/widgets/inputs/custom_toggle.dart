@@ -28,7 +28,7 @@ class CustomToggle extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(height / 2),
-        border: Border.all(color: AppColors.warmGray, width: 1),
+        border: Border.all(color: AppColors.textTertiary, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -80,7 +80,7 @@ class _Segment extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.gold : AppColors.clear,
+          color: selected ? AppColors.primary : AppColors.clear,
           borderRadius: BorderRadius.horizontal(
             left: isLeading ? Radius.circular(height / 2) : Radius.zero,
             right: !isLeading ? Radius.circular(height / 2) : Radius.zero,
@@ -89,7 +89,7 @@ class _Segment extends StatelessWidget {
         child: label.toText(
           fontSize: 9,
           fontWeight: AppStyle.w600,
-          color: selected ? AppColors.background : AppColors.warmGray,
+          color: selected ? AppColors.background : AppColors.textTertiary,
           textAlign: TextAlign.center,
         ),
       ),

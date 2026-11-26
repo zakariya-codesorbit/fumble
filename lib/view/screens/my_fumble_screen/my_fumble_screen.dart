@@ -37,7 +37,7 @@ class MyFumbleScreen extends ConsumerWidget {
           title: AppConstant.brand,
           brandTitle: true,
           leading: IconButton(
-            icon: const Icon(AppIcons.settings, color: AppColors.warmGray),
+            icon: const Icon(AppIcons.settings, color: AppColors.textTertiary),
             onPressed: ProfileActions.openSettings,
           ),
           actions: [
@@ -57,7 +57,7 @@ class MyFumbleScreen extends ConsumerWidget {
               return Center(
                 child: AppConstant.completeProfile.toText(
                   fontSize: 14,
-                  color: AppColors.softGray,
+                  color: AppColors.textSecondary,
                 ),
               );
             }
@@ -278,7 +278,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
           children: [
             Center(
               child: AppConstant.yourIdentity.toText(
-                color: AppColors.gold,
+                color: AppColors.primary,
                 fontSize: 12,
                 fontWeight: AppStyle.w600,
                 letterSpacing: 1.4,
@@ -290,7 +290,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
               child: AppConstant.myFumbleTitle.toText(
                 fontSize: 28,
                 fontWeight: AppStyle.w700,
-                color: AppColors.white,
+                color: AppColors.textPrimary,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -300,7 +300,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 child: AppConstant.signedInAs(profile.email).toText(
                   fontSize: 13,
                   fontWeight: AppStyle.w400,
-                  color: AppColors.softGray,
+                  color: AppColors.textSecondary,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -381,7 +381,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
                 child: AppConstant.memberSinceLabel(memberSince).toText(
                   fontSize: 12,
                   fontWeight: AppStyle.w500,
-                  color: AppColors.tertiaryText,
+                  color: AppColors.textTertiary,
                   textAlign: TextAlign.center,
                 ),
               ),

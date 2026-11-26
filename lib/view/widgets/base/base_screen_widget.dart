@@ -48,7 +48,7 @@ class ScaffoldContent extends StatelessWidget {
     return PopScope(
       canPop: overlay == null,
       child: Material(
-        color: backgroundColor ?? AppColors.backgroundColor,
+        color: backgroundColor ?? AppColors.background,
         child: Stack(
           fit: StackFit.expand,
           children: [

@@ -20,7 +20,7 @@ class AppErrorState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           (message ?? AppConstant.somethingWrong).toText(
-            color: AppColors.white,
+            color: AppColors.textPrimary,
             fontSize: 16,
             fontWeight: AppStyle.w400,
           ),

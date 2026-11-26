@@ -1,50 +1,62 @@
 import 'package:flutter/services.dart';
 
 /// fumble design tokens — dark theme only.
+///
+/// Use semantic names in UI: `textPrimary`, `surface`, `primary`, …
 abstract final class AppColors {
   AppColors._();
 
-  static const Color black = Color(0xFF000000);
-  static const Color white = Color(0xFFF2F0E9);
+  // ── Surfaces ──────────────────────────────────────────────────────
   static const Color clear = Color(0x00000000);
 
-  static const Color background = Color(0xFF000000);
+  /// Page / scaffold background.
+  static const Color background = Color(0xFF0A0A0A);
+
+  /// Bottom nav + app chrome.
   static const Color navBar = Color(0xFF0A0A0A);
-  static const Color surface = Color(0xFF0A0A0A);
-  static const Color surfaceElevated = Color(0xFF141414);
-  static const Color gold = Color(0xFFD4AF37);
-  static const Color goldMuted = Color(0xFFB8962E);
+
+  /// Card fill (warm charcoal).
+  static const Color surface = Color(0xFF161511);
+
+  /// Raised sheets / dialogs / selected chips.
+  static const Color surfaceElevated = Color(0xFF1C1A16);
+
+  /// Inset fields — pure black against warm cards.
+  static const Color inputFill = Color(0xFF000000);
+
+  /// Visible warm bronze card / input border.
+  static const Color border = Color(0xFF3D3426);
+
+  // ── Brand / accent ────────────────────────────────────────────────
+  /// Primary brand gold / ochre.
+  static const Color primary = Color(0xFFC9A03A);
+
+  /// Dimmer gold for secondary accents + coin ring.
+  static const Color primaryMuted = Color(0xFF7A5C2E);
+
+  /// Ink on primary fills (button label, icon on gold chip).
+  static const Color onPrimary = Color(0xFF000000);
+
+  // ── Text ─────────────────────────────────────────────────────────
+  static const Color textPrimary = Color(0xFFF2F0E9);
+  static const Color textSecondary = Color(0xFF8A8A8A);
+  static const Color textTertiary = Color(0xFF8F8479);
+  static const Color textDisabled = Color(0xFF5C5C5C);
+
+  /// Cream numerals on the AI coins badge.
+  static const Color textOnCoin = Color(0xFFF5E8C7);
+
+  // ── Status ────────────────────────────────────────────────────────
+  static const Color error = Color(0xFFE85D5D);
+  static const Color success = Color(0xFF3DDC97);
+  static const Color onError = textPrimary;
+
+  // ── Feature-specific ──────────────────────────────────────────────
   static const Color whatsApp = Color(0xFF25D366);
   static const Color whatsAppMuted = Color(0xFF1E9E4F);
   static const Color qrBackground = Color(0xFF080808);
-  static const Color qrGround = gold;
+  static const Color qrGround = primary;
   static const Color qrModule = background;
-  static const Color softGray = Color(0xFF8A8A8A);
-  static const Color warmGray = Color.fromRGBO(143, 132, 121, 1);
-  static const Color softGrayDim = Color(0xFF5C5C5C);
-  //static const Color border = Color(0x1AFFFFFF);
-  static const Color border = Color(0x1FB8962E);
-  static const Color error = Color(0xFFE85D5D);
-  static const Color success = Color(0xFF3DDC97);
-  static const Color inputFill = Color(0xFF121212);
-
-  static const Color backgroundColor = background;
-  static const Color surfaceColor = surface;
-  static const Color cardColor = surfaceElevated;
-  static const Color surfaceSecondaryColor = surfaceElevated;
-  static const Color surfaceTertiaryColor = surfaceElevated;
-  static const Color primaryColor = gold;
-  static const Color primaryForegroundColor = background;
-  static const Color iconColor = softGray;
-  static const Color errorColor = error;
-  static const Color errorForegroundColor = white;
-  static const Color successColor = success;
-  static const Color borderColor = border;
-  static const Color inputFillColor = inputFill;
-  static const Color primaryText = white;
-  static const Color secondaryText = softGray;
-  static const Color tertiaryText = warmGray;
-  static const Color primary = gold;
 
   static const SystemUiOverlayStyle statusBar = SystemUiOverlayStyle(
     statusBarColor: background,

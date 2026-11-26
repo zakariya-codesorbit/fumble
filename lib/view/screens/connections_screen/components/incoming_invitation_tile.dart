@@ -86,7 +86,7 @@ class IncomingInvitationTile extends StatelessWidget {
                               status.toText(
                                 fontSize: 11,
                                 fontWeight: AppStyle.w600,
-                                color: AppColors.gold,
+                                color: AppColors.primary,
                                 letterSpacing: 0.8,
                                 maxLine: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -101,13 +101,13 @@ class IncomingInvitationTile extends StatelessWidget {
                             date.toText(
                               fontSize: 12,
                               fontWeight: AppStyle.w500,
-                              color: AppColors.tertiaryText,
+                              color: AppColors.textTertiary,
                             ),
                             2.height,
                             time.toText(
                               fontSize: 12,
                               fontWeight: AppStyle.w500,
-                              color: AppColors.tertiaryText,
+                              color: AppColors.textTertiary,
                             ),
                           ],
                         ),
@@ -119,14 +119,14 @@ class IncomingInvitationTile extends StatelessWidget {
                         const Icon(
                           AppIcons.location,
                           size: 14,
-                          color: AppColors.gold,
+                          color: AppColors.primary,
                         ),
                         6.width,
                         Expanded(
                           child: placeLabel.toText(
                             fontSize: 12,
                             fontWeight: AppStyle.w500,
-                            color: AppColors.tertiaryText,
+                            color: AppColors.textTertiary,
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -144,7 +144,7 @@ class IncomingInvitationTile extends StatelessWidget {
                       note.toText(
                         fontSize: 13,
                         fontWeight: AppStyle.w400,
-                        color: AppColors.tertiaryText,
+                        color: AppColors.textTertiary,
                         maxLine: 3,
                         overflow: TextOverflow.ellipsis,
                         lineHeight: 1.35,
@@ -163,9 +163,9 @@ class IncomingInvitationTile extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: isBusy ? null : onAccept,
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.gold,
+                        foregroundColor: AppColors.primary,
                         disabledForegroundColor:
-                            AppColors.gold.withValues(alpha: 0.4),
+                            AppColors.primary.withValues(alpha: 0.4),
                         side: const BorderSide(color: AppColors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -175,8 +175,8 @@ class IncomingInvitationTile extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: AppStyle.w600,
                         color: isBusy
-                            ? AppColors.gold.withValues(alpha: 0.4)
-                            : AppColors.gold,
+                            ? AppColors.primary.withValues(alpha: 0.4)
+                            : AppColors.primary,
                       ),
                     ),
                   ),

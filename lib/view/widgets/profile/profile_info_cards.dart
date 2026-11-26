@@ -33,9 +33,9 @@ class ProfileInfoCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
         decoration: BoxDecoration(
-          color: AppColors.navBar,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.border, width: 1.2),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +44,7 @@ class ProfileInfoCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: title.toText(
-                    color: AppColors.gold,
+                    color: AppColors.primary,
                     fontSize: 12,
                     fontWeight: AppStyle.w600,
                     letterSpacing: 1.2,
@@ -56,7 +56,7 @@ class ProfileInfoCard extends StatelessWidget {
                     width: 16,
                     height: 16,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.warmGray,
+                      AppColors.textTertiary,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -68,8 +68,8 @@ class ProfileInfoCard extends StatelessWidget {
             else
               body.toText(
                 color: placeholder
-                    ? AppColors.softGrayDim
-                    : AppColors.secondaryText,
+                    ? AppColors.textDisabled
+                    : AppColors.textSecondary,
                 fontSize: 14,
                 lineHeight: 1.4,
               ),
@@ -104,21 +104,21 @@ class ProfileLocationCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
         decoration: BoxDecoration(
-          color: AppColors.navBar,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.border, width: 1.2),
         ),
         child: Row(
           children: [
-            Icon(AppIcons.location, size: 18, color: AppColors.tertiaryText),
+            Icon(AppIcons.location, size: 18, color: AppColors.textTertiary),
             10.width,
             Expanded(
               child:
                   editor ??
                   body.toText(
                     color: placeholder
-                        ? AppColors.softGrayDim
-                        : AppColors.secondaryText,
+                        ? AppColors.textDisabled
+                        : AppColors.textSecondary,
                     fontSize: 14,
                     maxLine: 2,
                     overflow: TextOverflow.ellipsis,
@@ -131,7 +131,7 @@ class ProfileLocationCard extends StatelessWidget {
                 width: 16,
                 height: 16,
                 colorFilter: const ColorFilter.mode(
-                  AppColors.warmGray,
+                  AppColors.textTertiary,
                   BlendMode.srcIn,
                 ),
               ),

@@ -138,7 +138,7 @@ class _GalaxyPainter extends CustomPainter {
       center,
       radius * 0.9,
       Paint()
-        ..color = AppColors.gold.withValues(alpha: 0.08 + pulse * 0.045)
+        ..color = AppColors.primary.withValues(alpha: 0.08 + pulse * 0.045)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 36),
     );
 
@@ -153,7 +153,7 @@ class _GalaxyPainter extends CustomPainter {
         center,
         r,
         Paint()
-          ..color = AppColors.gold.withValues(alpha: alpha)
+          ..color = AppColors.primary.withValues(alpha: alpha)
           ..style = PaintingStyle.stroke
           ..strokeWidth = width,
       );
@@ -167,7 +167,7 @@ class _GalaxyPainter extends CustomPainter {
           0.9,
           false,
           Paint()
-            ..color = AppColors.gold.withValues(alpha: 0.34)
+            ..color = AppColors.primary.withValues(alpha: 0.34)
             ..style = PaintingStyle.stroke
             ..strokeWidth = width + 0.3
             ..strokeCap = StrokeCap.round,
@@ -188,7 +188,7 @@ class _GalaxyPainter extends CustomPainter {
         canvas.drawCircle(
           p,
           2.3 - i * 0.18,
-          Paint()..color = AppColors.gold.withValues(alpha: 0.28 - i * 0.026),
+          Paint()..color = AppColors.primary.withValues(alpha: 0.28 - i * 0.026),
         );
       }
     }
@@ -211,14 +211,14 @@ class _GalaxyPainter extends CustomPainter {
         canvas.drawCircle(
           p,
           s * 2.5,
-          Paint()..color = AppColors.gold.withValues(alpha: 0.13 * twinkle),
+          Paint()..color = AppColors.primary.withValues(alpha: 0.13 * twinkle),
         );
       }
       canvas.drawCircle(
         p,
         s,
         Paint()
-          ..color = (star.bright ? AppColors.gold : AppColors.goldMuted)
+          ..color = (star.bright ? AppColors.primary : AppColors.primaryMuted)
               .withValues(alpha: 0.42 + 0.45 * twinkle),
       );
     }

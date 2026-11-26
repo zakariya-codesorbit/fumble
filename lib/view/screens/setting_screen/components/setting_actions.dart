@@ -74,7 +74,7 @@ abstract final class SettingActions {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               description.toText(
-                color: AppColors.secondaryText,
+                color: AppColors.textSecondary,
                 fontSize: 13,
                 fontWeight: AppStyle.w500,
                 maxLine: 4,
@@ -83,10 +83,10 @@ abstract final class SettingActions {
               25.height,
               PrimaryButton(
                 buttonName: primaryCta,
-                buttonColor: destructive ? AppColors.error : AppColors.gold,
-                borderColor: destructive ? AppColors.error : AppColors.gold,
+                buttonColor: destructive ? AppColors.error : AppColors.primary,
+                borderColor: destructive ? AppColors.error : AppColors.primary,
                 buttonTextColor: destructive
-                    ? AppColors.white
+                    ? AppColors.textPrimary
                     : AppColors.background,
                 onPressed: () {
                   Navigator.pop(sheetContext);
@@ -96,9 +96,9 @@ abstract final class SettingActions {
               8.height,
               SecondaryButton(
                 buttonName: AppConstant.cancel,
-                buttonColor: AppColors.white.withValues(alpha: 0.06),
-                borderColor: AppColors.white.withValues(alpha: 0.06),
-                buttonTextColor: AppColors.primaryText,
+                buttonColor: AppColors.textPrimary.withValues(alpha: 0.06),
+                borderColor: AppColors.textPrimary.withValues(alpha: 0.06),
+                buttonTextColor: AppColors.textPrimary,
                 fontWeight: AppStyle.w600,
                 onPressed: () => Navigator.pop(sheetContext),
               ),

@@ -22,7 +22,7 @@ class SettingActionGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         title.toText(
-          color: AppColors.gold,
+          color: AppColors.primary,
           fontSize: 12,
           fontWeight: AppStyle.w600,
           letterSpacing: 1.2,
@@ -60,7 +60,7 @@ class SettingActionItem {
     required this.label,
     required this.icon,
     required this.onTap,
-    this.foreground = AppColors.white,
+    this.foreground = AppColors.textPrimary,
   });
 
   final String label;
@@ -97,7 +97,7 @@ class _ActionRow extends StatelessWidget {
                 AppIcons.chevronRight,
                 color: item.foreground == AppColors.error
                     ? AppColors.error.withValues(alpha: 0.7)
-                    : AppColors.softGray,
+                    : AppColors.textSecondary,
               ),
             ],
           ),

@@ -40,7 +40,7 @@ Future<void> showLoadingDialog({String? message}) {
                       textAlign: TextAlign.center,
                       fontSize: 12,
                       fontWeight: AppStyle.w500,
-                      color: AppColors.softGray,
+                      color: AppColors.textSecondary,
                     ),
                   ],
                 ],

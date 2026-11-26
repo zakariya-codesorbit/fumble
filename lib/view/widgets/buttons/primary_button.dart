@@ -45,13 +45,13 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final enabledBg = buttonColor ?? (filled ? AppColors.gold : AppColors.clear);
+    final enabledBg = buttonColor ?? (filled ? AppColors.primary : AppColors.clear);
     final enabledBorder = borderColor ??
-        (filled ? (buttonColor ?? AppColors.gold) : AppColors.border);
+        (filled ? (buttonColor ?? AppColors.primary) : AppColors.border);
     final enabledFg =
-        buttonTextColor ?? (filled ? AppColors.background : AppColors.white);
+        buttonTextColor ?? (filled ? AppColors.onPrimary : AppColors.textPrimary);
     final disabledBg = AppColors.surfaceElevated;
-    final disabledFg = AppColors.softGrayDim;
+    final disabledFg = AppColors.textDisabled;
     final disabledBorder = AppColors.border;
     final br = borderRadiusCircular(radius);
     final fg = _enabled ? enabledFg : disabledFg;
@@ -66,7 +66,7 @@ class PrimaryButton extends StatelessWidget {
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return disabledBg;
             if (filled || buttonColor != null) return enabledBg;
-            return AppColors.white.withValues(alpha: 0.06);
+            return AppColors.textPrimary.withValues(alpha: 0.06);
           }),
           foregroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) return disabledFg;

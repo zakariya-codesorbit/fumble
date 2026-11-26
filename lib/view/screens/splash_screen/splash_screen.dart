@@ -51,7 +51,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             curve: Curves.easeInOut,
             child: Center(
               child: AppConstant.brand.toBrandText(
-                color: AppColors.gold,
+                color: AppColors.primary,
                 fontSize: 42,
                 fontWeight: AppStyle.w700,
                 lineHeight: 1.25,

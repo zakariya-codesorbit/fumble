@@ -69,7 +69,7 @@ class MyFumbleIdentityCard extends StatelessWidget {
             bioText.toText(
               fontSize: 14,
               fontWeight: AppStyle.w500,
-              color: AppColors.tertiaryText,
+              color: AppColors.textTertiary,
               textAlign: TextAlign.center,
               maxLine: 3,
               overflow: TextOverflow.ellipsis,
@@ -80,12 +80,12 @@ class MyFumbleIdentityCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(AppIcons.phone, size: 16, color: AppColors.gold),
+                Icon(AppIcons.phone, size: 16, color: AppColors.primary),
                 8.width,
                 phoneText.toText(
                   fontSize: 16,
                   fontWeight: AppStyle.w600,
-                  color: AppColors.white,
+                  color: AppColors.textPrimary,
                 ),
               ],
             ),
@@ -93,7 +93,7 @@ class MyFumbleIdentityCard extends StatelessWidget {
             16.height,
             AppConstant.addPhone.toText(
               fontSize: 14,
-              color: AppColors.softGrayDim,
+              color: AppColors.textDisabled,
               textAlign: TextAlign.center,
             ),
           ],
@@ -182,8 +182,8 @@ class _ActionBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 2,
-      shadowColor: AppColors.black.withValues(alpha: 0.45),
-      color: filled ? AppColors.gold : AppColors.background,
+      shadowColor: AppColors.onPrimary.withValues(alpha: 0.45),
+      color: filled ? AppColors.primary : AppColors.background,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -195,14 +195,14 @@ class _ActionBubble extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: filled ? AppColors.background : AppColors.gold,
+              color: filled ? AppColors.background : AppColors.primary,
               width: 1.5,
             ),
           ),
           child: Icon(
             icon,
             size: 18,
-            color: filled ? AppColors.background : AppColors.gold,
+            color: filled ? AppColors.background : AppColors.primary,
           ),
         ),
       ),

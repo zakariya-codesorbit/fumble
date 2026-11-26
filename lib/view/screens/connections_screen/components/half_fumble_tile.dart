@@ -92,7 +92,7 @@ class HalfFumbleTile extends StatelessWidget {
                         status.toText(
                           fontSize: 11,
                           fontWeight: AppStyle.w600,
-                          color: AppColors.gold,
+                          color: AppColors.primary,
                           letterSpacing: 0.8,
                           maxLine: 1,
                           overflow: TextOverflow.ellipsis,
@@ -107,13 +107,13 @@ class HalfFumbleTile extends StatelessWidget {
                       date.toText(
                         fontSize: 12,
                         fontWeight: AppStyle.w500,
-                        color: AppColors.tertiaryText,
+                        color: AppColors.textTertiary,
                       ),
                       2.height,
                       time.toText(
                         fontSize: 12,
                         fontWeight: AppStyle.w500,
-                        color: AppColors.tertiaryText,
+                        color: AppColors.textTertiary,
                       ),
                     ],
                   ),
@@ -125,14 +125,14 @@ class HalfFumbleTile extends StatelessWidget {
                   const Icon(
                     AppIcons.location,
                     size: 14,
-                    color: AppColors.gold,
+                    color: AppColors.primary,
                   ),
                   6.width,
                   Expanded(
                     child: placeLabel.toText(
                       fontSize: 12,
                       fontWeight: AppStyle.w500,
-                      color: AppColors.tertiaryText,
+                      color: AppColors.textTertiary,
                       maxLine: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -150,7 +150,7 @@ class HalfFumbleTile extends StatelessWidget {
                 note.toText(
                   fontSize: 13,
                   fontWeight: AppStyle.w400,
-                  color: AppColors.tertiaryText,
+                  color: AppColors.textTertiary,
                   maxLine: 3,
                   overflow: TextOverflow.ellipsis,
                   lineHeight: 1.35,
@@ -165,7 +165,7 @@ class HalfFumbleTile extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: onResend,
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.gold,
+                            foregroundColor: AppColors.primary,
                             side: const BorderSide(color: AppColors.border),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -174,7 +174,7 @@ class HalfFumbleTile extends StatelessWidget {
                           child: AppConstant.resendFumble.toText(
                             fontSize: 12,
                             fontWeight: AppStyle.w600,
-                            color: AppColors.gold,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),

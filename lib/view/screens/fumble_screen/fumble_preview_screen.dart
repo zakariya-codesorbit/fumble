@@ -299,20 +299,20 @@ class _LocationEditor extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
       decoration: BoxDecoration(
-        color: AppColors.navBar,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border, width: 1.2),
       ),
       child: TextField(
         controller: controller,
         enabled: enabled,
         autofocus: true,
-        cursorColor: AppColors.gold,
+        cursorColor: AppColors.primary,
         onSubmitted: (_) => onDone(),
         onTapOutside: (_) => onDone(),
         style: TextStyle(
           fontSize: 14,
-          color: AppColors.softGray,
+          color: AppColors.textSecondary,
           fontFamily: AppStyle.fontFamily,
           fontFamilyFallback: AppStyle.fontFamilyFallback,
         ),
@@ -322,7 +322,7 @@ class _LocationEditor extends StatelessWidget {
           hintText: AppConstant.enterFumbleLocation,
           hintStyle: TextStyle(
             fontSize: 14,
-            color: AppColors.softGrayDim,
+            color: AppColors.textDisabled,
             fontFamily: AppStyle.fontFamily,
             fontFamilyFallback: AppStyle.fontFamilyFallback,
           ),

@@ -132,7 +132,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                     alignment: Alignment.center,
                     child: const Icon(
                       AppIcons.deleteOutline,
-                      color: AppColors.white,
+                      color: AppColors.textPrimary,
                       size: 26,
                     ),
                   ),
@@ -198,7 +198,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                               status.toText(
                                 fontSize: 11,
                                 fontWeight: AppStyle.w600,
-                                color: AppColors.gold,
+                                color: AppColors.primary,
                                 letterSpacing: 0.8,
                                 maxLine: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -213,13 +213,13 @@ class _ConnectionTileState extends State<ConnectionTile> {
                             date.toText(
                               fontSize: 12,
                               fontWeight: AppStyle.w500,
-                              color: AppColors.tertiaryText,
+                              color: AppColors.textTertiary,
                             ),
                             2.height,
                             time.toText(
                               fontSize: 12,
                               fontWeight: AppStyle.w500,
-                              color: AppColors.tertiaryText,
+                              color: AppColors.textTertiary,
                             ),
                           ],
                         ),
@@ -231,7 +231,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                         Icon(
                           AppIcons.location,
                           size: 14,
-                          color: AppColors.gold,
+                          color: AppColors.primary,
                         ),
                         6.width,
                         Expanded(
@@ -239,8 +239,8 @@ class _ConnectionTileState extends State<ConnectionTile> {
                             fontSize: 12,
                             fontWeight: AppStyle.w500,
                             color: placeUnset
-                                ? AppColors.tertiaryText
-                                : AppColors.tertiaryText,
+                                ? AppColors.textTertiary
+                                : AppColors.textTertiary,
                             maxLine: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -258,7 +258,7 @@ class _ConnectionTileState extends State<ConnectionTile> {
                       note.toText(
                         fontSize: 13,
                         fontWeight: AppStyle.w400,
-                        color: AppColors.tertiaryText,
+                        color: AppColors.textTertiary,
                         maxLine: 3,
                         overflow: TextOverflow.ellipsis,
                         lineHeight: 1.35,

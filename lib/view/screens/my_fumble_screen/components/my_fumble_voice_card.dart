@@ -39,20 +39,20 @@ class MyFumbleVoiceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppConstant.yourVoiceLabel.toText(
-            color: AppColors.gold,
+            color: AppColors.primary,
             fontSize: 12,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.4,
           ),
           14.height,
           AppConstant.voiceTemplateTitle.toText(
-            color: AppColors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: AppStyle.w700,
           ),
           8.height,
           AppConstant.voiceTemplateBody.toText(
-            color: AppColors.softGray,
+            color: AppColors.textSecondary,
             fontSize: 14,
             fontWeight: AppStyle.w400,
             maxLine: 5,
@@ -67,7 +67,7 @@ class MyFumbleVoiceCard extends StatelessWidget {
               border: Border.all(color: AppColors.border),
             ),
             child: AppConstant.voiceTemplatePrompt(displayName).toText(
-              color: AppColors.softGray,
+              color: AppColors.textSecondary,
               fontSize: 14,
               fontWeight: AppStyle.w400,
               fontStyle: FontStyle.italic,
@@ -80,8 +80,8 @@ class MyFumbleVoiceCard extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onRecordTap,
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.gold,
-                side: const BorderSide(color: AppColors.gold, width: 1.2),
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary, width: 1.2),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppStyle.radiusPill),
@@ -93,11 +93,11 @@ class MyFumbleVoiceCard extends StatelessWidget {
                   Icon(
                     isRecording ? Icons.stop_rounded : AppIcons.mic,
                     size: 18,
-                    color: AppColors.gold,
+                    color: AppColors.primary,
                   ),
                   8.width,
                   cta.toText(
-                    color: AppColors.gold,
+                    color: AppColors.primary,
                     fontSize: 14,
                     fontWeight: AppStyle.w600,
                   ),

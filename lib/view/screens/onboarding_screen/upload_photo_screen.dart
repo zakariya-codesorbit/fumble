@@ -41,7 +41,7 @@ class UploadPhotoScreen extends ConsumerWidget {
           25.height,
           AppConstant.onboardingPhotoHint
               .toText(
-                color: AppColors.gold,
+                color: AppColors.primary,
                 fontSize: 13,
                 fontWeight: AppStyle.w500,
                 textAlign: TextAlign.center,

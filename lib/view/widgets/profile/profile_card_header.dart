@@ -133,7 +133,7 @@ class ProfileCardHeader extends StatelessWidget {
         SizedBox(height: topSpacing),
         if (eyebrow != null && eyebrow!.trim().isNotEmpty) ...[
           eyebrow!.toText(
-            color: AppColors.gold,
+            color: AppColors.primary,
             fontSize: 14,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.2,
@@ -242,8 +242,8 @@ class ProfileCardHeader extends StatelessWidget {
                   child: PillButton(
                     label: AppConstant.call,
                     icon: AppIcons.phone,
-                    foregroundColor: AppColors.gold,
-                    borderColor: AppColors.goldMuted,
+                    foregroundColor: AppColors.primary,
+                    borderColor: AppColors.primaryMuted,
                     onTap: onCall,
                   ),
                 ),
@@ -253,8 +253,8 @@ class ProfileCardHeader extends StatelessWidget {
                     label: AppConstant.text,
                     icon: AppIcons.chat,
                     backgroundColor: AppColors.surfaceElevated,
-                    foregroundColor: AppColors.white,
-                    borderColor: AppColors.softGrayDim,
+                    foregroundColor: AppColors.textPrimary,
+                    borderColor: AppColors.textDisabled,
                     onTap: onText,
                   ),
                 ),
@@ -329,7 +329,7 @@ class _NameRow extends StatelessWidget {
             width: 18,
             height: 18,
             colorFilter: const ColorFilter.mode(
-              AppColors.warmGray,
+              AppColors.textTertiary,
               BlendMode.srcIn,
             ),
           ),
@@ -375,8 +375,8 @@ class _BioRow extends StatelessWidget {
       fontSize: 14,
       fontWeight: AppStyle.w500,
       color: bioText.isNotEmpty
-          ? AppColors.tertiaryText
-          : AppColors.softGrayDim,
+          ? AppColors.textTertiary
+          : AppColors.textDisabled,
       textAlign: TextAlign.center,
       maxLine: 3,
       overflow: TextOverflow.ellipsis,
@@ -407,7 +407,7 @@ class _ContactLine extends StatelessWidget {
     final text = display.toText(
       fontSize: 16,
       fontWeight: hasValue ? AppStyle.w600 : AppStyle.w500,
-      color: hasValue ? AppColors.white : AppColors.softGrayDim,
+      color: hasValue ? AppColors.textPrimary : AppColors.textDisabled,
       textAlign: TextAlign.center,
       maxLine: 1,
       overflow: TextOverflow.ellipsis,
@@ -432,7 +432,7 @@ class _ShimmerBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.surfaceElevated,
-      highlightColor: AppColors.softGrayDim.withValues(alpha: 0.35),
+      highlightColor: AppColors.textDisabled.withValues(alpha: 0.35),
       child: Container(
         width: width,
         height: height,

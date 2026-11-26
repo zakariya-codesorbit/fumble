@@ -129,7 +129,7 @@ class ProfileCardSections extends StatelessWidget {
           footerLabel!.toText(
             fontSize: 12,
             fontWeight: AppStyle.w500,
-            color: AppColors.tertiaryText,
+            color: AppColors.textTertiary,
             textAlign: TextAlign.center,
           ),
         ],
@@ -169,9 +169,9 @@ class _ShimmerCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
       decoration: BoxDecoration(
-        color: AppColors.navBar,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border, width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +210,7 @@ class _ShimmerBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.surfaceElevated,
-      highlightColor: AppColors.softGrayDim.withValues(alpha: 0.35),
+      highlightColor: AppColors.textDisabled.withValues(alpha: 0.35),
       child: Container(
         width: width,
         height: height,

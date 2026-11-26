@@ -26,7 +26,7 @@ class CircularScanOverlayPainter extends CustomPainter {
       center,
       radius + 10,
       Paint()
-        ..color = AppColors.gold.withValues(alpha: pulse ? 0.18 : 0.10)
+        ..color = AppColors.primary.withValues(alpha: pulse ? 0.18 : 0.10)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 10,
     );
@@ -35,7 +35,7 @@ class CircularScanOverlayPainter extends CustomPainter {
       center,
       radius,
       Paint()
-        ..color = AppColors.gold.withValues(alpha: pulse ? 0.95 : 0.8)
+        ..color = AppColors.primary.withValues(alpha: pulse ? 0.95 : 0.8)
         ..style = PaintingStyle.stroke
         ..strokeWidth = pulse ? 3.5 : 2.8,
     );
@@ -44,7 +44,7 @@ class CircularScanOverlayPainter extends CustomPainter {
       center,
       radius - 10,
       Paint()
-        ..color = AppColors.gold.withValues(alpha: 0.28)
+        ..color = AppColors.primary.withValues(alpha: 0.28)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2,
     );

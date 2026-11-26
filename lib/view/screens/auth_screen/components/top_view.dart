@@ -40,7 +40,7 @@ class TopView extends StatelessWidget {
           topSpacing.height,
         title.toText(fontSize: 28, fontWeight: AppStyle.w700, lineHeight: 1.15),
         titleSubtitleGap.height,
-        subtitle.toText(fontSize: 14, color: AppColors.softGray),
+        subtitle.toText(fontSize: 14, color: AppColors.textSecondary),
         afterSubtitle.height,
       ],
     );

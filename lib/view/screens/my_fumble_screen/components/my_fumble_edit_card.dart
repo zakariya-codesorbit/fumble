@@ -83,7 +83,7 @@ class MyFumbleEditCard extends StatelessWidget {
           AppConstant.editMyFumble.toText(
             fontSize: 20,
             fontWeight: AppStyle.w700,
-            color: AppColors.white,
+            color: AppColors.textPrimary,
           ),
           20.height,
           _LabeledField(
@@ -134,7 +134,7 @@ class MyFumbleEditCard extends StatelessWidget {
             child: Row(
               children: [
                 Material(
-                  color: AppColors.primaryText,
+                  color: AppColors.textPrimary,
                   borderRadius: BorderRadius.circular(8),
                   child: InkWell(
                     onTap: onChoosePhoto,
@@ -156,7 +156,7 @@ class MyFumbleEditCard extends StatelessWidget {
                 Expanded(
                   child: _photoLabel.toText(
                     fontSize: 13,
-                    color: AppColors.softGray,
+                    color: AppColors.textSecondary,
                     maxLine: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -202,7 +202,7 @@ class _LabeledField extends StatelessWidget {
         label.toText(
           fontSize: 13,
           fontWeight: AppStyle.w500,
-          color: AppColors.softGray,
+          color: AppColors.textSecondary,
         ),
         8.height,
         child,
@@ -232,12 +232,12 @@ class _EditInput extends StatelessWidget {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
-      cursorColor: AppColors.gold,
+      cursorColor: AppColors.primary,
       onChanged: onChanged,
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(
         fontSize: 16,
-        color: AppColors.white,
+        color: AppColors.textPrimary,
         fontFamily: AppStyle.fontFamily,
         fontFamilyFallback: AppStyle.fontFamilyFallback,
       ),
@@ -245,7 +245,7 @@ class _EditInput extends StatelessWidget {
         hintText: hint,
         hintStyle: TextStyle(
           fontSize: 14,
-          color: AppColors.softGrayDim,
+          color: AppColors.textDisabled,
           fontFamily: AppStyle.fontFamily,
           fontFamilyFallback: AppStyle.fontFamilyFallback,
         ),

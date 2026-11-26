@@ -13,7 +13,7 @@ class PillButton extends StatelessWidget {
     this.icon,
     this.iconAsset,
     this.backgroundColor = AppColors.clear,
-    this.foregroundColor = AppColors.white,
+    this.foregroundColor = AppColors.textPrimary,
     this.borderColor = AppColors.border,
   }) : assert(icon != null || iconAsset != null);
 

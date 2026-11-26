@@ -40,9 +40,11 @@ class BottomNavigation extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          decoration: const BoxDecoration(
+            color: AppColors.navBar,
+            border: Border(
+              top: BorderSide(color: AppColors.border, width: 1),
+            ),
           ),
           height: AppStyle.bottomNavHeight,
           child: Row(
@@ -50,7 +52,7 @@ class BottomNavigation extends ConsumerWidget {
               final tab = tabs[index];
               final active = nav.index == index;
               final icon = active ? tab.filledIcon : tab.outlinedIcon;
-              final color = active ? AppColors.gold : AppColors.softGray;
+              final color = active ? AppColors.primary : AppColors.textSecondary;
               return Expanded(
                 child: InkWell(
                   onTap: () => controller.setIndex(index),

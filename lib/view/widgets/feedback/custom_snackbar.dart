@@ -39,7 +39,7 @@ void showToast({required String message, bool isError = false}) {
               textAlign: TextAlign.center,
               fontSize: 14,
               fontWeight: AppStyle.w400,
-              color: isError ? AppColors.error : AppColors.white,
+              color: isError ? AppColors.error : AppColors.textPrimary,
               maxLine: 3,
               overflow: TextOverflow.ellipsis,
             ),

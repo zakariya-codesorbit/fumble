@@ -109,7 +109,7 @@ class SettingScreen extends ConsumerWidget {
             ),
             32.height,
             AppConstant.appVersionLabel.toText(
-              color: AppColors.softGrayDim,
+              color: AppColors.textDisabled,
               fontSize: 12,
               fontWeight: AppStyle.w500,
               textAlign: TextAlign.center,

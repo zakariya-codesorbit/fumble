@@ -142,9 +142,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           height: 24,
                           child: Checkbox(
                             value: _agreedToLegal,
-                            activeColor: AppColors.gold,
+                            activeColor: AppColors.primary,
                             checkColor: AppColors.background,
-                            side: const BorderSide(color: AppColors.softGray),
+                            side: const BorderSide(color: AppColors.textSecondary),
                             onChanged: (value) {
                               setState(() => _agreedToLegal = value ?? false);
                             },
@@ -155,7 +155,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           child: Text.rich(
                             TextSpan(
                               style: TextStyle(
-                                color: AppColors.softGray,
+                                color: AppColors.textSecondary,
                                 fontSize: 13,
                                 fontFamily: AppStyle.fontFamily,
                                 fontFamilyFallback: AppStyle.fontFamilyFallback,
@@ -168,10 +168,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 TextSpan(
                                   text: AppConstant.privacyPolicy,
                                   style: const TextStyle(
-                                    color: AppColors.gold,
+                                    color: AppColors.primary,
                                     fontWeight: AppStyle.w600,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.gold,
+                                    decorationColor: AppColors.primary,
                                   ),
                                   recognizer: _privacyTap,
                                 ),
@@ -179,10 +179,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 TextSpan(
                                   text: AppConstant.termsAndConditions,
                                   style: const TextStyle(
-                                    color: AppColors.gold,
+                                    color: AppColors.primary,
                                     fontWeight: AppStyle.w600,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: AppColors.gold,
+                                    decorationColor: AppColors.primary,
                                   ),
                                   recognizer: _termsTap,
                                 ),
@@ -204,7 +204,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       children: [
                         AppConstant.hasAccount.toText(
                           fontSize: 14,
-                          color: AppColors.softGray,
+                          color: AppColors.textSecondary,
                         ),
                         TextButtonWidget(
                           buttonName: AppConstant.loginCta,

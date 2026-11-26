@@ -13,7 +13,7 @@ class BackIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = color ?? AppColors.gold;
+    final tint = color ?? AppColors.primary;
     return IconButton(
       onPressed: onTap ?? pop,
       padding: EdgeInsets.zero,

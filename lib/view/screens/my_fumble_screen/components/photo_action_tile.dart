@@ -20,7 +20,7 @@ class PhotoActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive ? AppColors.error : AppColors.white;
+    final color = destructive ? AppColors.error : AppColors.textPrimary;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: color),

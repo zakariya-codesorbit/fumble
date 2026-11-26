@@ -23,7 +23,7 @@ class PreviewDetailRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         label.toText(
-          color: AppColors.gold,
+          color: AppColors.primary,
           fontSize: 12,
           fontWeight: AppStyle.w600,
           letterSpacing: 1.2,
@@ -32,7 +32,7 @@ class PreviewDetailRow extends StatelessWidget {
         Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 18, color: AppColors.softGray),
+              Icon(icon, size: 18, color: AppColors.textSecondary),
               10.width,
             ],
             Expanded(

@@ -27,7 +27,7 @@ class FumbleQr extends StatelessWidget {
     return Column(
       children: [
         AppConstant.scanToFumble.toText(
-          color: AppColors.gold,
+          color: AppColors.primary,
           fontSize: 12,
           fontWeight: AppStyle.w600,
           letterSpacing: 1.2,
@@ -38,16 +38,16 @@ class FumbleQr extends StatelessWidget {
           height: size,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: AppColors.textPrimary,
             borderRadius: BorderRadius.circular(12),
           ),
           child: PrettyQrView.data(
             data: payload,
             errorCorrectLevel: QrErrorCorrectLevel.M,
             decoration: const PrettyQrDecoration(
-              background: AppColors.white,
+              background: AppColors.textPrimary,
               shape: PrettyQrSmoothSymbol(
-                color: AppColors.gold,
+                color: AppColors.primary,
                 roundFactor: 0,
               ),
               quietZone: PrettyQrQuietZone.zero,
@@ -58,7 +58,7 @@ class FumbleQr extends StatelessWidget {
         GestureDetector(
           onLongPress: onCopy,
           child: code.toText(
-            color: AppColors.softGray,
+            color: AppColors.textSecondary,
             fontSize: 13,
             fontWeight: AppStyle.w500,
             letterSpacing: 1.6,

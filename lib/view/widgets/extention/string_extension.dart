@@ -56,7 +56,7 @@ extension StringExtension on String {
       style: TextStyle(
         height: lineHeight,
         backgroundColor: backgroundColor,
-        color: color ?? AppColors.white,
+        color: color ?? AppColors.textPrimary,
         fontSize: fs,
         fontFamily: fontFamily ?? AppStyle.fontFamily,
         fontFamilyFallback: AppStyle.fontFamilyFallback,

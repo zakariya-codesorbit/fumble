@@ -80,7 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         AppConstant.noAccount.toText(
                           fontSize: 14,
-                          color: AppColors.softGray,
+                          color: AppColors.textSecondary,
                         ),
                         TextButtonWidget(
                           buttonName: AppConstant.signupCta,

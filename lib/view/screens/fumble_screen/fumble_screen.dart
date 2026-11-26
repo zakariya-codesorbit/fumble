@@ -112,7 +112,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                     lineHeight: 1.2,
                   ),
                   AppConstant.fumbleQuestion.toText(
-                    color: AppColors.gold,
+                    color: AppColors.primary,
                     fontSize: 42,
                     fontWeight: AppStyle.w400,
                     lineHeight: 1.2,
@@ -120,12 +120,12 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                   16.height,
                   AppConstant.tapTheQr.toText(
                     fontSize: 18,
-                    color: AppColors.softGray,
+                    color: AppColors.textSecondary,
                   ),
                   2.height,
                   AppConstant.readyToScan.toText(
                     fontSize: 18,
-                    color: AppColors.softGray,
+                    color: AppColors.textSecondary,
                   ),
                   Expanded(
                     child: payload == null
@@ -133,7 +133,7 @@ class _FumbleScreenState extends ConsumerState<FumbleScreen> {
                             child: !_cacheLoaded && live == null
                                 ? const AppLoader()
                                 : AppConstant.completeProfile.toText(
-                                    color: AppColors.softGray,
+                                    color: AppColors.textSecondary,
                                     fontSize: 14,
                                     textAlign: TextAlign.center,
                                   ),

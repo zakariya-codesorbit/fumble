@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:fumble/core/theme/colors.dart';
 
 Border borderAll({Color? color, double width = 1}) => Border(
-  top: BorderSide(color: color ?? AppColors.white, width: width),
-  bottom: BorderSide(color: color ?? AppColors.white, width: width),
-  left: BorderSide(color: color ?? AppColors.white, width: width),
-  right: BorderSide(color: color ?? AppColors.white, width: width),
+  top: BorderSide(color: color ?? AppColors.textPrimary, width: width),
+  bottom: BorderSide(color: color ?? AppColors.textPrimary, width: width),
+  left: BorderSide(color: color ?? AppColors.textPrimary, width: width),
+  right: BorderSide(color: color ?? AppColors.textPrimary, width: width),
 );
 
 Border borderOnly({

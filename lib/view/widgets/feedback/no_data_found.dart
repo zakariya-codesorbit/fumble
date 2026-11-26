@@ -29,7 +29,7 @@ class NoDataFound extends StatelessWidget {
             if (topSpacing != null) topSpacing!.height,
             CustomPaint(
               painter: _DashedRRectPainter(
-                color: AppColors.goldMuted.withValues(alpha: 0.45),
+                color: AppColors.primaryMuted.withValues(alpha: 0.45),
                 radius: 20,
                 strokeWidth: 1.2,
                 dashLength: 6,
@@ -41,7 +41,7 @@ class NoDataFound extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     (title ?? AppConstant.dataNotFound).toText(
-                      color: AppColors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 20,
                       fontWeight: AppStyle.w700,
                       textAlign: TextAlign.center,
@@ -49,7 +49,7 @@ class NoDataFound extends StatelessWidget {
                     if (subtitle != null) ...[
                       10.height,
                       subtitle!.toText(
-                        color: AppColors.softGray,
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                         fontWeight: AppStyle.w400,
                         textAlign: TextAlign.center,

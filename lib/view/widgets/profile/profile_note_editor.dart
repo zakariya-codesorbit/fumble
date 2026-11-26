@@ -27,12 +27,12 @@ class ProfileNoteEditor extends StatelessWidget {
       controller: controller,
       enabled: enabled,
       maxLines: maxLines,
-      cursorColor: AppColors.gold,
+      cursorColor: AppColors.primary,
       onChanged: onChanged,
       style: TextStyle(
         fontSize: 14,
         height: 1.4,
-        color: AppColors.secondaryText,
+        color: AppColors.textSecondary,
         fontFamily: AppStyle.fontFamily,
         fontFamilyFallback: AppStyle.fontFamilyFallback,
       ),
@@ -43,7 +43,7 @@ class ProfileNoteEditor extends StatelessWidget {
         hintStyle: TextStyle(
           fontSize: 14,
           height: 1.4,
-          color: AppColors.softGrayDim,
+          color: AppColors.textDisabled,
           fontFamily: AppStyle.fontFamily,
           fontFamilyFallback: AppStyle.fontFamilyFallback,
         ),

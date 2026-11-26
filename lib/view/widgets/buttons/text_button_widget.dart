@@ -25,7 +25,7 @@ class TextButtonWidget extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       child: buttonName.toText(
-        color: color ?? AppColors.gold,
+        color: color ?? AppColors.primary,
         fontSize: fontSize,
         fontWeight: fontWeight ?? AppStyle.w400,
       ),

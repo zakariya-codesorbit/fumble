@@ -167,7 +167,7 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
       children: [
         if (widget.showLabel) ...[
           AppConstant.phoneLabel.toText(
-            color: AppColors.gold,
+            color: AppColors.primary,
             fontSize: 12,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.2,
@@ -208,23 +208,23 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                 textStyle: TextStyle(
                   fontSize: 15,
                   fontWeight: AppStyle.w500,
-                  color: AppColors.white,
+                  color: AppColors.textPrimary,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
                 dialogTextStyle: TextStyle(
                   fontSize: 15,
-                  color: AppColors.white,
+                  color: AppColors.textPrimary,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
                 searchStyle: TextStyle(
                   fontSize: 14,
-                  color: AppColors.white,
+                  color: AppColors.textPrimary,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
                 searchDecoration: InputDecoration(
                   hintText: AppConstant.searchCountry,
                   hintStyle: TextStyle(
-                    color: AppColors.softGray,
+                    color: AppColors.textSecondary,
                     fontFamilyFallback: AppStyle.fontFamilyFallback,
                   ),
                   filled: true,
@@ -239,7 +239,7 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppStyle.radiusMd),
-                    borderSide: const BorderSide(color: AppColors.gold),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                 ),
                 dialogBackgroundColor: AppColors.surfaceElevated,
@@ -252,17 +252,17 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                   ),
                   border: Border(
                     top: BorderSide(
-                      color: AppColors.gold.withValues(alpha: 0.22),
+                      color: AppColors.primary.withValues(alpha: 0.22),
                     ),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.black.withValues(alpha: 0.55),
+                      color: AppColors.onPrimary.withValues(alpha: 0.55),
                       blurRadius: 28,
                       offset: const Offset(0, -8),
                     ),
                     BoxShadow(
-                      color: AppColors.gold.withValues(alpha: 0.10),
+                      color: AppColors.primary.withValues(alpha: 0.10),
                       blurRadius: 18,
                       offset: const Offset(0, -2),
                     ),
@@ -272,12 +272,12 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                 headerTextStyle: TextStyle(
                   fontSize: 16,
                   fontWeight: AppStyle.w600,
-                  color: AppColors.white,
+                  color: AppColors.textPrimary,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
                 closeIcon: const Icon(
                   Icons.close_rounded,
-                  color: AppColors.softGray,
+                  color: AppColors.textSecondary,
                 ),
                 pickerStyle: PickerStyle.bottomSheet,
               ),
@@ -291,11 +291,11 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                 autofillHints: const [AutofillHints.telephoneNumberNational],
                 onFieldSubmitted: widget.onSubmitted,
                 onChanged: (_) => widget.onChanged?.call(fullNumber),
-                cursorColor: AppColors.gold,
+                cursorColor: AppColors.primary,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: AppStyle.w400,
-                  color: AppColors.tertiaryText,
+                  color: AppColors.textTertiary,
                   fontFamily: AppStyle.fontFamily,
                   fontFamilyFallback: AppStyle.fontFamilyFallback,
                 ),
@@ -320,7 +320,7 @@ class PhoneCountryFieldState extends State<PhoneCountryField> {
                   hintStyle: TextStyle(
                     fontSize: 14,
                     fontWeight: AppStyle.w400,
-                    color: AppColors.softGrayDim,
+                    color: AppColors.textDisabled,
                     fontFamilyFallback: AppStyle.fontFamilyFallback,
                   ),
                   errorStyle: TextStyle(

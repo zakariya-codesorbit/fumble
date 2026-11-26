@@ -16,12 +16,12 @@ class FumblePreviewRememberPrompt extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.navBar,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border, width: 1.2),
       ),
       child: message.toText(
-        color: AppColors.gold,
+        color: AppColors.primary,
         fontSize: 14,
         fontWeight: AppStyle.w500,
         textAlign: TextAlign.center,

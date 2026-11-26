@@ -42,7 +42,7 @@ abstract final class AppStyle {
   static const double bottomNavHeight = 64;
 
   static final TextStyle appbarTextStyle = TextStyle(
-    color: AppColors.gold,
+    color: AppColors.primary,
     fontSize: 18,
     fontWeight: w700,
     letterSpacing: 3,

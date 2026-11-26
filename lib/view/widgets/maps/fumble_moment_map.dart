@@ -80,8 +80,9 @@ class _FumbleMomentMapState extends State<FumbleMomentMap> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppStyle.radiusMd),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border, width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -141,7 +142,7 @@ class _FumbleMomentMapState extends State<FumbleMomentMap> {
                   children: [
                     Expanded(
                       child: AppConstant.openInMaps.toText(
-                        color: AppColors.gold,
+                        color: AppColors.primary,
                         fontSize: 14,
                         fontWeight: AppStyle.w600,
                       ),
@@ -149,7 +150,7 @@ class _FumbleMomentMapState extends State<FumbleMomentMap> {
                     const Icon(
                       Icons.open_in_new,
                       size: 16,
-                      color: AppColors.gold,
+                      color: AppColors.primary,
                     ),
                   ],
                 )

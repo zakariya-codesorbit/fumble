@@ -22,9 +22,9 @@ class FumbleBrandMark extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: filled ? AppColors.gold : AppColors.clear,
+        color: filled ? AppColors.primary : AppColors.clear,
         border: Border.all(
-          color: AppColors.gold,
+          color: AppColors.primary,
           width: (size * 0.02).clamp(1.5, AppStyle.fumbleButtonStroke),
         ),
       ),
@@ -32,7 +32,7 @@ class FumbleBrandMark extends StatelessWidget {
           .split('')
           .join(' ')
           .toText(
-            color: AppColors.gold,
+            color: AppColors.primary,
             fontSize: size * 0.12,
             fontWeight: AppStyle.w600,
             letterSpacing: size * 0.015,

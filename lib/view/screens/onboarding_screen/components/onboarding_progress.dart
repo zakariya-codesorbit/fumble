@@ -23,7 +23,7 @@ class OnboardingProgress extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppConstant.onboardingStepLabel(currentStep, totalSteps).toText(
-          color: AppColors.gold,
+          color: AppColors.primary,
           fontSize: 14,
           fontWeight: AppStyle.w600,
           letterSpacing: 1.2,
@@ -39,7 +39,7 @@ class OnboardingProgress extends StatelessWidget {
                   right: index == totalSteps - 1 ? 0 : 8.w,
                 ),
                 decoration: BoxDecoration(
-                  color: active ? AppColors.gold : AppColors.surfaceElevated,
+                  color: active ? AppColors.primary : AppColors.surfaceElevated,
                   borderRadius: BorderRadius.circular(99),
                 ),
               ),

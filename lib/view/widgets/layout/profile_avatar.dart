@@ -81,7 +81,7 @@ class ProfileAvatar extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.goldMuted.withAlpha(20),
+          color: AppColors.primaryMuted.withAlpha(20),
         ),
         clipBehavior: Clip.antiAlias,
         child: child,
@@ -111,14 +111,14 @@ class ProfileAvatar extends StatelessWidget {
                     child: Icon(
                       Icons.edit,
                       size: size * 0.14,
-                      color: AppColors.gold,
+                      color: AppColors.primary,
                     ),
                   )
                 : Container(
                     width: size * 0.28,
                     height: size * 0.28,
                     decoration: BoxDecoration(
-                      color: AppColors.gold,
+                      color: AppColors.primary,
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.background, width: 2),
                     ),

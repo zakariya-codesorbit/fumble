@@ -71,7 +71,7 @@ class _RequirementChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = rule.met ? AppColors.success : AppColors.softGray;
+    final fg = rule.met ? AppColors.success : AppColors.textSecondary;
     final bg = rule.met
         ? AppColors.success.withValues(alpha: 0.12)
         : AppColors.surfaceElevated;

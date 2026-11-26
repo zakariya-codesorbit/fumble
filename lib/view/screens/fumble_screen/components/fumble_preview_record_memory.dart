@@ -23,7 +23,7 @@ class FumblePreviewRecordMemory extends StatelessWidget {
     final label = isListening
         ? AppConstant.listeningMemory
         : AppConstant.recordMemory;
-    final accent = isListening ? AppColors.error : AppColors.gold;
+    final accent = isListening ? AppColors.error : AppColors.primary;
 
     return Material(
       color: AppColors.clear,
@@ -36,8 +36,12 @@ class FumblePreviewRecordMemory extends StatelessWidget {
           height: 52,
           alignment: Alignment.center,
           decoration: BoxDecoration(
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: accent, width: isListening ? 1.4 : 0.5),
+            border: Border.all(
+              color: accent,
+              width: isListening ? 1.4 : 1.2,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -85,7 +85,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         if (widget.label != null) ...[
           widget.label!.toText(
-            color: AppColors.gold,
+            color: AppColors.primary,
             fontSize: 12,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.2,
@@ -108,11 +108,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
           onFieldSubmitted: widget.onSubmitted,
           onTap: widget.onTap,
           autofocus: widget.autofocus,
-          cursorColor: AppColors.gold,
+          cursorColor: AppColors.primary,
           style: TextStyle(
             fontSize: 16,
             fontWeight: AppStyle.w400,
-            color: AppColors.tertiaryText,
+            color: AppColors.textTertiary,
             fontFamily: AppStyle.fontFamily,
             fontFamilyFallback: AppStyle.fontFamilyFallback,
           ),
@@ -128,7 +128,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             hintStyle: TextStyle(
               fontSize: 14,
               fontWeight: AppStyle.w400,
-              color: AppColors.softGrayDim,
+              color: AppColors.textDisabled,
               fontFamilyFallback: AppStyle.fontFamilyFallback,
             ),
             errorStyle: TextStyle(
@@ -145,7 +145,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                           _obscure
                               ? AppIcons.visibilityOn
                               : AppIcons.visibilityOff,
-                          color: AppColors.tertiaryText,
+                          color: AppColors.textTertiary,
                         ),
                       )
                     : null),

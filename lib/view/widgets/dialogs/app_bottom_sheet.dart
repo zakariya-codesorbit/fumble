@@ -60,7 +60,7 @@ class AppBottomSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: title.toText(
-                    color: AppColors.primaryText,
+                    color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     maxLine: 2,
@@ -70,7 +70,7 @@ class AppBottomSheet extends StatelessWidget {
                 Icon(
                   Icons.close_rounded,
                   size: 22.h,
-                  color: AppColors.secondaryText,
+                  color: AppColors.textSecondary,
                 ).onPress(() => Navigator.maybePop(context)),
               ],
             ),

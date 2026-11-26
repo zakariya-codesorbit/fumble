@@ -29,7 +29,7 @@ Future<String?> showAvatarPickerSheet(BuildContext context) {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.45),
+                  color: AppColors.primary.withValues(alpha: 0.45),
                 ),
               ),
               child: ClipOval(

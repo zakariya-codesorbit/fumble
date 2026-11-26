@@ -22,7 +22,7 @@ class SettingToggleGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         title.toText(
-          color: AppColors.gold,
+          color: AppColors.primary,
           fontSize: 12,
           fontWeight: AppStyle.w600,
           letterSpacing: 1.2,
@@ -80,12 +80,12 @@ class _ToggleRow extends StatelessWidget {
       child: Row(
         children: [
           if (item.icon != null) ...[
-            Icon(item.icon, color: AppColors.white, size: 22),
+            Icon(item.icon, color: AppColors.textPrimary, size: 22),
             14.width,
           ],
           Expanded(
             child: item.label.toText(
-              color: AppColors.white,
+              color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: AppStyle.w500,
             ),

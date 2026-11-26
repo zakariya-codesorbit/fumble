@@ -55,7 +55,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
     final center = Offset(px / 2, px / 2);
     final radius = px / 2 - 8;
 
-    canvas.drawCircle(center, radius, Paint()..color = AppColors.gold);
+    canvas.drawCircle(center, radius, Paint()..color = AppColors.primary);
     canvas.drawCircle(
       center,
       radius,
@@ -123,7 +123,7 @@ class _FumbleQrCodeState extends State<FumbleQrCode> {
               data: widget.data,
               errorCorrectLevel: _ecc,
               decoration: PrettyQrDecoration(
-                background: AppColors.gold,
+                background: AppColors.primary,
                 shape: const PrettyQrSmoothSymbol(
                   color: AppColors.background,
                   roundFactor: 0,
@@ -169,7 +169,7 @@ class _FilledPlatePainter extends CustomPainter {
     final origin = center - Offset(codeSize / 2, codeSize / 2);
     final limit = radius - ring;
 
-    canvas.drawCircle(center, radius, Paint()..color = AppColors.gold);
+    canvas.drawCircle(center, radius, Paint()..color = AppColors.primary);
 
     canvas.save();
     canvas.clipPath(

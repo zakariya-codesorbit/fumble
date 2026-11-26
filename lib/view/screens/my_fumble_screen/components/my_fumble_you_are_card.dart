@@ -27,7 +27,7 @@ class MyFumbleYouAreCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppConstant.youAreLabel.toText(
-            color: AppColors.gold,
+            color: AppColors.primary,
             fontSize: 12,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.4,
@@ -39,7 +39,7 @@ class MyFumbleYouAreCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.inputFill,
               borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.border, width: 1.2),
             ),
             child: Row(
               children: [
@@ -80,7 +80,7 @@ class _GenderChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.goldMuted : AppColors.clear,
+      color: selected ? AppColors.surfaceElevated : AppColors.clear,
       borderRadius: BorderRadius.circular(AppStyle.radiusPill),
       child: InkWell(
         onTap: onTap,
@@ -88,7 +88,7 @@ class _GenderChip extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: label.toText(
-            color: selected ? AppColors.white : AppColors.softGray,
+            color: selected ? AppColors.textPrimary : AppColors.textSecondary,
             fontSize: 13,
             fontWeight: AppStyle.w600,
             letterSpacing: 1.1,

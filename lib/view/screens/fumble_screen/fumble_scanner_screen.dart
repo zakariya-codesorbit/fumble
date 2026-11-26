@@ -95,7 +95,7 @@ class _FumbleScannerScreenState extends ConsumerState<FumbleScannerScreen>
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
                       child: AppConstant.scannerHint.toText(
-                        color: AppColors.softGray,
+                        color: AppColors.textSecondary,
                         fontSize: 15,
                         textAlign: TextAlign.center,
                       ),

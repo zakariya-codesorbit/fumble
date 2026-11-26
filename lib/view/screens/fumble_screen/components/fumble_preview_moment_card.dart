@@ -41,9 +41,9 @@ class FumblePreviewMomentCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
       decoration: BoxDecoration(
-        color: AppColors.navBar,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.border, width: 1.2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +78,7 @@ class FumblePreviewMomentCard extends StatelessWidget {
             ),
           ] else ...[
             AppConstant.theMomentLabel.toText(
-              color: AppColors.gold,
+              color: AppColors.primary,
               fontSize: 12,
               fontWeight: AppStyle.w600,
               letterSpacing: 1.2,
@@ -87,28 +87,28 @@ class FumblePreviewMomentCard extends StatelessWidget {
             dateLabel.toText(
               fontSize: 16,
               fontWeight: AppStyle.w500,
-              color: AppColors.white,
+              color: AppColors.textPrimary,
             ),
             4.height,
             timeLabel.toText(
               fontSize: 14,
               fontWeight: AppStyle.w500,
-              color: AppColors.softGray,
+              color: AppColors.textSecondary,
             ),
             10.height,
             const Divider(height: 1, thickness: 1, color: AppColors.border),
             14.height,
             Row(
               children: [
-                Icon(AppIcons.location, size: 18, color: AppColors.gold),
+                Icon(AppIcons.location, size: 18, color: AppColors.primary),
                 8.width,
                 Expanded(
                   child: locationLabel.toText(
                     fontSize: 14,
                     fontWeight: AppStyle.w500,
                     color: locationPlaceholder
-                        ? AppColors.softGrayDim
-                        : AppColors.softGray,
+                        ? AppColors.textDisabled
+                        : AppColors.textSecondary,
                     maxLine: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -120,7 +120,7 @@ class FumblePreviewMomentCard extends StatelessWidget {
                     width: 16,
                     height: 16,
                     colorFilter: const ColorFilter.mode(
-                      AppColors.warmGray,
+                      AppColors.textTertiary,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -153,7 +153,7 @@ class _MomentShimmerBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.surfaceElevated,
-      highlightColor: AppColors.softGrayDim.withValues(alpha: 0.35),
+      highlightColor: AppColors.textDisabled.withValues(alpha: 0.35),
       child: Container(
         width: width,
         height: height,

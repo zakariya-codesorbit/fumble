@@ -35,7 +35,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading ?? (showBack ? BackIconButton(onTap: onBack) : null),
       automaticallyImplyLeading: leading != null || showBack,
       title: title?.toText(
-        color: brandTitle ? AppColors.gold : AppColors.white,
+        color: brandTitle ? AppColors.primary : AppColors.textPrimary,
         fontSize: brandTitle ? 20 : 20,
         fontWeight: brandTitle ? AppStyle.w600 : AppStyle.w600,
         letterSpacing: brandTitle ? 3 : 0,

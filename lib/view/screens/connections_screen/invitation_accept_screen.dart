@@ -286,7 +286,7 @@ class _InvitationAcceptScreenState
                         children: [
                           _error!.toText(
                             textAlign: TextAlign.center,
-                            color: AppColors.softGray,
+                            color: AppColors.textSecondary,
                             fontSize: 15,
                           ),
                           20.height,
@@ -348,7 +348,7 @@ class _InvitationAcceptScreenState
                                 16.height,
                                 invite!.personalNote!.toText(
                                   fontSize: 14,
-                                  color: AppColors.tertiaryText,
+                                  color: AppColors.textTertiary,
                                   textAlign: TextAlign.center,
                                 ),
                               ],
@@ -396,7 +396,7 @@ class _ButtonShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.surfaceElevated,
-      highlightColor: AppColors.softGrayDim.withValues(alpha: 0.35),
+      highlightColor: AppColors.textDisabled.withValues(alpha: 0.35),
       child: Container(
         width: double.infinity,
         height: height,

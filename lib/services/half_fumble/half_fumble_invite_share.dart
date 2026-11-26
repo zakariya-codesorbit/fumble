@@ -114,7 +114,7 @@ abstract final class HalfFumbleInviteShare {
             if (canSms)
               _ShareTile(
                 icon: AppIcons.phone,
-                iconColor: AppColors.gold,
+                iconColor: AppColors.primary,
                 label: AppConstant.halfFumbleShareSms,
                 subtitle: smsPhone,
                 onTap: () async {
@@ -147,7 +147,7 @@ abstract final class HalfFumbleInviteShare {
               ),
             _ShareTile(
               icon: Icons.ios_share_rounded,
-              iconColor: AppColors.softGray,
+              iconColor: AppColors.textSecondary,
               label: AppConstant.halfFumbleShareMore,
               subtitle: AppConstant.halfFumbleShareMoreSubtitle,
               onTap: () async {
@@ -195,11 +195,11 @@ class _ShareTile extends StatelessWidget {
       title: label.toText(
         fontSize: 15,
         fontWeight: AppStyle.w600,
-        color: AppColors.white,
+        color: AppColors.textPrimary,
       ),
       subtitle: subtitle.toText(
         fontSize: 12,
-        color: AppColors.softGray,
+        color: AppColors.textSecondary,
         maxLine: 1,
         overflow: TextOverflow.ellipsis,
       ),

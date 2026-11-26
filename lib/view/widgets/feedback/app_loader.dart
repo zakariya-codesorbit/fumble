@@ -18,7 +18,7 @@ class AppLoader extends StatelessWidget {
         height: extent,
         child: CircularProgressIndicator(
           strokeWidth: strokeWidth,
-          color: AppColors.gold,
+          color: AppColors.primary,
         ),
       ),
     );
