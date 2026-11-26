@@ -24,6 +24,8 @@ class AppIcons {
   static const IconData logout = Icons.logout_rounded;
   static const IconData chevronRight = Icons.chevron_right_rounded;
   static const IconData camera = Icons.camera_alt_outlined;
+  static const IconData cameraFilled = Icons.camera_alt_rounded;
+  static const IconData autoAwesome = Icons.auto_awesome_rounded;
   static const IconData check = Icons.check_rounded;
   static const IconData peopleOutline = Icons.people_outline_rounded;
   static const IconData person = Icons.person_outline;

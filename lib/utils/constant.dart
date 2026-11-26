@@ -54,6 +54,22 @@ abstract final class AppConstant {
   static const String scanToFumble = 'SCAN TO FUMBLE';
   static const String yourIdentity = 'YOUR IDENTITY';
   static const String myFumbleTitle = 'My Fumble';
+  static String signedInAs(String email) => 'Signed in as $email';
+  static const String youAreLabel = 'YOU ARE';
+  static const String genderMale = 'MALE';
+  static const String genderFemale = 'FEMALE';
+  static const String yourVoiceLabel = 'YOUR VOICE';
+  static const String voiceTemplateTitle = 'Voice template';
+  static const String voiceTemplateBody =
+      'Read the prompt below out loud once. We save it as a voice file that powers every dialogue video you generate.';
+  static String voiceTemplatePrompt(String firstName) =>
+      '“Hey, this is $firstName. I’m recording this so Fumble knows my voice. Tonight I’ll be the one laughing too loud, so text me when you’re close and I’ll come find you.”';
+  static const String recordMyVoice = 'Record my voice';
+  static const String recordingVoice = 'Recording…';
+  static const String voiceSaved = 'Voice template saved';
+  static const String voiceAlreadySaved = 'Voice template ready';
+  static const String aiImageComingSoon =
+      'AI image generation is coming soon.';
   static const String memberSince = 'Member since';
   static const String editProfile = 'Edit profile';
   static const String editMyFumble = 'Edit My Fumble';

@@ -68,6 +68,9 @@ class UserRepository {
     bool? sharePhone,
     bool? shareEmail,
     bool? shareWhatsApp,
+    String? gender,
+    int? aiCoins,
+    bool? voiceCloneReady,
   }) async {
     final userSnap = await _userRef(uid).get();
     if (!userSnap.exists || userSnap.data() == null) return;
@@ -88,6 +91,9 @@ class UserRepository {
     if (sharePhone != null) data['sharePhone'] = sharePhone;
     if (shareEmail != null) data['shareEmail'] = shareEmail;
     if (shareWhatsApp != null) data['shareWhatsApp'] = shareWhatsApp;
+    if (gender != null) data['gender'] = gender;
+    if (aiCoins != null) data['aiCoins'] = aiCoins;
+    if (voiceCloneReady != null) data['voiceCloneReady'] = voiceCloneReady;
 
     final nextName = name?.trim() ?? current.name;
     final nextPhoto = photoUrl != null

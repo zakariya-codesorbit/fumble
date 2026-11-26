@@ -9,6 +9,9 @@ abstract final class AppStyle {
   /// Registered in pubspec.yaml from `assets/fonts/SF-Pro-Display-*.otf`.
   static const String fontFamily = 'SF Pro Display';
 
+  /// Script font for AI coins badge numerals.
+  static const String fontFamilyScript = 'Great Vibes';
+
   static const List<String> fontFamilyFallback = <String>[
     '.SF Pro Text',
     'SF Pro Text',

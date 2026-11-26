@@ -39,6 +39,7 @@ extension StringExtension on String {
     TextOverflow? overflow,
     String? fontFamily,
     FontWeight? fontWeight,
+    FontStyle? fontStyle,
     Color? backgroundColor,
     double? lineHeight,
     double? letterSpacing,
@@ -59,7 +60,7 @@ extension StringExtension on String {
         fontSize: fs,
         fontFamily: fontFamily ?? AppStyle.fontFamily,
         fontFamilyFallback: AppStyle.fontFamilyFallback,
-        fontStyle: FontStyle.normal,
+        fontStyle: fontStyle ?? FontStyle.normal,
         letterSpacing: letterSpacing,
         fontWeight:
             fontWeight ??

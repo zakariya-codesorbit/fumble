@@ -82,3 +82,7 @@ flutter:
           weight: 600
         - asset: assets/fonts/SF-Pro-Display-Bold.otf
           weight: 700
+    - family: Great Vibes
+      fonts:
+        - asset: assets/fonts/GreatVibes-Regular.ttf
+          weight: 400

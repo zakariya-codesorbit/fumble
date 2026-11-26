@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fumble/core/navigation/app_routes.dart';
@@ -8,6 +9,7 @@ import 'package:fumble/data/models/user_profile.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/focus_utils.dart';
+import 'package:fumble/view/screens/setting_screen/components/setting_actions.dart';
 import 'package:fumble/view/widgets/dialogs/loading_dialog.dart';
 import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/inputs/phone_country_field.dart';
@@ -16,6 +18,45 @@ abstract final class ProfileActions {
   ProfileActions._();
 
   static void openSettings() => push(AppRoutes.settings);
+
+  static void copyFumbleCode(WidgetRef ref, String code) {
+    ref.read(profileNotifierProvider.notifier).copyfumbleCode(code);
+  }
+
+  static Future<void> updateGender(WidgetRef ref, String gender) {
+    return ref.read(profileNotifierProvider.notifier).updateGender(gender);
+  }
+
+  static void showAiImageComingSoon() {
+    showAppToast(AppConstant.aiImageComingSoon);
+  }
+
+  /// Mic permission + mark voice sample ready (FalAI upload comes later).
+  static Future<bool> recordVoiceSample({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) async {
+    var status = await Permission.microphone.status;
+    if (!status.isGranted) {
+      status = await Permission.microphone.request();
+    }
+    if (!status.isGranted) {
+      if (status.isPermanentlyDenied && context.mounted) {
+        await SettingActions.showConfirmSheet(
+          context: context,
+          title: AppConstant.micPermissionTitle,
+          description: AppConstant.micPermissionSettings,
+          primaryCta: AppConstant.openSettings,
+          destructive: false,
+          onPrimaryTap: openAppSettings,
+        );
+      }
+      return false;
+    }
+
+    await ref.read(profileNotifierProvider.notifier).markVoiceCloneReady();
+    return true;
+  }
 
   static Future<void> call(String? phone) async {
     final value = phone?.trim();

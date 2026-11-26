@@ -10,8 +10,11 @@ import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/ai_coins_badge.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_edit_card.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_identity_card.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_voice_card.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/my_fumble_you_are_card.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/profile_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
@@ -37,6 +40,12 @@ class MyFumbleScreen extends ConsumerWidget {
             icon: const Icon(AppIcons.settings, color: AppColors.warmGray),
             onPressed: ProfileActions.openSettings,
           ),
+          actions: [
+            AiCoinsBadge(
+              count: profileAsync.valueOrNull?.aiCoins ?? 0,
+              onTap: ProfileActions.showAiImageComingSoon,
+            ),
+          ],
         ),
         body: profileAsync.when(
           loading: () => const AppLoader(),
@@ -80,6 +89,7 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
   late String _phoneCountryCode;
   late String _whatsAppDialCode;
   late String _whatsAppCountryCode;
+  var _recordingVoice = false;
 
   @override
   void initState() {
@@ -217,6 +227,21 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
     setState(() {});
   }
 
+  Future<void> _onRecordVoice() async {
+    if (_recordingVoice) return;
+    setState(() => _recordingVoice = true);
+    // UI capture step — FalAI upload/clone will plug in here later.
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
+    final ok = await ProfileActions.recordVoiceSample(
+      context: context,
+      ref: ref,
+    );
+    if (!mounted) return;
+    setState(() => _recordingVoice = false);
+    if (!ok) return;
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(bottomNavProvider, (previous, next) {
@@ -235,6 +260,12 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
         : null;
     final displayPhone =
         _fullPhone().isNotEmpty ? _fullPhone() : profile.phone;
+    final displayName =
+        _name.text.trim().isEmpty ? profile.name : _name.text.trim();
+    final firstName = displayName.trim().split(RegExp(r'\s+')).first;
+    final qrPayload = ref.read(profileNotifierProvider.notifier).qrPayload(
+          profile,
+        );
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -245,89 +276,116 @@ class _ProfileBodyState extends ConsumerState<_ProfileBody> with RouteAware {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Center(
-            child: AppConstant.yourIdentity.toText(
-              color: AppColors.gold,
-              fontSize: 12,
-              fontWeight: AppStyle.w600,
-              letterSpacing: 1.4,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          6.height,
-          Center(
-            child: AppConstant.myFumbleTitle.toText(
-              fontSize: 28,
-              fontWeight: AppStyle.w700,
-              color: AppColors.white,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          20.height,
-          MyFumbleIdentityCard(
-            name: _name.text.trim().isEmpty ? profile.name : _name.text.trim(),
-            bio: _bio.text,
-            phone: displayPhone,
-            email: profile.email,
-            photoUrl: edit.displayPhotoUrl(profile),
-            localFile: edit.localPhoto,
-            avatarAsset: edit.avatarAsset,
-            onPhotoTap: () => ProfileActions.showPhotoSheet(
-              context: context,
-              ref: ref,
-            ),
-          ),
-          20.height,
-          MyFumbleEditCard(
-            nameController: _name,
-            phoneController: _phone,
-            phoneFieldKey: _phoneFieldKey,
-            phoneDialCode: _phoneDialCode,
-            phoneCountryCode: _phoneCountryCode,
-            whatsAppController: _whatsApp,
-            whatsAppFieldKey: _whatsAppFieldKey,
-            whatsAppDialCode: _whatsAppDialCode,
-            whatsAppCountryCode: _whatsAppCountryCode,
-            bioController: _bio,
-            onPhoneChanged: (_) => setState(() {}),
-            onPhoneCountryChanged: () {
-              final state = _phoneFieldKey.currentState;
-              if (state != null) {
-                _phoneDialCode = state.dialCode;
-              }
-              setState(() {});
-            },
-            onWhatsAppChanged: (_) => setState(() {}),
-            onWhatsAppCountryChanged: () {
-              final state = _whatsAppFieldKey.currentState;
-              if (state != null) {
-                _whatsAppDialCode = state.dialCode;
-              }
-              setState(() {});
-            },
-            onChanged: () => setState(() {}),
-            onChoosePhoto: () => ProfileActions.showPhotoSheet(
-              context: context,
-              ref: ref,
-            ),
-            onSave: canSave && !edit.isSaving ? _save : null,
-            isSaving: edit.isSaving,
-            showSaveButton: canSave || edit.isSaving,
-            localPhoto: edit.localPhoto,
-            avatarAsset: edit.avatarAsset,
-            hasExistingPhoto: profile.hasPhoto && !edit.removePhoto,
-          ),
-          if (memberSince != null) ...[
-            20.height,
             Center(
-              child: AppConstant.memberSinceLabel(memberSince).toText(
+              child: AppConstant.yourIdentity.toText(
+                color: AppColors.gold,
                 fontSize: 12,
-                fontWeight: AppStyle.w500,
-                color: AppColors.tertiaryText,
+                fontWeight: AppStyle.w600,
+                letterSpacing: 1.4,
                 textAlign: TextAlign.center,
               ),
             ),
-          ],
+            6.height,
+            Center(
+              child: AppConstant.myFumbleTitle.toText(
+                fontSize: 28,
+                fontWeight: AppStyle.w700,
+                color: AppColors.white,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            if (profile.email.trim().isNotEmpty) ...[
+              6.height,
+              Center(
+                child: AppConstant.signedInAs(profile.email).toText(
+                  fontSize: 13,
+                  fontWeight: AppStyle.w400,
+                  color: AppColors.softGray,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+            20.height,
+            MyFumbleIdentityCard(
+              name: displayName,
+              bio: _bio.text,
+              phone: displayPhone,
+              photoUrl: edit.displayPhotoUrl(profile),
+              localFile: edit.localPhoto,
+              avatarAsset: edit.avatarAsset,
+              qrPayload: qrPayload,
+              fumbleCode: profile.fumbleCode,
+              onCameraTap: () => ProfileActions.showPhotoSheet(
+                context: context,
+                ref: ref,
+              ),
+              onAiTap: ProfileActions.showAiImageComingSoon,
+              onCopyCode: () =>
+                  ProfileActions.copyFumbleCode(ref, profile.fumbleCode),
+            ),
+            16.height,
+            MyFumbleYouAreCard(
+              gender: profile.gender,
+              onChanged: (value) => ProfileActions.updateGender(ref, value),
+            ),
+            16.height,
+            MyFumbleVoiceCard(
+              firstName: firstName,
+              voiceCloneReady: profile.voiceCloneReady,
+              isRecording: _recordingVoice,
+              onRecordTap: _recordingVoice ? null : _onRecordVoice,
+            ),
+            20.height,
+            MyFumbleEditCard(
+              nameController: _name,
+              phoneController: _phone,
+              phoneFieldKey: _phoneFieldKey,
+              phoneDialCode: _phoneDialCode,
+              phoneCountryCode: _phoneCountryCode,
+              whatsAppController: _whatsApp,
+              whatsAppFieldKey: _whatsAppFieldKey,
+              whatsAppDialCode: _whatsAppDialCode,
+              whatsAppCountryCode: _whatsAppCountryCode,
+              bioController: _bio,
+              onPhoneChanged: (_) => setState(() {}),
+              onPhoneCountryChanged: () {
+                final state = _phoneFieldKey.currentState;
+                if (state != null) {
+                  _phoneDialCode = state.dialCode;
+                }
+                setState(() {});
+              },
+              onWhatsAppChanged: (_) => setState(() {}),
+              onWhatsAppCountryChanged: () {
+                final state = _whatsAppFieldKey.currentState;
+                if (state != null) {
+                  _whatsAppDialCode = state.dialCode;
+                }
+                setState(() {});
+              },
+              onChanged: () => setState(() {}),
+              onChoosePhoto: () => ProfileActions.showPhotoSheet(
+                context: context,
+                ref: ref,
+              ),
+              onSave: canSave && !edit.isSaving ? _save : null,
+              isSaving: edit.isSaving,
+              showSaveButton: canSave || edit.isSaving,
+              localPhoto: edit.localPhoto,
+              avatarAsset: edit.avatarAsset,
+              hasExistingPhoto: profile.hasPhoto && !edit.removePhoto,
+            ),
+            if (memberSince != null) ...[
+              20.height,
+              Center(
+                child: AppConstant.memberSinceLabel(memberSince).toText(
+                  fontSize: 12,
+                  fontWeight: AppStyle.w500,
+                  color: AppColors.tertiaryText,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ],
         ),
       ),

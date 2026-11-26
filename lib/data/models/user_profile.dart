@@ -15,6 +15,9 @@ class UserProfile {
     this.sharePhone = true,
     this.shareEmail = true,
     this.shareWhatsApp = true,
+    this.gender,
+    this.aiCoins = 100,
+    this.voiceCloneReady = false,
     this.createdAt,
     this.lastActiveAt,
   });
@@ -32,8 +35,21 @@ class UserProfile {
   final bool sharePhone;
   final bool shareEmail;
   final bool shareWhatsApp;
+
+  /// `male` | `female` when set.
+  final String? gender;
+
+  /// Tokens for AI image / dialogue generation.
+  final int aiCoins;
+
+  /// True after the user has recorded a FalAI voice-clone sample.
+  final bool voiceCloneReady;
+
   final DateTime? createdAt;
   final DateTime? lastActiveAt;
+
+  static const String genderMale = 'male';
+  static const String genderFemale = 'female';
 
   String get firstName {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -80,6 +96,9 @@ class UserProfile {
       sharePhone: data['sharePhone'] as bool? ?? true,
       shareEmail: data['shareEmail'] as bool? ?? true,
       shareWhatsApp: data['shareWhatsApp'] as bool? ?? true,
+      gender: _normalizeGender(data['gender'] as String?),
+      aiCoins: (data['aiCoins'] as num?)?.toInt() ?? 100,
+      voiceCloneReady: data['voiceCloneReady'] as bool? ?? false,
       createdAt: _asDateTime(data['createdAt']),
       lastActiveAt: _asDateTime(data['lastActiveAt']),
     );
@@ -99,6 +118,9 @@ class UserProfile {
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
       'shareWhatsApp': shareWhatsApp,
+      'gender': gender,
+      'aiCoins': aiCoins,
+      'voiceCloneReady': voiceCloneReady,
       'createdAt': FieldValue.serverTimestamp(),
       'lastActiveAt': FieldValue.serverTimestamp(),
     };
@@ -117,6 +139,10 @@ class UserProfile {
     bool? sharePhone,
     bool? shareEmail,
     bool? shareWhatsApp,
+    String? gender,
+    bool clearGender = false,
+    int? aiCoins,
+    bool? voiceCloneReady,
     DateTime? createdAt,
     DateTime? lastActiveAt,
   }) {
@@ -134,6 +160,9 @@ class UserProfile {
       sharePhone: sharePhone ?? this.sharePhone,
       shareEmail: shareEmail ?? this.shareEmail,
       shareWhatsApp: shareWhatsApp ?? this.shareWhatsApp,
+      gender: clearGender ? null : (gender ?? this.gender),
+      aiCoins: aiCoins ?? this.aiCoins,
+      voiceCloneReady: voiceCloneReady ?? this.voiceCloneReady,
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
     );
@@ -154,6 +183,9 @@ class UserProfile {
       'sharePhone': sharePhone,
       'shareEmail': shareEmail,
       'shareWhatsApp': shareWhatsApp,
+      'gender': gender,
+      'aiCoins': aiCoins,
+      'voiceCloneReady': voiceCloneReady,
       'createdAt': createdAt?.millisecondsSinceEpoch,
     };
   }
@@ -174,10 +206,19 @@ class UserProfile {
       sharePhone: json['sharePhone'] as bool? ?? true,
       shareEmail: json['shareEmail'] as bool? ?? true,
       shareWhatsApp: json['shareWhatsApp'] as bool? ?? true,
+      gender: _normalizeGender(json['gender'] as String?),
+      aiCoins: (json['aiCoins'] as num?)?.toInt() ?? 100,
+      voiceCloneReady: json['voiceCloneReady'] as bool? ?? false,
       createdAt: createdAtMs is int
           ? DateTime.fromMillisecondsSinceEpoch(createdAtMs)
           : null,
     );
+  }
+
+  static String? _normalizeGender(String? value) {
+    final g = value?.trim().toLowerCase();
+    if (g == genderMale || g == genderFemale) return g;
+    return null;
   }
 
   static DateTime? _asDateTime(dynamic value) {

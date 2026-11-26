@@ -23,7 +23,7 @@ abstract final class AppColors {
   static const Color warmGray = Color.fromRGBO(143, 132, 121, 1);
   static const Color softGrayDim = Color(0xFF5C5C5C);
   //static const Color border = Color(0x1AFFFFFF);
-  static const Color border = Color(0x1EB8962E);
+  static const Color border = Color(0x1FB8962E);
   static const Color error = Color(0xFFE85D5D);
   static const Color success = Color(0xFF3DDC97);
   static const Color inputFill = Color(0xFF121212);

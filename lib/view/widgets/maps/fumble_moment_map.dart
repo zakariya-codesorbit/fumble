@@ -106,7 +106,8 @@ class _FumbleMomentMapState extends State<FumbleMomentMap> {
                       onMapReady: _centerOnPin,
                       interactionOptions: const InteractionOptions(
                         // No drag: fixed overlay pin stays on the meeting point.
-                        flags: InteractiveFlag.pinchZoom |
+                        flags:
+                            InteractiveFlag.pinchZoom |
                             InteractiveFlag.doubleTapZoom,
                       ),
                     ),

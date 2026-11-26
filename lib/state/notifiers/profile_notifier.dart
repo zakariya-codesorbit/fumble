@@ -303,6 +303,45 @@ class ProfileNotifier extends Notifier<ProfileEditState> {
     name: profile.name,
   );
 
+  Future<void> updateGender(String gender) async {
+    final profile = _currentProfile;
+    if (profile == null) return;
+    final next = gender.trim().toLowerCase();
+    if (next != UserProfile.genderMale && next != UserProfile.genderFemale) {
+      return;
+    }
+    if (profile.gender == next) return;
+
+    unawaited(LocalPrefs.saveUserProfile(profile.copyWith(gender: next)));
+    try {
+      await _users.updateUserProfile(uid: profile.uid, gender: next);
+    } catch (_) {
+      showAppToast(AppConstant.somethingWrong, isError: true);
+    }
+  }
+
+  Future<void> markVoiceCloneReady() async {
+    final profile = _currentProfile;
+    if (profile == null) return;
+    if (profile.voiceCloneReady) {
+      showAppToast(AppConstant.voiceAlreadySaved);
+      return;
+    }
+
+    unawaited(
+      LocalPrefs.saveUserProfile(profile.copyWith(voiceCloneReady: true)),
+    );
+    try {
+      await _users.updateUserProfile(
+        uid: profile.uid,
+        voiceCloneReady: true,
+      );
+      showAppToast(AppConstant.voiceSaved);
+    } catch (_) {
+      showAppToast(AppConstant.somethingWrong, isError: true);
+    }
+  }
+
   Future<void> call(String phone) async {
     final uri = Uri(scheme: 'tel', path: phone);
     if (await canLaunchUrl(uri)) await launchUrl(uri);
