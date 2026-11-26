@@ -176,7 +176,9 @@ abstract final class AppConstant {
   static const String filmedFromYourMemory = 'FILMED FROM YOUR MEMORY';
   static const String addToIt = 'ADD TO IT';
   static const String addToItHint =
-      'Anything your memory left out? e.g. gold streetlights…';
+      'Anything your memory left out? e.g. gold streetlights, rooftop bar at dusk…';
+  static const String pictureKeepsMoment =
+      'Your picture keeps this moment: where you met, when, and what you remember.';
   static const String generate = 'Generate';
   static const String regenerateVideo = 'Regenerate video';
   static const String editLabel = 'EDIT';

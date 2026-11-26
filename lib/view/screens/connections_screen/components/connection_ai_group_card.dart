@@ -91,6 +91,7 @@ class ConnectionAiGroupCard extends StatelessWidget {
                 promptController: promptController,
                 imageUrl: aiImageUrl,
                 onGenerateTap: onGenerateTap,
+                onEditTap: onEditTap,
               ),
               ConnectionAiTab.video => _AiVideoPanel(
                 noteController: noteController,
@@ -285,33 +286,71 @@ class _AiGenerationPanel extends StatelessWidget {
     required this.promptController,
     this.imageUrl,
     this.onGenerateTap,
+    this.onEditTap,
   });
 
   final TextEditingController noteController;
   final TextEditingController promptController;
   final String? imageUrl;
   final VoidCallback? onGenerateTap;
+  final VoidCallback? onEditTap;
 
   @override
   Widget build(BuildContext context) {
     final memory = noteController.text.trim();
+    final quote = memory.isEmpty ? AppConstant.typeMemoryHint : '“$memory”';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AppConstant.paintedFromYourMemory.toText(
-          color: AppColors.primary,
-          fontSize: 11,
-          fontWeight: AppStyle.w600,
-          letterSpacing: 1.2,
-        ),
-        12.height,
-        (memory.isEmpty ? AppConstant.typeMemoryHint : '“$memory”').toText(
-          color: AppColors.textPrimary,
-          fontSize: 14,
-          fontWeight: AppStyle.w400,
-          fontStyle: FontStyle.italic,
-          maxLine: 6,
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          decoration: BoxDecoration(
+            color: AppColors.inputFill,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border, width: 1.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: AppConstant.paintedFromYourMemory.toText(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: AppStyle.w600,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  AppConstant.editLabel
+                      .toText(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        fontWeight: AppStyle.w600,
+                        letterSpacing: 1,
+                      )
+                      .onPress(onEditTap ?? () {}),
+                ],
+              ),
+              12.height,
+              quote.toText(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: AppStyle.w400,
+                fontStyle: FontStyle.italic,
+                maxLine: 8,
+              ),
+              10.height,
+              AppConstant.pictureKeepsMoment.toText(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: AppStyle.w400,
+                maxLine: 3,
+              ),
+            ],
+          ),
         ),
         14.height,
         _AiMediaFrame(imageUrl: imageUrl, height: 220),
@@ -324,7 +363,7 @@ class _AiGenerationPanel extends StatelessWidget {
         ),
         8.height,
         Container(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           decoration: BoxDecoration(
             color: AppColors.inputFill,
             borderRadius: BorderRadius.circular(14),
@@ -342,7 +381,7 @@ class _AiGenerationPanel extends StatelessWidget {
               fontFamilyFallback: AppStyle.fontFamilyFallback,
             ),
             decoration: InputDecoration(
-              isDense: true,
+              isDense: false,
               filled: false,
               hintText: AppConstant.addToItHint,
               hintStyle: TextStyle(
@@ -351,7 +390,7 @@ class _AiGenerationPanel extends StatelessWidget {
                 fontFamily: AppStyle.fontFamily,
                 fontFamilyFallback: AppStyle.fontFamilyFallback,
               ),
-              contentPadding: EdgeInsets.zero,
+              contentPadding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
               border: InputBorder.none,
             ),
           ),
