@@ -140,6 +140,7 @@ abstract final class AppConstant {
       '$name fumbled you. Your shared memory.';
 
   static const String theMomentLabel = 'THE MOMENT';
+  static const String openInMaps = 'Open in Maps';
 
   /// Placeholder on preview / detail when meeting place is empty.
   static const String enterFumbleLocation = 'Enter Fumble location';

@@ -258,6 +258,7 @@ class _ConnectionDetailScreenState
                             timeLabel: timeLabel,
                             locationLabel: locationLabel,
                             locationPlaceholder: !hasLocation,
+                            mapLocation: connection.fumbleLocation,
                             onLocationTap: _saving
                                 ? null
                                 : () => setState(() => _editingLocation = true),

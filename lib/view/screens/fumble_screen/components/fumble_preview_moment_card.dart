@@ -3,12 +3,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:fumble/core/theme/colors.dart';
+import 'package:fumble/services/location/fumble_location_service.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/widgets/maps/fumble_moment_map.dart';
 
 /// Date / time / location card for the fumble preview ("THE MOMENT").
 class FumblePreviewMomentCard extends StatelessWidget {
@@ -19,6 +21,7 @@ class FumblePreviewMomentCard extends StatelessWidget {
     required this.locationLabel,
     this.locationPlaceholder = false,
     this.onLocationTap,
+    this.mapLocation,
     this.isLoading = false,
   });
 
@@ -27,6 +30,9 @@ class FumblePreviewMomentCard extends StatelessWidget {
   final String locationLabel;
   final bool locationPlaceholder;
   final VoidCallback? onLocationTap;
+
+  /// When set, shows an OSM map pin under the location row.
+  final FumbleLocation? mapLocation;
   final bool isLoading;
 
   @override
@@ -64,6 +70,12 @@ class FumblePreviewMomentCard extends StatelessWidget {
                 ),
               ],
             ),
+            14.height,
+            const _MomentShimmerBox(
+              width: double.infinity,
+              height: 168,
+              radius: 12,
+            ),
           ] else ...[
             AppConstant.theMomentLabel.toText(
               color: AppColors.gold,
@@ -71,10 +83,10 @@ class FumblePreviewMomentCard extends StatelessWidget {
               fontWeight: AppStyle.w600,
               letterSpacing: 1.2,
             ),
-            12.height,
+            2.height,
             dateLabel.toText(
-              fontSize: 18,
-              fontWeight: AppStyle.w700,
+              fontSize: 16,
+              fontWeight: AppStyle.w500,
               color: AppColors.white,
             ),
             4.height,
@@ -83,7 +95,7 @@ class FumblePreviewMomentCard extends StatelessWidget {
               fontWeight: AppStyle.w500,
               color: AppColors.softGray,
             ),
-            14.height,
+            10.height,
             const Divider(height: 1, thickness: 1, color: AppColors.border),
             14.height,
             Row(
@@ -115,6 +127,10 @@ class FumblePreviewMomentCard extends StatelessWidget {
                 ],
               ],
             ).onPress(onLocationTap ?? () {}),
+            if (mapLocation != null) ...[
+              10.height,
+              FumbleMomentMap(location: mapLocation!),
+            ],
           ],
         ],
       ),
