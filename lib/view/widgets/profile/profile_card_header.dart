@@ -67,6 +67,7 @@ class ProfileCardHeader extends StatelessWidget {
     // Actions
     this.showActions = true,
     this.showEmail = true,
+    this.showWhatsAppIcon = false,
     this.onCall,
     this.onText,
     this.onWhatsApp,
@@ -117,6 +118,9 @@ class ProfileCardHeader extends StatelessWidget {
 
   final bool showActions;
   final bool showEmail;
+
+  /// Small WhatsApp badge beside name / phone (connection detail).
+  final bool showWhatsAppIcon;
   final VoidCallback? onCall;
   final VoidCallback? onText;
   final VoidCallback? onWhatsApp;
@@ -160,11 +164,13 @@ class ProfileCardHeader extends StatelessWidget {
         _NameRow(
           name: name,
           showEditIcon: showNameEditIcon,
+          showWhatsAppIcon: showWhatsAppIcon,
           editing: editingName,
           controller: nameController,
           onTap: onNameTap,
           onChanged: onNameChanged,
           onTapOutside: onNameTapOutside,
+          onWhatsApp: onWhatsApp,
         ),
         if (contactLoading) ...[
           10.height,
@@ -224,6 +230,8 @@ class ProfileCardHeader extends StatelessWidget {
                 value: phone,
                 emptyLabel: emptyPhoneLabel,
                 onTap: onPhoneTap,
+                showWhatsAppIcon: showWhatsAppIcon,
+                onWhatsApp: onWhatsApp,
               ),
             if (showEmail) ...[
               10.height,
@@ -282,19 +290,23 @@ class _NameRow extends StatelessWidget {
     required this.name,
     required this.showEditIcon,
     required this.editing,
+    this.showWhatsAppIcon = false,
     this.controller,
     this.onTap,
     this.onChanged,
     this.onTapOutside,
+    this.onWhatsApp,
   });
 
   final String name;
   final bool showEditIcon;
+  final bool showWhatsAppIcon;
   final bool editing;
   final TextEditingController? controller;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTapOutside;
+  final VoidCallback? onWhatsApp;
 
   @override
   Widget build(BuildContext context) {
@@ -314,14 +326,17 @@ class _NameRow extends StatelessWidget {
       textAlign: TextAlign.center,
     );
 
-    if (!showEditIcon && onTap == null) {
+    final showTrailing = showEditIcon || showWhatsAppIcon;
+    if (!showTrailing && onTap == null) {
       return nameText;
     }
 
-    return Row(
+    final row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Flexible(child: nameText),
+        Flexible(
+          child: onTap != null ? nameText.onPress(onTap!) : nameText,
+        ),
         if (showEditIcon) ...[
           8.width,
           SvgPicture.asset(
@@ -334,8 +349,17 @@ class _NameRow extends StatelessWidget {
             ),
           ),
         ],
+        if (showWhatsAppIcon) ...[
+          8.width,
+          Image.asset(
+            AppIcons.iconWhatsapp,
+            width: 22,
+            height: 22,
+          ).onPress(onWhatsApp ?? () {}),
+        ],
       ],
-    ).onPress(onTap ?? () {});
+    );
+    return row;
   }
 }
 
@@ -392,11 +416,15 @@ class _ContactLine extends StatelessWidget {
     required this.value,
     required this.emptyLabel,
     this.onTap,
+    this.showWhatsAppIcon = false,
+    this.onWhatsApp,
   });
 
   final String? value;
   final String emptyLabel;
   final VoidCallback? onTap;
+  final bool showWhatsAppIcon;
+  final VoidCallback? onWhatsApp;
 
   @override
   Widget build(BuildContext context) {
@@ -413,7 +441,22 @@ class _ContactLine extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
     );
 
-    return Center(child: onTap != null ? text.onPress(onTap!) : text);
+    if (!showWhatsAppIcon || !hasValue) {
+      return Center(child: onTap != null ? text.onPress(onTap!) : text);
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(child: onTap != null ? text.onPress(onTap!) : text),
+        8.width,
+        Image.asset(
+          AppIcons.iconWhatsapp,
+          width: 20,
+          height: 20,
+        ).onPress(onWhatsApp ?? () {}),
+      ],
+    );
   }
 }
 

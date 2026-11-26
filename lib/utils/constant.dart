@@ -68,8 +68,7 @@ abstract final class AppConstant {
   static const String recordingVoice = 'Recording…';
   static const String voiceSaved = 'Voice template saved';
   static const String voiceAlreadySaved = 'Voice template ready';
-  static const String aiImageComingSoon =
-      'AI image generation is coming soon.';
+  static const String aiImageComingSoon = 'AI image generation is coming soon.';
   static const String memberSince = 'Member since';
   static const String editProfile = 'Edit profile';
   static const String editMyFumble = 'Edit My Fumble';
@@ -166,6 +165,29 @@ abstract final class AppConstant {
   static const String recordMemory = 'Record Memory';
   static const String listeningMemory = 'Listening…';
   static const String typeMemoryHint = 'Or type a memory about how you met...';
+  static const String savedPermanentlyWithFumble =
+      'Saved permanently with this Fumble.';
+  static const String recordMemoryTab = 'RECORD MEMORY';
+  static const String aiGenerationTab = 'AI GENERATION';
+  static const String aiVideoMemoryTab = 'AI VIDEO MEMORY';
+  static const String sayItLikeThis = 'SAY IT LIKE THIS';
+  static const String aiMemoryLabel = 'AI MEMORY';
+  static const String paintedFromYourMemory = 'PAINTED FROM YOUR MEMORY';
+  static const String filmedFromYourMemory = 'FILMED FROM YOUR MEMORY';
+  static const String addToIt = 'ADD TO IT';
+  static const String addToItHint =
+      'Anything your memory left out? e.g. gold streetlights…';
+  static const String generate = 'Generate';
+  static const String regenerateVideo = 'Regenerate video';
+  static const String editLabel = 'EDIT';
+  static const String aiImagePlaceholder = 'Fumble AI image';
+  static const String aiComingSoon = 'AI generation is coming soon.';
+  static const List<String> memoryPrompts = [
+    'Where did you meet?',
+    'What were you doing?',
+    'What happened, and what made the encounter memorable?',
+  ];
+
   static const String speechUnavailable =
       'Speech recognition isn\'t available on this device.';
   static const String micPermissionTitle = 'Microphone access needed';
@@ -357,8 +379,7 @@ abstract final class AppConstant {
   static const String nameRequired = 'Please enter your name';
   static const String inviteeNameRequired = 'Please enter their full name';
   static const String emailRequired = 'Please enter your email';
-  static const String inviteeEmailRequired =
-      'Please enter their email address';
+  static const String inviteeEmailRequired = 'Please enter their email address';
   static const String emailInvalid = 'Enter a valid email';
   static const String inviteeEmailInvalid =
       'Enter a valid email address for the invitation';

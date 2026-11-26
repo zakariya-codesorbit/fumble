@@ -12,18 +12,20 @@ import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/connections_screen/components/connection_ai_group_card.dart';
+import 'package:fumble/view/screens/connections_screen/components/connection_ai_hero_image.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_detail_actions.dart';
 import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_actions.dart';
-import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_memory_note.dart';
 import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_moment_card.dart';
-import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_record_memory.dart';
-import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_remember_prompt.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/ai_coins_badge.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/profile_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/buttons/primary_button.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/feedback/app_error_state.dart';
 import 'package:fumble/view/widgets/feedback/app_loader.dart';
+import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 import 'package:fumble/view/widgets/profile/profile_card.dart';
 
@@ -41,6 +43,7 @@ class _ConnectionDetailScreenState
     extends ConsumerState<ConnectionDetailScreen> {
   final _note = TextEditingController();
   final _location = TextEditingController();
+  final _aiPrompt = TextEditingController();
   StreamSubscription<bool>? _connectivitySub;
   VoiceMemoryService? _voice;
   var _extrasRequestId = 0;
@@ -50,6 +53,7 @@ class _ConnectionDetailScreenState
   var _saving = false;
   var _editingLocation = false;
   var _listening = false;
+  var _aiTab = ConnectionAiTab.record;
 
   @override
   void initState() {
@@ -74,11 +78,11 @@ class _ConnectionDetailScreenState
     unawaited(_voice?.stop());
     _note.dispose();
     _location.dispose();
+    _aiPrompt.dispose();
     super.dispose();
   }
 
   void _onNoteEdited() {
-    // Avoid setState while controllers are seeded from build().
     if (!mounted || _seedingControllers) return;
     setState(() {});
   }
@@ -124,7 +128,6 @@ class _ConnectionDetailScreenState
         _initializedNote = true;
       }
       if (_locationSeeded) return;
-      // Meeting place only — not profile city (`connection.location`).
       final place = connection.fumblePlace?.trim() ?? '';
       if (place.isEmpty) return;
       _location.text = place;
@@ -147,9 +150,13 @@ class _ConnectionDetailScreenState
     if (!ok) setState(() => _saving = false);
   }
 
+  void _aiComingSoon() => showAppToast(AppConstant.aiComingSoon);
+
   @override
   Widget build(BuildContext context) {
     final connectionsAsync = ref.watch(connectionsProvider);
+    final aiCoins =
+        ref.watch(currentUserProfileProvider).valueOrNull?.aiCoins ?? 0;
 
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
@@ -158,6 +165,12 @@ class _ConnectionDetailScreenState
           brandTitle: true,
           showBack: true,
           onBack: _saving ? null : pop,
+          actions: [
+            AiCoinsBadge(
+              count: aiCoins,
+              onTap: ProfileActions.showAiImageComingSoon,
+            ),
+          ],
         ),
         body: connectionsAsync.when(
           loading: () => const AppLoader(),
@@ -199,23 +212,15 @@ class _ConnectionDetailScreenState
             final fumbleLabel = youInitiated
                 ? AppConstant.youFumbled(displayName)
                 : AppConstant.fumbledYou(displayName);
-            final noteEmpty = _note.text.trim().isEmpty;
-            final rememberMessage = noteEmpty
-                ? (youInitiated
-                      ? AppConstant.rememberMomentEmptyYouInitiated(displayName)
-                      : AppConstant.rememberMomentEmptyTheyInitiated(
-                          displayName,
-                        ))
-                : (youInitiated
-                      ? AppConstant.sharedMemoryYouInitiated(displayName)
-                      : AppConstant.sharedMemoryTheyInitiated(displayName));
-            final dateLabel = DateFormat('d MMMM yyyy')
-                .format(connection.fumbledAt);
+            final dateLabel =
+                DateFormat('d MMMM yyyy').format(connection.fumbledAt);
             final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
             final hasLocation = _location.text.trim().isNotEmpty;
             final locationLabel = hasLocation
                 ? _location.text.trim()
                 : AppConstant.enterFumbleLocation;
+            final hasWhatsApp =
+                (connection.visibleWhatsApp?.trim().isNotEmpty ?? false);
 
             return Column(
               children: [
@@ -224,6 +229,11 @@ class _ConnectionDetailScreenState
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
+                        8.height,
+                        ConnectionAiHeroImage(
+                          onTap: _aiComingSoon,
+                        ),
+                        16.height,
                         ProfileCardHeader(
                           name: connection.name,
                           eyebrow: fumbleLabel.toUpperCase(),
@@ -232,8 +242,9 @@ class _ConnectionDetailScreenState
                           phone: connection.visiblePhone,
                           hideBioWhenEmpty: true,
                           showEmail: false,
+                          showWhatsAppIcon: hasWhatsApp,
                           emptyPhoneLabel: 'No phone number',
-                          topSpacing: 8,
+                          topSpacing: 0,
                           onCall: () => ConnectionDetailActions.call(
                             connection.visiblePhone,
                           ),
@@ -264,16 +275,18 @@ class _ConnectionDetailScreenState
                                 : () => setState(() => _editingLocation = true),
                           ),
                         16.height,
-                        FumblePreviewRememberPrompt(message: rememberMessage),
-                        16.height,
-                        FumblePreviewRecordMemory(
+                        ConnectionAiGroupCard(
+                          tab: _aiTab,
+                          onTabChanged: (tab) => setState(() => _aiTab = tab),
+                          noteController: _note,
+                          promptController: _aiPrompt,
                           isListening: _listening,
-                          onTap: _saving ? null : _toggleVoiceMemory,
-                        ),
-                        16.height,
-                        FumblePreviewMemoryNote(
-                          controller: _note,
-                          enabled: !_saving && !_listening,
+                          noteEnabled: !_saving && !_listening,
+                          onRecordTap: _saving ? null : _toggleVoiceMemory,
+                          onGenerateTap: _aiComingSoon,
+                          onRegenerateVideoTap: _aiComingSoon,
+                          onEditTap: () =>
+                              setState(() => _aiTab = ConnectionAiTab.record),
                         ),
                         40.height,
                       ],
