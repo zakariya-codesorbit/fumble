@@ -214,7 +214,7 @@ class _RecordMemoryPanel extends StatelessWidget {
         14.height,
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 16, 14, 14),
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           decoration: BoxDecoration(
             color: AppColors.inputFill,
             borderRadius: BorderRadius.circular(14),
@@ -234,7 +234,7 @@ class _RecordMemoryPanel extends StatelessWidget {
               fontFamilyFallback: AppStyle.fontFamilyFallback,
             ),
             decoration: InputDecoration(
-              isDense: true,
+              isDense: false,
               filled: false,
               hintText: AppConstant.typeMemoryHint,
               hintStyle: TextStyle(
@@ -244,7 +244,7 @@ class _RecordMemoryPanel extends StatelessWidget {
                 fontFamily: AppStyle.fontFamily,
                 fontFamilyFallback: AppStyle.fontFamilyFallback,
               ),
-              contentPadding: const EdgeInsets.only(top: 4, left: 2),
+              contentPadding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
               border: InputBorder.none,
             ),
           ),
