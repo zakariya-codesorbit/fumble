@@ -422,44 +422,66 @@ class _AiVideoPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final memory = noteController.text.trim();
+    final quote = memory.isEmpty ? AppConstant.typeMemoryHint : '“$memory”';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: AppConstant.filmedFromYourMemory.toText(
-                color: AppColors.primary,
-                fontSize: 11,
-                fontWeight: AppStyle.w600,
-                letterSpacing: 1.2,
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          decoration: BoxDecoration(
+            color: AppColors.inputFill,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border, width: 1.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: AppConstant.filmedFromYourMemory.toText(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: AppStyle.w600,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  AppConstant.editLabel
+                      .toText(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        fontWeight: AppStyle.w600,
+                        letterSpacing: 1,
+                      )
+                      .onPress(onEditTap ?? () {}),
+                ],
               ),
-            ),
-            AppConstant.editLabel
-                .toText(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                  fontWeight: AppStyle.w600,
-                  letterSpacing: 1,
-                )
-                .onPress(onEditTap ?? () {}),
-          ],
-        ),
-        12.height,
-        (memory.isEmpty ? AppConstant.typeMemoryHint : '“$memory”').toText(
-          color: AppColors.textPrimary,
-          fontSize: 14,
-          fontWeight: AppStyle.w400,
-          fontStyle: FontStyle.italic,
-          maxLine: 6,
+              12.height,
+              quote.toText(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: AppStyle.w400,
+                fontStyle: FontStyle.italic,
+                maxLine: 8,
+              ),
+              10.height,
+              AppConstant.videoPlaysMoment.toText(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: AppStyle.w400,
+                maxLine: 3,
+              ),
+            ],
+          ),
         ),
         14.height,
-        _AiMediaFrame(imageUrl: imageUrl, height: 260, showPlay: true),
-        16.height,
+        _AiMediaFrame(imageUrl: imageUrl, height: 280, showVideoControls: true),
+        20.height,
         _OutlinedAiButton(
           label: AppConstant.regenerateVideo,
-          icon: AppIcons.camera,
+          icon: AppIcons.videocam,
           onTap: onRegenerateTap,
         ),
       ],
@@ -471,12 +493,12 @@ class _AiMediaFrame extends StatelessWidget {
   const _AiMediaFrame({
     this.imageUrl,
     this.height = 220,
-    this.showPlay = false,
+    this.showVideoControls = false,
   });
 
   final String? imageUrl;
   final double height;
-  final bool showPlay;
+  final bool showVideoControls;
 
   @override
   Widget build(BuildContext context) {
@@ -512,14 +534,73 @@ class _AiMediaFrame extends StatelessWidget {
                 size: 32,
               ),
             ),
-          if (showPlay)
-            const Center(
-              child: Icon(
-                Icons.play_circle_fill_rounded,
-                color: AppColors.textPrimary,
-                size: 56,
+          if (showVideoControls) ...[
+            // Dim bottom for control bar readability.
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.clear,
+                      AppColors.onPrimary.withValues(alpha: 0.72),
+                    ],
+                  ),
+                ),
               ),
             ),
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 10,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.play_arrow_rounded,
+                        color: AppColors.textPrimary,
+                        size: 28,
+                      ),
+                      const Spacer(),
+                      const Icon(
+                        Icons.volume_up_outlined,
+                        color: AppColors.textPrimary,
+                        size: 20,
+                      ),
+                      14.width,
+                      const Icon(
+                        Icons.fullscreen_rounded,
+                        color: AppColors.textPrimary,
+                        size: 22,
+                      ),
+                      10.width,
+                      const Icon(
+                        Icons.more_vert_rounded,
+                        color: AppColors.textPrimary,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  8.height,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: const LinearProgressIndicator(
+                      value: 0.18,
+                      minHeight: 2.5,
+                      backgroundColor: AppColors.textDisabled,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
