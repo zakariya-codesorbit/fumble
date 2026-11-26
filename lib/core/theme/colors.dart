@@ -27,6 +27,9 @@ abstract final class AppColors {
   /// Visible warm bronze card / input border.
   static const Color border = Color(0xFF3D3426);
 
+  /// Bottom-nav top hairline (black-shaded grey).
+  static const Color navDivider = Color(0xFF2A2A2A);
+
   // ── Brand / accent ────────────────────────────────────────────────
   /// Primary brand gold / ochre.
   static const Color primary = Color(0xFFC9A03A);
