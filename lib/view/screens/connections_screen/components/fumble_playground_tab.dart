@@ -94,7 +94,7 @@ class FumblePlaygroundTab extends StatelessWidget {
                 ),
                 2.height,
                 AppConstant.fumblePlaygroundTagline.toText(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textTertiary,
                   fontSize: 11,
                   fontWeight: AppStyle.w500,
                   fontStyle: FontStyle.italic,
@@ -175,7 +175,7 @@ class _PlaygroundCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       adventure.title.toText(
-                        color: AppColors.textPrimary,
+                        color: AppColors.textSecondary,
                         fontSize: 12,
                         fontWeight: AppStyle.w700,
                         letterSpacing: 0.4,
@@ -185,7 +185,7 @@ class _PlaygroundCard extends StatelessWidget {
                       4.height,
                       Expanded(
                         child: adventure.description.toText(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textTertiary,
                           fontSize: 11,
                           fontWeight: AppStyle.w400,
                           maxLine: 3,
