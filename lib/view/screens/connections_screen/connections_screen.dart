@@ -15,6 +15,7 @@ import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_actions.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_tile.dart';
+import 'package:fumble/view/screens/connections_screen/components/fumble_playground_tab.dart';
 import 'package:fumble/view/screens/connections_screen/components/half_fumble_tile.dart';
 import 'package:fumble/view/screens/connections_screen/components/incoming_invitation_tile.dart';
 import 'package:fumble/view/screens/connections_screen/invitation_accept_screen.dart';
@@ -318,10 +319,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                       subtitle: AppConstant.wait2FumbleComingSoon,
                     )
                   : _tab == _ConnectionsTab.fumblePlayground
-                  ? const NoDataFound(
-                      title: AppConstant.connectionsTabFumblePlayground,
-                      subtitle: AppConstant.fumblePlaygroundComingSoon,
-                    )
+                  ? const FumblePlaygroundTab()
                   : connectionsAsync.when(
                 loading: () => const AppLoader(),
                 error: (e, _) => AppErrorState(

@@ -215,6 +215,10 @@ abstract final class AppConstant {
       'Wait 2 Fumble is coming soon.';
   static const String fumblePlaygroundComingSoon =
       'Fumble Playground is coming soon.';
+  static const String fumblePlaygroundEyebrow = 'FUMBLE PLAYGROUND';
+  static const String fumblePlaygroundHeadline = 'New adventures';
+  static const String fumblePlaygroundTagline =
+      'CONNECT IN SECONDS, HAVE FUN FOREVER';
   static const String connectionsEmptyTitle = 'No fumbles yet';
   static const String connectionsEmptyBody =
       'Fumble someone to save the moment here.';
