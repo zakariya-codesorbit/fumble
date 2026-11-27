@@ -8,7 +8,6 @@ import 'package:fumble/core/theme/colors.dart';
 import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/data/models/half_fumble.dart';
 import 'package:fumble/data/repositories/half_fumble_repository.dart';
-import 'package:fumble/services/half_fumble/half_fumble_invite_share.dart';
 import 'package:fumble/state/providers/app_providers.dart';
 import 'package:fumble/state/providers/service_providers.dart';
 import 'package:fumble/utils/app_assets.dart';
@@ -152,45 +151,6 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
               c.syncStatus == SyncStatus.failed,
         )
         .toList();
-  }
-
-  Future<void> _resend(HalfFumble half) async {
-    final profile = ref.read(currentUserProfileProvider).valueOrNull;
-    if (profile == null) return;
-    try {
-      final shared = await ref
-          .read(halfFumbleRepositoryProvider)
-          .resendInvitation(inviter: profile, halfFumble: half);
-      if (!mounted) return;
-      await HalfFumbleInviteShare.present(
-        context: context,
-        invitedEmail: shared.invitedEmail,
-        storeUrl: shared.storeUrl,
-        appLink: shared.appLink,
-        phone: half.phone,
-        whatsApp: half.whatsApp,
-      );
-      showAppToast(AppConstant.halfFumbleInviteShared);
-    } on HalfFumbleException catch (e) {
-      showAppToast(e.message, isError: true);
-    } catch (_) {
-      showAppToast(AppConstant.somethingWrong, isError: true);
-    }
-  }
-
-  Future<void> _cancel(HalfFumble half) async {
-    final uid = ref.read(authServiceProvider).currentUser?.uid;
-    if (uid == null) return;
-    try {
-      await ref
-          .read(halfFumbleRepositoryProvider)
-          .revokeInvitation(ownerUid: uid, halfFumble: half);
-      showAppToast(AppConstant.halfFumbleInviteRevoked);
-    } on HalfFumbleException catch (e) {
-      showAppToast(e.message, isError: true);
-    } catch (_) {
-      showAppToast(AppConstant.somethingWrong, isError: true);
-    }
   }
 
   void _openIncoming(HalfFumbleInvitation invite) {
@@ -440,8 +400,6 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                               onTap: () => ConnectionActions.openHalfFumbleDetail(
                                 half.id,
                               ),
-                              onResend: () => _resend(half),
-                              onCancel: () => _cancel(half),
                             ),
                             _FumbledRow(:final connection) => ConnectionTile(
                               connection: connection,

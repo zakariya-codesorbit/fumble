@@ -16,16 +16,12 @@ class HalfFumbleTile extends StatelessWidget {
     super.key,
     required this.halfFumble,
     this.onTap,
-    this.onResend,
-    this.onCancel,
     this.aiImageUrl,
     this.aiImageAsset = AppIcons.aiPlaceholder,
   });
 
   final HalfFumble halfFumble;
   final VoidCallback? onTap;
-  final VoidCallback? onResend;
-  final VoidCallback? onCancel;
   final String? aiImageUrl;
   final String? aiImageAsset;
 
@@ -162,53 +158,6 @@ class HalfFumbleTile extends StatelessWidget {
                         maxLine: 3,
                         overflow: TextOverflow.ellipsis,
                         lineHeight: 1.35,
-                      ),
-                    ],
-                    if (halfFumble.status.canResend ||
-                        halfFumble.status.canCancel) ...[
-                      12.height,
-                      Row(
-                        children: [
-                          if (halfFumble.status.canResend)
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: onResend,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.primary,
-                                  side: const BorderSide(color: AppColors.border),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: AppConstant.resendFumble.toText(
-                                  fontSize: 12,
-                                  fontWeight: AppStyle.w600,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          if (halfFumble.status.canResend &&
-                              halfFumble.status.canCancel)
-                            8.width,
-                          if (halfFumble.status.canCancel)
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: onCancel,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.error,
-                                  side: const BorderSide(color: AppColors.border),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: AppConstant.cancelFumble.toText(
-                                  fontSize: 12,
-                                  fontWeight: AppStyle.w600,
-                                  color: AppColors.error,
-                                ),
-                              ),
-                            ),
-                        ],
                       ),
                     ],
                   ],
