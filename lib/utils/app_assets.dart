@@ -35,6 +35,7 @@ class AppIcons {
   static const IconData person = Icons.person_outline;
   static const IconData refresh = Icons.refresh_rounded;
   static const IconData add = Icons.add;
+  static const IconData send = Icons.send_rounded;
   static const IconData mic = Icons.mic_none_rounded;
   static const IconData privacy = Icons.privacy_tip_outlined;
   static const IconData terms = Icons.description_outlined;

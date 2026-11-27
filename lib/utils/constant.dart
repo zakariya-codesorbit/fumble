@@ -231,6 +231,9 @@ abstract final class AppConstant {
 
   static String youWantToFumble(String name) => 'You Want to fumble $name';
 
+  static String halfFumbled(String name) => 'Half Fumbled $name';
+
+  static const String sendFumbleInvite = 'SEND FUMBLE INVITE';
   static const String halfFumbleStatusLabel = 'Half Fumble';
   static const String invitationSentLabel = 'Invitation sent';
   static const String pendingAcceptanceLabel = 'Pending acceptance';

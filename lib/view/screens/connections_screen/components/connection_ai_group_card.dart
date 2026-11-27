@@ -26,6 +26,7 @@ class ConnectionAiGroupCard extends StatelessWidget {
     this.aiImageUrl,
     this.aiImageAsset = AppIcons.aiPlaceholder,
     this.aiVideoUrl = AppConstant.aiTestVideoUrl,
+    this.showVideoTab = true,
     this.onRecordTap,
     this.onGenerateTap,
     this.onRegenerateVideoTap,
@@ -41,13 +42,22 @@ class ConnectionAiGroupCard extends StatelessWidget {
   final String? aiImageUrl;
   final String? aiImageAsset;
   final String? aiVideoUrl;
+
+  /// When false (Half Fumble detail), only Record Memory + AI Generation.
+  final bool showVideoTab;
   final VoidCallback? onRecordTap;
   final VoidCallback? onGenerateTap;
   final VoidCallback? onRegenerateVideoTap;
   final VoidCallback? onEditTap;
 
+  List<ConnectionAiTab> get _tabs => showVideoTab
+      ? ConnectionAiTab.values
+      : const [ConnectionAiTab.record, ConnectionAiTab.generation];
+
   @override
   Widget build(BuildContext context) {
+    final activeTab = _tabs.contains(tab) ? tab : ConnectionAiTab.record;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -62,18 +72,18 @@ class ConnectionAiGroupCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(10, 14, 10, 0),
             child: Row(
               children: [
-                for (final entry in ConnectionAiTab.values) ...[
-                  if (entry.index > 0) 4.width,
+                for (var i = 0; i < _tabs.length; i++) ...[
+                  if (i > 0) 4.width,
                   Expanded(
                     child: _AiTabChip(
-                      label: switch (entry) {
+                      label: switch (_tabs[i]) {
                         ConnectionAiTab.record => AppConstant.recordMemoryTab,
                         ConnectionAiTab.generation =>
                           AppConstant.aiGenerationTab,
                         ConnectionAiTab.video => AppConstant.aiVideoMemoryTab,
                       },
-                      selected: tab == entry,
-                      onTap: () => onTabChanged(entry),
+                      selected: activeTab == _tabs[i],
+                      onTap: () => onTabChanged(_tabs[i]),
                     ),
                   ),
                 ],
@@ -84,7 +94,7 @@ class ConnectionAiGroupCard extends StatelessWidget {
           const Divider(height: 1, thickness: 1, color: AppColors.navDivider),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: switch (tab) {
+            child: switch (activeTab) {
               ConnectionAiTab.record => _RecordMemoryPanel(
                 noteController: noteController,
                 enabled: noteEnabled,

@@ -18,6 +18,10 @@ abstract final class ConnectionActions {
     push(AppRoutes.connectionDetail, arguments: peerUid);
   }
 
+  static void openHalfFumbleDetail(String halfFumbleId) {
+    push(AppRoutes.halfFumbleDetail, arguments: halfFumbleId);
+  }
+
   static Future<void> confirmRemove({
     required BuildContext context,
     required WidgetRef ref,

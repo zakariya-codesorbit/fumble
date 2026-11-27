@@ -437,6 +437,9 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                               ),
                             _HalfRow(:final half) => HalfFumbleTile(
                               halfFumble: half,
+                              onTap: () => ConnectionActions.openHalfFumbleDetail(
+                                half.id,
+                              ),
                               onResend: () => _resend(half),
                               onCancel: () => _cancel(half),
                             ),

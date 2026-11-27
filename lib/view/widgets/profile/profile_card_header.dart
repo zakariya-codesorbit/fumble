@@ -324,42 +324,53 @@ class _NameRow extends StatelessWidget {
       fontSize: 28,
       fontWeight: AppStyle.w700,
       textAlign: TextAlign.center,
+      maxLine: 2,
+      overflow: TextOverflow.ellipsis,
     );
 
-    final showTrailing = showEditIcon || showWhatsAppIcon;
-    if (!showTrailing && onTap == null) {
-      return nameText;
+    final trailing = <Widget>[
+      if (showEditIcon) ...[
+        8.width,
+        SvgPicture.asset(
+          AppIcons.iconEdit,
+          width: 18,
+          height: 18,
+          colorFilter: const ColorFilter.mode(
+            AppColors.textTertiary,
+            BlendMode.srcIn,
+          ),
+        ),
+      ],
+      if (showWhatsAppIcon) ...[
+        8.width,
+        Image.asset(
+          AppIcons.iconWhatsapp,
+          width: 22,
+          height: 22,
+        ).onPress(onWhatsApp ?? () {}),
+      ],
+    ];
+
+    if (trailing.isEmpty) {
+      return SizedBox(
+        width: double.infinity,
+        child: onTap != null ? nameText.onPress(onTap!) : nameText,
+      );
     }
 
-    final row = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    // Mirror trailing width on the left so the name stays optically centered.
+    return Row(
       children: [
-        Flexible(
+        Opacity(
+          opacity: 0,
+          child: Row(mainAxisSize: MainAxisSize.min, children: trailing),
+        ),
+        Expanded(
           child: onTap != null ? nameText.onPress(onTap!) : nameText,
         ),
-        if (showEditIcon) ...[
-          8.width,
-          SvgPicture.asset(
-            AppIcons.iconEdit,
-            width: 18,
-            height: 18,
-            colorFilter: const ColorFilter.mode(
-              AppColors.textTertiary,
-              BlendMode.srcIn,
-            ),
-          ),
-        ],
-        if (showWhatsAppIcon) ...[
-          8.width,
-          Image.asset(
-            AppIcons.iconWhatsapp,
-            width: 22,
-            height: 22,
-          ).onPress(onWhatsApp ?? () {}),
-        ],
+        Row(mainAxisSize: MainAxisSize.min, children: trailing),
       ],
     );
-    return row;
   }
 }
 
@@ -406,8 +417,8 @@ class _BioRow extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
     );
 
-    if (onTap == null) return text;
-    return text.onPress(onTap!);
+    final child = onTap == null ? text : text.onPress(onTap!);
+    return SizedBox(width: double.infinity, child: child);
   }
 }
 
@@ -441,20 +452,30 @@ class _ContactLine extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
     );
 
+    final label = onTap != null ? text.onPress(onTap!) : text;
+
     if (!showWhatsAppIcon || !hasValue) {
-      return Center(child: onTap != null ? text.onPress(onTap!) : text);
+      return SizedBox(width: double.infinity, child: label);
     }
 
+    final trailing = <Widget>[
+      8.width,
+      Image.asset(
+        AppIcons.iconWhatsapp,
+        width: 20,
+        height: 20,
+      ).onPress(onWhatsApp ?? () {}),
+    ];
+
+    // Mirror trailing width on the left so the number stays optically centered.
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Flexible(child: onTap != null ? text.onPress(onTap!) : text),
-        8.width,
-        Image.asset(
-          AppIcons.iconWhatsapp,
-          width: 20,
-          height: 20,
-        ).onPress(onWhatsApp ?? () {}),
+        Opacity(
+          opacity: 0,
+          child: Row(mainAxisSize: MainAxisSize.min, children: trailing),
+        ),
+        Expanded(child: label),
+        Row(mainAxisSize: MainAxisSize.min, children: trailing),
       ],
     );
   }

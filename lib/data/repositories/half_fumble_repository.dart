@@ -310,6 +310,29 @@ class HalfFumbleRepository {
     await batch.commit();
   }
 
+  /// Updates note / meeting place on an active Half Fumble.
+  Future<void> updateDetails({
+    required String ownerUid,
+    required String halfFumbleId,
+    String? personalNote,
+    String? meetingLocation,
+  }) async {
+    final note = personalNote?.trim();
+    final place = meetingLocation?.trim();
+    try {
+      await _halfFumbles(ownerUid).doc(halfFumbleId).update({
+        'personalNote': (note == null || note.isEmpty) ? null : note,
+        'meetingLocation': (place == null || place.isEmpty) ? null : place,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        throw HalfFumbleException(AppConstant.halfFumblePermissionDenied);
+      }
+      rethrow;
+    }
+  }
+
   /// Invitee accepts after email verification. Creates mutual connections.
   ///
   /// [rawToken] is optional: required only when opened via installed-app deep
