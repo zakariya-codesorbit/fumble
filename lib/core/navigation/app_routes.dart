@@ -9,6 +9,7 @@ import 'package:fumble/view/screens/onboarding_screen/upload_photo_screen.dart';
 import 'package:fumble/view/screens/connections_screen/add_someone_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connection_detail_screen.dart';
 import 'package:fumble/view/screens/connections_screen/connections_screen.dart';
+import 'package:fumble/view/screens/connections_screen/fumble_playground_detail_screen.dart';
 import 'package:fumble/view/screens/connections_screen/half_fumble_detail_screen.dart';
 import 'package:fumble/view/screens/connections_screen/invitation_accept_screen.dart';
 import 'package:fumble/view/screens/fumble_screen/fumble_screen.dart';
@@ -34,6 +35,7 @@ abstract final class AppRoutes {
   static const String connections = '/connections';
   static const String connectionDetail = '/connection-detail';
   static const String halfFumbleDetail = '/half-fumble-detail';
+  static const String fumblePlaygroundDetail = '/fumble-playground-detail';
   static const String addSomeone = '/add-someone';
   static const String invitationAccept = '/invitation-accept';
   static const String fumbleScanner = '/fumble-scanner';
@@ -63,6 +65,13 @@ abstract final class AppRoutes {
       final halfFumbleId =
           ModalRoute.of(context)?.settings.arguments as String?;
       return HalfFumbleDetailScreen(halfFumbleId: halfFumbleId ?? '');
+    },
+    fumblePlaygroundDetail: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final adventureId = args is FumblePlaygroundDetailArgs
+          ? args.adventureId
+          : (args is String ? args : '');
+      return FumblePlaygroundDetailScreen(adventureId: adventureId);
     },
     addSomeone: (_) => const AddSomeoneScreen(),
     invitationAccept: (context) {

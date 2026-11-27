@@ -18,6 +18,7 @@ import 'package:fumble/view/screens/connections_screen/components/connection_til
 import 'package:fumble/view/screens/connections_screen/components/fumble_playground_tab.dart';
 import 'package:fumble/view/screens/connections_screen/components/half_fumble_tile.dart';
 import 'package:fumble/view/screens/connections_screen/components/incoming_invitation_tile.dart';
+import 'package:fumble/view/screens/connections_screen/components/wait_2_fumble_tab.dart';
 import 'package:fumble/view/screens/connections_screen/invitation_accept_screen.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/ai_coins_badge.dart';
 import 'package:fumble/view/screens/my_fumble_screen/components/profile_actions.dart';
@@ -314,10 +315,7 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
               ),
             Expanded(
               child: _tab == _ConnectionsTab.wait2Fumble
-                  ? const NoDataFound(
-                      title: AppConstant.connectionsTabWait2Fumble,
-                      subtitle: AppConstant.wait2FumbleComingSoon,
-                    )
+                  ? const Wait2FumbleTab()
                   : _tab == _ConnectionsTab.fumblePlayground
                   ? const FumblePlaygroundTab()
                   : connectionsAsync.when(

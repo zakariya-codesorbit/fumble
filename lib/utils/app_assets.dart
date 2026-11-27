@@ -23,6 +23,7 @@ class AppIcons {
   static const IconData email = Icons.email_outlined;
   static const IconData location = Icons.location_on_outlined;
   static const IconData photoLibrary = Icons.photo_library_outlined;
+  static const IconData addPhoto = Icons.add_photo_alternate_outlined;
   static const IconData deleteOutline = Icons.delete_outline_rounded;
   static const IconData logout = Icons.logout_rounded;
   static const IconData chevronRight = Icons.chevron_right_rounded;
@@ -36,6 +37,7 @@ class AppIcons {
   static const IconData refresh = Icons.refresh_rounded;
   static const IconData add = Icons.add;
   static const IconData send = Icons.send_rounded;
+  static const IconData share = Icons.ios_share_rounded;
   static const IconData mic = Icons.mic_none_rounded;
   static const IconData privacy = Icons.privacy_tip_outlined;
   static const IconData terms = Icons.description_outlined;

@@ -1,69 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'package:fumble/core/navigation/app_routes.dart';
+import 'package:fumble/core/navigation/router_navigator.dart';
 import 'package:fumble/core/theme/colors.dart';
+import 'package:fumble/data/models/playground_adventure.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/connections_screen/fumble_playground_detail_screen.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
-import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
-
-class _PlaygroundAdventure {
-  const _PlaygroundAdventure({
-    required this.title,
-    required this.description,
-    required this.imageUrl,
-  });
-
-  final String title;
-  final String description;
-  final String imageUrl;
-}
-
-/// Temporary adventure catalogue until FalAI / CMS content is wired.
-const _adventures = <_PlaygroundAdventure>[
-  _PlaygroundAdventure(
-    title: 'MOON LANDING',
-    description: 'One giant leap for the two of you.',
-    imageUrl: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'ROLLERCOASTER',
-    description: 'Hold on tight. This one\'s a scream.',
-    imageUrl: 'https://images.unsplash.com/photo-1563990308267-1c6e4b099487?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'BANK ROBBERY',
-    description: 'Grab the bags. Don\'t look back.',
-    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'SKYDIVING',
-    description: 'Jump together. Land later.',
-    imageUrl: 'https://images.unsplash.com/photo-1521673461164-de300ebcfb17?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'DINOSAUR ATTACK',
-    description: 'Run. Don\'t feed the T-Rex.',
-    imageUrl: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'STREET RACE',
-    description: 'Neon lights. No speed limits.',
-    imageUrl: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'DESERT CHASE',
-    description: 'Hot pursuit across the dunes.',
-    imageUrl: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?auto=format&fit=crop&w=800&q=80',
-  ),
-  _PlaygroundAdventure(
-    title: 'BIG WAVE',
-    description: 'Catch it or wipe out together.',
-    imageUrl: 'https://images.unsplash.com/photo-1502680390469-be75caf25bf9?auto=format&fit=crop&w=800&q=80',
-  ),
-];
 
 /// Fumble Playground tab — adventure grid matching Connections design.
 class FumblePlaygroundTab extends StatelessWidget {
@@ -71,6 +18,8 @@ class FumblePlaygroundTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final adventures = PlaygroundAdventures.all;
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
@@ -114,12 +63,17 @@ class FumblePlaygroundTab extends StatelessWidget {
               childAspectRatio: 0.85,
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
-              final adventure = _adventures[index];
+              final adventure = adventures[index];
               return _PlaygroundCard(
                 adventure: adventure,
-                onTap: () => showAppToast(AppConstant.aiComingSoon),
+                onTap: () => push(
+                  AppRoutes.fumblePlaygroundDetail,
+                  arguments: FumblePlaygroundDetailArgs(
+                    adventureId: adventure.id,
+                  ),
+                ),
               );
-            }, childCount: _adventures.length),
+            }, childCount: adventures.length),
           ),
         ),
       ],
@@ -130,7 +84,7 @@ class FumblePlaygroundTab extends StatelessWidget {
 class _PlaygroundCard extends StatelessWidget {
   const _PlaygroundCard({required this.adventure, this.onTap});
 
-  final _PlaygroundAdventure adventure;
+  final PlaygroundAdventure adventure;
   final VoidCallback? onTap;
 
   @override

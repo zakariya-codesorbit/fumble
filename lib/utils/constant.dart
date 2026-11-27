@@ -213,12 +213,34 @@ abstract final class AppConstant {
   static const String connectionsTabAll = 'ALL';
   static const String wait2FumbleComingSoon =
       'Wait 2 Fumble is coming soon.';
+  static const String wait2MakeYourOwn = 'MAKE YOUR OWN';
+  static const String wait2PresetVideos = 'PRESET VIDEOS';
+  static const String whileYouWait2Fumble = 'WHILE YOU WAIT 2 FUMBLE';
+  static const String wait2CaptureHint =
+      'Capture a 5 to 8 second vertical video of a moment — travels, a night out, whatever you want to remember until it becomes a Fumble.';
+  static const String wait2WhoOrWhat = 'Who or what?';
+  static const String wait2Where = 'Where?';
+  static const String wait2WhatHappened =
+      'What happened or what would you like to create?';
+  static const String wait2FromGallery = 'FROM GALLERY';
+  static const String wait2GenerateWithAi = 'GENERATE WITH AI';
+  static const String generateImageMemory = 'Generate Image Memory';
+  static const String generateVideoMemory = 'Generate Video Memory';
+  static const String wait2SampleTitle = 'Italy Trip';
+  static const String wait2SampleLocation = 'Milan, italy';
+  static const String wait2SampleCaption = '“Business trip but had fun.”';
+  static const String wait2PresetComingSoon =
+      'Preset videos are coming soon.';
   static const String fumblePlaygroundComingSoon =
       'Fumble Playground is coming soon.';
   static const String fumblePlaygroundEyebrow = 'FUMBLE PLAYGROUND';
   static const String fumblePlaygroundHeadline = 'New adventures';
   static const String fumblePlaygroundTagline =
       'CONNECT IN SECONDS, HAVE FUN FOREVER';
+  static const String whoAreYouFumblingWith = 'WHO ARE YOU FUMBLING WITH?';
+  static const String pickAFumbleAbove = 'Pick a Fumble above';
+  static const String generateAdventure = 'GENERATE ADVENTURE';
+  static const String shareWithAFumble = 'SHARE WITH A FUMBLE';
   static const String connectionsEmptyTitle = 'No fumbles yet';
   static const String connectionsEmptyBody =
       'Fumble someone to save the moment here.';
