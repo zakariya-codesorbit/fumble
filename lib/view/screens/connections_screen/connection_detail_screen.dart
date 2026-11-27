@@ -10,6 +10,7 @@ import 'package:fumble/data/models/connection.dart';
 import 'package:fumble/services/network/connection_manager.dart';
 import 'package:fumble/services/speech/voice_memory_service.dart';
 import 'package:fumble/state/providers/app_providers.dart';
+import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
 import 'package:fumble/view/screens/connections_screen/components/connection_ai_group_card.dart';
@@ -212,8 +213,8 @@ class _ConnectionDetailScreenState
             final fumbleLabel = youInitiated
                 ? AppConstant.youFumbled(displayName)
                 : AppConstant.fumbledYou(displayName);
-            final dateLabel =
-                DateFormat('d MMMM yyyy').format(connection.fumbledAt);
+            final dateLabel = DateFormat('d MMMM yyyy')
+                .format(connection.fumbledAt);
             final timeLabel = DateFormat('HH:mm').format(connection.fumbledAt);
             final hasLocation = _location.text.trim().isNotEmpty;
             final locationLabel = hasLocation
@@ -230,9 +231,7 @@ class _ConnectionDetailScreenState
                     child: Column(
                       children: [
                         8.height,
-                        ConnectionAiHeroImage(
-                          onTap: _aiComingSoon,
-                        ),
+                        ConnectionAiHeroImage(onTap: _aiComingSoon),
                         16.height,
                         ProfileCardHeader(
                           name: connection.name,
@@ -282,6 +281,8 @@ class _ConnectionDetailScreenState
                           promptController: _aiPrompt,
                           isListening: _listening,
                           noteEnabled: !_saving && !_listening,
+                          aiImageAsset: AppIcons.aiPlaceholder,
+                          aiVideoUrl: AppConstant.aiTestVideoUrl,
                           onRecordTap: _saving ? null : _toggleVoiceMemory,
                           onGenerateTap: _aiComingSoon,
                           onRegenerateVideoTap: _aiComingSoon,

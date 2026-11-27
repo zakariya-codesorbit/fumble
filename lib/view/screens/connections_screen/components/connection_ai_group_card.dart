@@ -9,6 +9,7 @@ import 'package:fumble/view/screens/fumble_screen/components/fumble_preview_reco
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/extention/widget_extension.dart';
+import 'package:fumble/view/widgets/media/ai_test_video_player.dart';
 
 enum ConnectionAiTab { record, generation, video }
 
@@ -23,6 +24,8 @@ class ConnectionAiGroupCard extends StatelessWidget {
     required this.isListening,
     required this.noteEnabled,
     this.aiImageUrl,
+    this.aiImageAsset = AppIcons.aiPlaceholder,
+    this.aiVideoUrl = AppConstant.aiTestVideoUrl,
     this.onRecordTap,
     this.onGenerateTap,
     this.onRegenerateVideoTap,
@@ -36,6 +39,8 @@ class ConnectionAiGroupCard extends StatelessWidget {
   final bool isListening;
   final bool noteEnabled;
   final String? aiImageUrl;
+  final String? aiImageAsset;
+  final String? aiVideoUrl;
   final VoidCallback? onRecordTap;
   final VoidCallback? onGenerateTap;
   final VoidCallback? onRegenerateVideoTap;
@@ -90,12 +95,15 @@ class ConnectionAiGroupCard extends StatelessWidget {
                 noteController: noteController,
                 promptController: promptController,
                 imageUrl: aiImageUrl,
+                imageAsset: aiImageAsset,
                 onGenerateTap: onGenerateTap,
                 onEditTap: onEditTap,
               ),
               ConnectionAiTab.video => _AiVideoPanel(
                 noteController: noteController,
                 imageUrl: aiImageUrl,
+                imageAsset: aiImageAsset,
+                videoUrl: aiVideoUrl ?? AppConstant.aiTestVideoUrl,
                 onRegenerateTap: onRegenerateVideoTap,
                 onEditTap: onEditTap,
               ),
@@ -285,6 +293,7 @@ class _AiGenerationPanel extends StatelessWidget {
     required this.noteController,
     required this.promptController,
     this.imageUrl,
+    this.imageAsset,
     this.onGenerateTap,
     this.onEditTap,
   });
@@ -292,6 +301,7 @@ class _AiGenerationPanel extends StatelessWidget {
   final TextEditingController noteController;
   final TextEditingController promptController;
   final String? imageUrl;
+  final String? imageAsset;
   final VoidCallback? onGenerateTap;
   final VoidCallback? onEditTap;
 
@@ -353,7 +363,7 @@ class _AiGenerationPanel extends StatelessWidget {
           ),
         ),
         14.height,
-        _AiMediaFrame(imageUrl: imageUrl, height: 220),
+        _AiMediaFrame(imageUrl: imageUrl, imageAsset: imageAsset, height: 220),
         14.height,
         AppConstant.addToIt.toText(
           color: AppColors.primary,
@@ -410,12 +420,16 @@ class _AiVideoPanel extends StatelessWidget {
   const _AiVideoPanel({
     required this.noteController,
     this.imageUrl,
+    this.imageAsset,
+    this.videoUrl,
     this.onRegenerateTap,
     this.onEditTap,
   });
 
   final TextEditingController noteController;
   final String? imageUrl;
+  final String? imageAsset;
+  final String? videoUrl;
   final VoidCallback? onRegenerateTap;
   final VoidCallback? onEditTap;
 
@@ -477,7 +491,17 @@ class _AiVideoPanel extends StatelessWidget {
           ),
         ),
         14.height,
-        _AiMediaFrame(imageUrl: imageUrl, height: 280, showVideoControls: true),
+        AiTestVideoPlayer(
+          key: ValueKey(
+            videoUrl?.trim().isNotEmpty == true
+                ? videoUrl!.trim()
+                : AppConstant.aiTestVideoUrl,
+          ),
+          url: (videoUrl?.trim().isNotEmpty ?? false)
+              ? videoUrl!.trim()
+              : AppConstant.aiTestVideoUrl,
+          posterAsset: imageAsset ?? AppIcons.aiPlaceholder,
+        ),
         20.height,
         _OutlinedAiButton(
           label: AppConstant.regenerateVideo,
@@ -492,18 +516,41 @@ class _AiVideoPanel extends StatelessWidget {
 class _AiMediaFrame extends StatelessWidget {
   const _AiMediaFrame({
     this.imageUrl,
+    this.imageAsset,
     this.height = 220,
     this.showVideoControls = false,
   });
 
   final String? imageUrl;
+  final String? imageAsset;
   final double height;
   final bool showVideoControls;
 
   @override
   Widget build(BuildContext context) {
     final url = imageUrl?.trim() ?? '';
-    final hasImage = url.isNotEmpty;
+    final asset = imageAsset?.trim() ?? '';
+    final hasNetwork = url.isNotEmpty;
+    final hasAsset = asset.isNotEmpty;
+
+    Widget media;
+    if (hasNetwork) {
+      media = CachedNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.cover,
+        placeholder: (_, _) =>
+            const ColoredBox(color: AppColors.surfaceElevated),
+        errorWidget: (_, _, _) => hasAsset
+            ? Image.asset(asset, fit: BoxFit.cover)
+            : const ColoredBox(color: AppColors.surfaceElevated),
+      );
+    } else if (hasAsset) {
+      media = Image.asset(asset, fit: BoxFit.cover);
+    } else {
+      media = const Center(
+        child: Icon(AppIcons.autoAwesome, color: AppColors.primary, size: 32),
+      );
+    }
 
     return Container(
       height: height,
@@ -517,25 +564,8 @@ class _AiMediaFrame extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (hasImage)
-            CachedNetworkImage(
-              imageUrl: url,
-              fit: BoxFit.cover,
-              placeholder: (_, _) =>
-                  const ColoredBox(color: AppColors.surfaceElevated),
-              errorWidget: (_, _, _) =>
-                  const ColoredBox(color: AppColors.surfaceElevated),
-            )
-          else
-            const Center(
-              child: Icon(
-                AppIcons.autoAwesome,
-                color: AppColors.primary,
-                size: 32,
-              ),
-            ),
+          media,
           if (showVideoControls) ...[
-            // Dim bottom for control bar readability.
             Positioned(
               left: 0,
               right: 0,

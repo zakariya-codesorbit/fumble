@@ -13,18 +13,45 @@ class ConnectionAiHeroImage extends StatelessWidget {
   const ConnectionAiHeroImage({
     super.key,
     this.imageUrl,
+    this.assetPath = AppIcons.aiPlaceholder,
     this.height = 180,
     this.onTap,
   });
 
   final String? imageUrl;
+  final String? assetPath;
   final double height;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final url = imageUrl?.trim() ?? '';
-    final hasImage = url.isNotEmpty;
+    final asset = assetPath?.trim() ?? '';
+    final hasNetwork = url.isNotEmpty;
+    final hasAsset = asset.isNotEmpty;
+
+    Widget child;
+    if (hasNetwork) {
+      child = CachedNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: height,
+        placeholder: (_, _) => const _AiImagePlaceholder(),
+        errorWidget: (_, _, _) => hasAsset
+            ? Image.asset(asset, fit: BoxFit.cover)
+            : const _AiImagePlaceholder(),
+      );
+    } else if (hasAsset) {
+      child = Image.asset(
+        asset,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: height,
+      );
+    } else {
+      child = const _AiImagePlaceholder();
+    }
 
     return Material(
       color: AppColors.clear,
@@ -41,16 +68,7 @@ class ConnectionAiHeroImage extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14.5),
-            child: hasImage
-                ? CachedNetworkImage(
-                    imageUrl: url,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: height,
-                    placeholder: (_, _) => const _AiImagePlaceholder(),
-                    errorWidget: (_, _, _) => const _AiImagePlaceholder(),
-                  )
-                : const _AiImagePlaceholder(),
+            child: child,
           ),
         ),
       ),

@@ -186,6 +186,10 @@ abstract final class AppConstant {
   static const String editLabel = 'EDIT';
   static const String aiImagePlaceholder = 'Fumble AI image';
   static const String aiComingSoon = 'AI generation is coming soon.';
+
+  /// Temporary media used until real FalAI output is wired.
+  static const String aiTestVideoUrl =
+      'https://github.com/vibeappspro/dummy-data/raw/refs/heads/main/videos/sample-video-portrait-720p.mp4';
   static const List<String> memoryPrompts = [
     'Where did you meet?',
     'What were you doing?',

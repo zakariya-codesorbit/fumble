@@ -5,6 +5,9 @@ class AppIcons {
   static const String iconUser = 'assets/icons/ic_user.png';
   static const String iconWhatsapp = 'assets/icons/ic_whatsapp.png';
 
+  /// Temporary AI image placeholder until real generation is wired.
+  static const String aiPlaceholder = 'assets/images/ai_placeholder.jpg';
+
   static const IconData tabfumble = Icons.circle_outlined;
   static const IconData tabMyfumble = Icons.account_circle_outlined;
   static const IconData tabMyfumbleOutlined = Icons.account_circle_outlined;

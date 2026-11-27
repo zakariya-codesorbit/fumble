@@ -6,6 +6,7 @@ import 'package:fumble/data/models/half_fumble.dart';
 import 'package:fumble/utils/app_assets.dart';
 import 'package:fumble/utils/constant.dart';
 import 'package:fumble/utils/style.dart';
+import 'package:fumble/view/screens/connections_screen/components/connection_ai_memory_banner.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
 import 'package:fumble/view/widgets/layout/profile_avatar.dart';
@@ -19,6 +20,8 @@ class IncomingInvitationTile extends StatelessWidget {
     this.onAccept,
     this.onCancel,
     this.isBusy = false,
+    this.aiImageUrl,
+    this.aiImageAsset = AppIcons.aiPlaceholder,
   });
 
   final HalfFumbleInvitation invitation;
@@ -26,6 +29,8 @@ class IncomingInvitationTile extends StatelessWidget {
   final VoidCallback? onAccept;
   final VoidCallback? onCancel;
   final bool isBusy;
+  final String? aiImageUrl;
+  final String? aiImageAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +53,20 @@ class IncomingInvitationTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: AppColors.border),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          ConnectionAiMemoryBanner(
+            imageUrl: aiImageUrl,
+            assetPath: aiImageAsset,
+          ),
           Material(
             color: Colors.transparent,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             child: InkWell(
               onTap: isBusy ? null : onTap,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(15)),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 14, 12, 0),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -134,17 +141,11 @@ class IncomingInvitationTile extends StatelessWidget {
                       ],
                     ),
                     if (note.isNotEmpty) ...[
-                      12.height,
-                      const Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: AppColors.border,
-                      ),
                       10.height,
                       note.toText(
                         fontSize: 13,
                         fontWeight: AppStyle.w400,
-                        color: AppColors.textTertiary,
+                        color: AppColors.textPrimary,
                         maxLine: 3,
                         overflow: TextOverflow.ellipsis,
                         lineHeight: 1.35,
@@ -158,53 +159,53 @@ class IncomingInvitationTile extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
             child: Row(
-            children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: isBusy ? null : onAccept,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        disabledForegroundColor:
-                            AppColors.primary.withValues(alpha: 0.4),
-                        side: const BorderSide(color: AppColors.border),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: AppConstant.acceptFumble.toText(
-                        fontSize: 12,
-                        fontWeight: AppStyle.w600,
-                        color: isBusy
-                            ? AppColors.primary.withValues(alpha: 0.4)
-                            : AppColors.primary,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: isBusy ? null : onAccept,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      disabledForegroundColor:
+                          AppColors.primary.withValues(alpha: 0.4),
+                      side: const BorderSide(color: AppColors.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ),
-                  8.width,
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: isBusy ? null : onCancel,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        disabledForegroundColor:
-                            AppColors.error.withValues(alpha: 0.4),
-                        side: const BorderSide(color: AppColors.border),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: AppConstant.cancel.toText(
-                        fontSize: 12,
-                        fontWeight: AppStyle.w600,
-                        color: isBusy
-                            ? AppColors.error.withValues(alpha: 0.4)
-                            : AppColors.error,
-                      ),
+                    child: AppConstant.acceptFumble.toText(
+                      fontSize: 12,
+                      fontWeight: AppStyle.w600,
+                      color: isBusy
+                          ? AppColors.primary.withValues(alpha: 0.4)
+                          : AppColors.primary,
                     ),
                   ),
-                ],
-              ),
+                ),
+                8.width,
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: isBusy ? null : onCancel,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      disabledForegroundColor:
+                          AppColors.error.withValues(alpha: 0.4),
+                      side: const BorderSide(color: AppColors.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: AppConstant.cancel.toText(
+                      fontSize: 12,
+                      fontWeight: AppStyle.w600,
+                      color: isBusy
+                          ? AppColors.error.withValues(alpha: 0.4)
+                          : AppColors.error,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );
