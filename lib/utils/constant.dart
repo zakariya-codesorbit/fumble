@@ -208,7 +208,13 @@ abstract final class AppConstant {
   static const String connectionsTitle = 'CONNECTIONS';
   static const String connectionsTabFumbled = 'FUMBLED';
   static const String connectionsTabHalfFumble = 'HALF FUMBLE';
+  static const String connectionsTabWait2Fumble = 'WAIT 2 FUMBLE';
+  static const String connectionsTabFumblePlayground = 'FUMBLE PLAYGROUND';
   static const String connectionsTabAll = 'ALL';
+  static const String wait2FumbleComingSoon =
+      'Wait 2 Fumble is coming soon.';
+  static const String fumblePlaygroundComingSoon =
+      'Fumble Playground is coming soon.';
   static const String connectionsEmptyTitle = 'No fumbles yet';
   static const String connectionsEmptyBody =
       'Fumble someone to save the moment here.';

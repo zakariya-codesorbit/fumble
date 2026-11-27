@@ -18,6 +18,8 @@ import 'package:fumble/view/screens/connections_screen/components/connection_til
 import 'package:fumble/view/screens/connections_screen/components/half_fumble_tile.dart';
 import 'package:fumble/view/screens/connections_screen/components/incoming_invitation_tile.dart';
 import 'package:fumble/view/screens/connections_screen/invitation_accept_screen.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/ai_coins_badge.dart';
+import 'package:fumble/view/screens/my_fumble_screen/components/profile_actions.dart';
 import 'package:fumble/view/widgets/base/base_screen_widget.dart';
 import 'package:fumble/view/widgets/extention/int_extension.dart';
 import 'package:fumble/view/widgets/extention/string_extension.dart';
@@ -28,7 +30,13 @@ import 'package:fumble/view/widgets/feedback/custom_snackbar.dart';
 import 'package:fumble/view/widgets/feedback/no_data_found.dart';
 import 'package:fumble/view/widgets/layout/app_app_bar.dart';
 
-enum _ConnectionsTab { fumbled, halfFumble, all }
+enum _ConnectionsTab {
+  fumbled,
+  halfFumble,
+  wait2Fumble,
+  fumblePlayground,
+  all,
+}
 
 sealed class _ConnectionsRow {
   const _ConnectionsRow();
@@ -238,9 +246,20 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
     final emailVerified = auth.isEmailVerified;
 
+    final aiCoins = profile?.aiCoins ?? 0;
+
     return BaseScreenWidget(
       builder: (context) => ScaffoldContent(
-        appBar: AppAppBar(title: AppConstant.brand, brandTitle: true),
+        appBar: AppAppBar(
+          title: AppConstant.brand,
+          brandTitle: true,
+          actions: [
+            AiCoinsBadge(
+              count: aiCoins,
+              onTap: ProfileActions.showAiImageComingSoon,
+            ),
+          ],
+        ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -293,7 +312,17 @@ class _ConnectionsScreenState extends ConsumerState<ConnectionsScreen>
                 ),
               ),
             Expanded(
-              child: connectionsAsync.when(
+              child: _tab == _ConnectionsTab.wait2Fumble
+                  ? const NoDataFound(
+                      title: AppConstant.connectionsTabWait2Fumble,
+                      subtitle: AppConstant.wait2FumbleComingSoon,
+                    )
+                  : _tab == _ConnectionsTab.fumblePlayground
+                  ? const NoDataFound(
+                      title: AppConstant.connectionsTabFumblePlayground,
+                      subtitle: AppConstant.fumblePlaygroundComingSoon,
+                    )
+                  : connectionsAsync.when(
                 loading: () => const AppLoader(),
                 error: (e, _) => AppErrorState(
                   onRetry: () {
@@ -501,56 +530,95 @@ class _ConnectionsTabs extends StatelessWidget {
   final _ConnectionsTab selected;
   final ValueChanged<_ConnectionsTab> onChanged;
 
+  static const _tabs = <(_ConnectionsTab, String)>[
+    (_ConnectionsTab.fumbled, AppConstant.connectionsTabFumbled),
+    (_ConnectionsTab.halfFumble, AppConstant.connectionsTabHalfFumble),
+    (_ConnectionsTab.wait2Fumble, AppConstant.connectionsTabWait2Fumble),
+    (
+      _ConnectionsTab.fumblePlayground,
+      AppConstant.connectionsTabFumblePlayground,
+    ),
+    (_ConnectionsTab.all, AppConstant.connectionsTabAll),
+  ];
+
+  /// Split multi-word labels onto two lines to match the design.
+  static String _tabLabel(String raw) {
+    switch (raw) {
+      case AppConstant.connectionsTabHalfFumble:
+        return 'HALF\nFUMBLE';
+      case AppConstant.connectionsTabWait2Fumble:
+        return 'WAIT 2\nFUMBLE';
+      case AppConstant.connectionsTabFumblePlayground:
+        return 'FUMBLE\nPLAYGROUND';
+      default:
+        return raw;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const tabs = [
-      (_ConnectionsTab.fumbled, AppConstant.connectionsTabFumbled),
-      (_ConnectionsTab.halfFumble, AppConstant.connectionsTabHalfFumble),
-      (_ConnectionsTab.all, AppConstant.connectionsTabAll),
-    ];
-
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: Row(
-            children: [
-              for (final entry in tabs)
-                Expanded(
-                  child: InkWell(
-                    onTap: () => onChanged(entry.$1),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          child: entry.$2.toText(
-                            fontSize: 12,
-                            fontWeight: AppStyle.w600,
-                            letterSpacing: 0.6,
-                            textAlign: TextAlign.center,
-                            color: selected == entry.$1
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
-                            maxLine: 1,
-                            overflow: TextOverflow.ellipsis,
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < _tabs.length; i++) ...[
+                  if (i > 0)
+                    Container(
+                      width: 1,
+                      margin: EdgeInsets.symmetric(vertical: 10.h),
+                      color: AppColors.navDivider,
+                    ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => onChanged(_tabs[i].$1),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(2.w, 10.h, 2.w, 10.h),
+                            child: SizedBox(
+                              height: 32.h,
+                              child: Center(
+                                child: _tabLabel(_tabs[i].$2).toText(
+                                  fontSize: 9,
+                                  fontWeight: AppStyle.w600,
+                                  letterSpacing: 0.3,
+                                  textAlign: TextAlign.center,
+                                  color: selected == _tabs[i].$1
+                                      ? AppColors.primary
+                                      : AppColors.textSecondary,
+                                  maxLine: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  lineHeight: 1.15,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          height: 2,
-                          width: double.infinity,
-                          color: selected == entry.$1
-                              ? AppColors.primary
-                              : AppColors.clear,
-                        ),
-                      ],
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            height: 2.5,
+                            width: double.infinity,
+                            color: selected == _tabs[i].$1
+                                ? AppColors.primary
+                                : AppColors.clear,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+                ],
+              ],
+            ),
           ),
         ),
-        Container(height: 1, width: double.infinity, color: AppColors.border),
+        Container(
+          height: 1,
+          width: double.infinity,
+          color: AppColors.navDivider,
+        ),
       ],
     );
   }
